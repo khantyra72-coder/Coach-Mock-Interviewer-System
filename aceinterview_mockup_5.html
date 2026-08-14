@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AceInterview — Design Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#0C1A13; --emerald:#0E9E66; --emerald-d:#0A7D50; --forest:#0A6E45; --forest-d:#085736;
+    --mist:#ECF6F1; --mist2:#F4FAF7; --amber:#C77E24; --amber-bg:#FBF2E0;
+    --coral:#DE5346; --coral-bg:#FCEDEB; --canvas:#FAFBFA; --card:#FFFFFF;
+    --line:#E7ECE9; --slate:#5E6C64; --slatel:#8A968F;
+    --shadow:0 1px 2px rgba(12,26,19,.04),0 10px 30px rgba(12,26,19,.05);
+    --shadow-sm:0 1px 2px rgba(12,26,19,.05),0 4px 12px rgba(12,26,19,.04);
+    --r:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--canvas);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,h4,.disp{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.01em}
+  button{font-family:inherit;cursor:pointer;border:none;background:none}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+  .screen{display:none;padding:0 0 70px;animation:f .28s ease}
+  .screen.on{display:block}
+  @keyframes f{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+
+  /* app chrome */
+  .top{background:var(--card);border-bottom:1px solid var(--line)}
+  .top .wrap{display:flex;align-items:center;gap:14px;height:66px}
+  .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(150deg,var(--emerald),#16b877);color:#fff;display:grid;place-items:center;font-family:'Plus Jakarta Sans';font-weight:800;font-size:17px;box-shadow:0 4px 10px rgba(14,158,102,.28);cursor:pointer}
+  .bname{font-family:'Plus Jakarta Sans';font-weight:700;font-size:16px}
+  .tnav{margin-left:auto;display:flex;gap:26px;font-size:14px;color:var(--slate);font-weight:500}
+  .tnav a{cursor:pointer}.tnav a:hover{color:var(--ink)}
+  .who{width:34px;height:34px;border-radius:50%;background:linear-gradient(140deg,#0E9E66,#3fc99a);display:grid;place-items:center;color:#fff;font-weight:600;font-size:13px}
+  .pagepad{padding-top:30px}
+
+  .btn{background:var(--emerald);color:#fff;padding:12px 22px;border-radius:11px;font-weight:600;font-size:14px;display:inline-flex;align-items:center;gap:8px;transition:.16s;box-shadow:0 6px 16px rgba(14,158,102,.22)}
+  .btn:hover{background:var(--emerald-d);transform:translateY(-1px)}
+  .btn.ghost{background:var(--card);color:var(--ink);border:1px solid var(--line);box-shadow:none}
+  .btn.ghost:hover{border-color:var(--emerald);color:var(--emerald-d);transform:none}
+  .btn.sm{padding:9px 15px;font-size:13px;border-radius:10px}
+  .btn.block{width:100%;justify-content:center}
+
+  .eyebrow{font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--emerald);font-weight:700}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-sm)}
+  .muted{color:var(--slate)}
+  .h-title{font-size:30px;font-weight:800;line-height:1.1}
+  .sub{color:var(--slate);margin-top:8px}
+  .pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:5px 11px;border-radius:999px}
+  .pill.g{background:var(--mist);color:var(--forest)}
+  .pill.a{background:var(--amber-bg);color:var(--amber)}
+  .pill.c{background:var(--coral-bg);color:var(--coral)}
+
+  /* ===== LANDING ===== */
+  .hero{display:grid;grid-template-columns:1.08fr .92fr;gap:44px;align-items:center;padding:44px 0 18px}
+  .hero h1{font-size:46px;font-weight:800;line-height:1.05}
+  .hero h1 .em{color:var(--emerald)}
+  .lead{font-size:16px;color:var(--slate);margin:18px 0 26px;max-width:440px}
+  .cta{display:flex;gap:12px}
+  .illus{display:flex;align-items:center;justify-content:center;padding:6px}
+  .illus svg{width:100%;max-width:470px;height:auto}
+  @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+  .fl{animation:floaty 5s ease-in-out infinite}
+  @media (prefers-reduced-motion: reduce){.fl{animation:none}}
+  .grow{margin-top:50px}
+  .grow h2{font-size:26px;font-weight:800;text-align:center}
+  .grow p{text-align:center;color:var(--slate);margin:8px 0 26px}
+  .paths{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .pcard{padding:20px;text-align:left;transition:.16s;cursor:pointer}
+  .pcard:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:#d4e5dd}
+  .pcard .pi{width:44px;height:44px;border-radius:12px;background:var(--mist);display:grid;place-items:center;font-size:21px;margin-bottom:13px}
+  .pcard h3{font-size:15.5px;margin-bottom:5px}.pcard p{font-size:12.5px;color:var(--slate)}
+
+  /* ===== AUTH ===== */
+  .auth{display:flex;align-items:center;justify-content:center;padding:56px 0}
+  .authcard{max-width:410px;width:100%;padding:34px}
+  .authcard h1{font-size:24px;font-weight:800}
+  .flab{display:block;font-size:13px;font-weight:600;margin-top:16px}
+  .inp{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:11px;font-family:inherit;font-size:14px;margin-top:7px}
+  .inp:focus{outline:none;border-color:var(--emerald)}
+  .authlink{text-align:center;font-size:13.5px;color:var(--slate);margin-top:18px}
+  .authlink a{color:var(--emerald-d);font-weight:600;cursor:pointer}
+
+  /* ===== READY (pre-interview) ===== */
+  .ready-hd{text-align:center;margin-bottom:26px}
+  .ready-hd h1{font-size:34px;font-weight:800}
+  .ready-hd p{color:var(--slate);font-size:16px;margin-top:8px}
+  .rdrow{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:18px 0;border-bottom:1px solid var(--line);font-size:15px}
+  .rdrow:last-child{border:none}
+  .rdrow .k{color:var(--slate)}
+  .rdrow .v{font-weight:700;font-family:'Plus Jakarta Sans';text-align:right}
+  .rdtips{background:var(--mist);border:1px solid #d7ece1;border-radius:16px;padding:22px 24px}
+  .rdtips h3{color:var(--forest);font-size:17px;font-weight:800;margin-bottom:14px}
+  .rdtips li{list-style:none;font-size:14.5px;color:#2c5344;margin-bottom:11px}
+  .rdtips li:last-child{margin-bottom:0}
+  .cancel{display:inline-block;color:var(--slate);font-size:14px;cursor:pointer}
+  .cancel:hover{color:var(--ink)}
+
+  /* ===== DASHBOARD ===== */
+  .welcome h1{font-size:34px;font-weight:800}
+  .welcome p{color:var(--slate);margin-top:7px;font-size:15px}
+  .startbtn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:var(--forest);color:#fff;padding:22px;border-radius:16px;font-family:'Plus Jakarta Sans';font-weight:700;font-size:18px;margin:26px 0 4px;box-shadow:0 10px 24px rgba(10,110,69,.25);transition:.16s}
+  .startbtn:hover{background:var(--forest-d);transform:translateY(-1px)}
+  .sec-title{font-size:20px;font-weight:800;margin:32px 0 16px}
+  .rolegrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .rolecard{padding:22px}
+  .rc-top{display:flex;align-items:center;gap:11px;margin-bottom:16px}
+  .rc-emoji{font-size:22px}
+  .rc-name{font-size:18px;font-weight:700;font-family:'Plus Jakarta Sans'}
+  .rc-badge{margin-left:auto;font-size:12px;font-weight:600;padding:5px 11px;border-radius:999px;display:inline-flex;gap:5px;align-items:center}
+  .b-new{background:var(--mist);color:var(--forest)}
+  .b-imp{background:#E5F3EB;color:#1a7a4e}
+  .b-stable{background:var(--amber-bg);color:var(--amber)}
+  .b-dec{background:var(--coral-bg);color:var(--coral)}
+  .rc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+  .rc-stat{background:#F6F8F7;border-radius:12px;padding:13px 10px;text-align:center}
+  .rc-stat.last{background:var(--mist)}
+  .rc-stat .l{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--slate)}
+  .rc-stat .v{font-family:'Plus Jakarta Sans';font-weight:800;font-size:19px;margin-top:4px}
+  .rc-stat.last .v{color:var(--forest)}
+  .rc-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .rc-actions .btn{justify-content:center;padding:11px}
+  .rc-actions .prime{background:var(--forest)}.rc-actions .prime:hover{background:var(--forest-d)}
+
+  /* ===== SELECT ROLE ===== */
+  .search{display:flex;align-items:center;gap:11px;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:14px 18px;margin:22px 0 24px;box-shadow:var(--shadow-sm)}
+  .search input{border:none;outline:none;font-size:15px;width:100%;font-family:inherit;color:var(--ink)}
+  .roles{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .role{padding:18px 20px;display:flex;align-items:center;gap:15px;cursor:pointer;transition:.16s}
+  .role:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:#d4e5dd}
+  .role .ri{width:46px;height:46px;border-radius:12px;background:var(--mist2);display:grid;place-items:center;font-size:23px;flex-shrink:0}
+  .role h4{font-size:16px}.role .rq{font-size:12.5px;color:var(--slate);margin-top:2px}
+  .role .arr{margin-left:auto;color:var(--slatel);font-size:18px}
+
+  /* ===== SETUP ===== */
+  .split{display:grid;grid-template-columns:1fr 316px;gap:22px;align-items:start}
+  .field{margin:22px 0}
+  .field>label{display:block;font-size:13px;font-weight:600;margin-bottom:10px}
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .opt{border:1.5px solid var(--line);border-radius:13px;padding:15px;cursor:pointer;display:flex;gap:12px;align-items:flex-start;transition:.15s;background:#fff}
+  .opt:hover{border-color:#caded4}
+  .opt.sel{border-color:var(--emerald);background:var(--mist2)}
+  .opt .oi{width:38px;height:38px;border-radius:10px;background:var(--mist);display:grid;place-items:center;font-size:18px;flex-shrink:0}
+  .opt h4{font-size:14px}.opt p{font-size:12px;color:var(--slate);margin-top:2px}
+  .opt .tk{margin-left:auto;color:var(--emerald);font-weight:800;opacity:0;font-size:15px}
+  .opt.sel .tk{opacity:1}
+  .co{border:1.5px solid var(--line);border-radius:12px;padding:13px;text-align:center;cursor:pointer;transition:.15s;background:#fff}
+  .co:hover{border-color:#caded4}.co.sel{border-color:var(--emerald);background:var(--mist2)}
+  .co .cl{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;margin:0 auto 8px;color:#fff;font-weight:700;font-family:'Plus Jakarta Sans';font-size:16px}
+  .co h4{font-size:13.5px}.co p{font-size:11px;color:var(--slate);margin-top:1px}
+  .chips{display:flex;flex-wrap:wrap;gap:9px}
+  .chip{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:9px 16px;font-size:13px;color:var(--slate);font-weight:500;cursor:pointer;transition:.14s}
+  .chip:hover{border-color:#caded4}.chip.sel{background:var(--emerald);border-color:var(--emerald);color:#fff}
+  .summary{padding:20px;position:sticky;top:20px}
+  .srow{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .srow:last-of-type{border:none}.srow .k{color:var(--slate)}.srow .v{font-weight:600}
+  .switch{width:42px;height:24px;border-radius:999px;background:var(--emerald);position:relative;cursor:pointer;flex-shrink:0}
+  .switch::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:3px;right:3px}
+
+  /* ===== SESSION ===== */
+  .stop{display:flex;align-items:center;gap:16px;margin-bottom:6px}
+  .prog{flex:1;height:8px;border-radius:999px;background:#E7EEEA;overflow:hidden}
+  .prog i{display:block;height:100%;width:60%;background:var(--emerald);border-radius:999px}
+  .timer{display:flex;align-items:center;gap:7px;font-weight:700;font-size:14px;background:#fff;border:1px solid var(--line);padding:8px 14px;border-radius:11px}
+  .qcard{padding:28px;margin-top:18px}
+  .qhead{display:flex;gap:13px;align-items:flex-start}
+  .qbadge{width:34px;height:34px;border-radius:10px;background:var(--emerald);color:#fff;display:grid;place-items:center;font-weight:700;font-size:14px;flex-shrink:0}
+  .qt{font-size:17.5px;font-weight:600;line-height:1.45}
+  textarea{width:100%;min-height:150px;margin-top:20px;padding:16px;border:1.5px solid var(--line);border-radius:13px;font-family:inherit;font-size:14.5px;resize:vertical}
+  textarea:focus{outline:none;border-color:var(--emerald)}
+  .cc{text-align:right;font-size:12px;color:var(--slate);margin-top:6px}
+  .tips{background:var(--mist2);border:1px solid #d9ebe2;border-radius:13px;padding:15px 17px;margin-top:16px}
+  .tips h5{font-size:11.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--forest);margin-bottom:8px;font-weight:700}
+  .tips li{font-size:13px;color:#3d564c;margin-left:17px;margin-bottom:4px}
+  .sact{display:flex;align-items:center;gap:10px;margin-top:22px}
+  .sact .end{margin-left:auto}
+
+  /* ===== RESULTS ===== */
+  .toast{margin:0 auto 18px;max-width:340px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 18px;display:flex;align-items:center;gap:11px;box-shadow:var(--shadow);font-weight:600;font-size:14px}
+  .toast .dot{width:22px;height:22px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-size:12px}
+  .rhead h1{font-size:30px;font-weight:800}
+  .rmeta{color:var(--slate);font-size:14px;margin-top:5px}
+  .overall{background:var(--mist);border:1px solid #d7ece1;border-radius:20px;padding:34px;text-align:center;margin:20px 0}
+  .overall .lbl{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--forest);font-weight:700}
+  .overall .big{font-family:'Plus Jakarta Sans';font-weight:800;font-size:74px;line-height:1;color:var(--forest);margin:10px 0 6px}
+  .overall .msg{color:var(--forest);font-size:17px}
+  .break{padding:22px;margin-bottom:20px}.break h3{font-size:16px;margin-bottom:16px}
+  .brow{display:grid;grid-template-columns:150px 1fr 44px;align-items:center;gap:14px;margin-bottom:13px}
+  .brow .bl{font-size:13.5px;color:var(--slate)}
+  .btr{height:9px;border-radius:99px;background:#EAF0ED;overflow:hidden}.btr i{display:block;height:100%;border-radius:99px;background:var(--emerald)}
+  .brow .bv{font-size:13px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+  .sw2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px}
+  .sbox{border-radius:16px;padding:20px 22px}
+  .sbox.good{background:var(--mist);border:1px solid #d7ece1}
+  .sbox.imp{background:var(--amber-bg);border:1px solid #efdcb2}
+  .sbox h4{font-size:15px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .sbox.good h4{color:var(--forest)}.sbox.imp h4{color:var(--amber)}
+  .sbox li{list-style:none;font-size:13.5px;margin-bottom:9px;padding-left:16px;position:relative}
+  .sbox.good li{color:#2c5344}.sbox.imp li{color:#7a541c}
+  .sbox li::before{content:'';position:absolute;left:0;top:8px;width:5px;height:5px;border-radius:50%}
+  .sbox.good li::before{background:var(--emerald)}.sbox.imp li::before{background:var(--amber)}
+  .qbq h2{font-size:20px;font-weight:800;margin-bottom:14px}
+  .qitem{margin-bottom:14px;overflow:hidden}
+  .qih{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line)}
+  .qih .qn{color:var(--forest);font-weight:800;font-family:'Plus Jakarta Sans';font-size:14px}
+  .qih .qx{font-size:14.5px;font-weight:600}
+  .qih .qs{margin-left:auto;font-family:'Plus Jakarta Sans';font-weight:700;font-size:14px;background:var(--mist);color:var(--forest);padding:5px 12px;border-radius:999px}
+  .qib{padding:20px}
+  .ans{background:#F5F7F6;border-radius:11px;padding:13px 15px;font-size:13.5px;color:var(--slate);margin-bottom:16px}
+  .sw{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .sw h5{font-size:13.5px;font-weight:700;margin-bottom:9px;display:flex;align-items:center;gap:7px}
+  .sw .st h5{color:var(--forest)}.sw .wk h5{color:var(--coral)}
+  .sw li{list-style:none;font-size:13px;margin-bottom:7px;padding-left:14px;position:relative;color:#41514a}
+  .sw li::before{content:'';position:absolute;left:0;top:7px;width:5px;height:5px;border-radius:50%;background:var(--slatel)}
+  .sug{background:var(--mist2);border:1px solid #dceee5;border-radius:11px;padding:13px 16px;margin-top:16px;font-size:13.5px;color:#2f5546}
+  .sug b{color:var(--forest)}
+  .model{margin-top:16px}.model h5{font-size:13.5px;font-weight:700;margin-bottom:9px}
+  .model li{list-style:none;font-size:13px;margin-bottom:7px;padding-left:15px;position:relative;color:#41514a}
+  .model li::before{content:'';position:absolute;left:0;top:7px;width:5px;height:5px;border-radius:50%;background:var(--emerald)}
+
+  /* ===== PROGRESS REPORT ===== */
+  .pr-title{font-size:30px;font-weight:800;margin-bottom:6px}
+  .pr-card{padding:26px;margin:18px 0}
+  .pr-badge{display:inline-flex;gap:6px;align-items:center;font-size:13px;font-weight:600;padding:6px 13px;border-radius:999px;background:var(--mist);color:var(--forest);margin-bottom:20px}
+  .pr-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .pr-stat{background:#F6F8F7;border-radius:14px;padding:18px 20px}
+  .pr-stat .l{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--slate)}
+  .pr-stat .v{font-family:'Plus Jakarta Sans';font-weight:800;font-size:26px;margin-top:5px}
+  .pr-sec{padding:26px;margin-bottom:18px}.pr-sec h3{font-size:19px;font-weight:800;margin-bottom:18px}
+  .ptbl{width:100%;border-collapse:collapse}
+  .ptbl th{text-align:left;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--slate);font-weight:600;padding:0 0 14px}
+  .ptbl td{padding:15px 0;border-top:1px solid var(--line);font-size:15px}
+  .ptbl td.score{font-weight:700}
+  .up{color:var(--forest);font-weight:700}.down{color:var(--coral);font-weight:700}.firsttag{color:var(--slatel)}
+
+  /* ===== ALL SESSIONS ===== */
+  .assrow{display:flex;align-items:center;gap:16px;padding:20px 22px;margin-bottom:14px}
+  .assrow .date{font-size:16px;font-weight:500}
+  .assrow .sc{font-family:'Plus Jakarta Sans';font-weight:700;font-size:13px;padding:5px 13px;border-radius:999px;background:var(--mist);color:var(--forest)}
+  .assrow .sc.warn{background:var(--amber-bg);color:var(--amber)}
+  .assrow .btn{margin-left:auto}
+
+  /* ===== ADMIN ===== */
+  .ahd{display:flex;align-items:center;margin-bottom:18px}.ahd .btn{margin-left:auto}
+  table.adm{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+  table.adm th,table.adm td{text-align:left;padding:13px 16px;font-size:13.5px;border-bottom:1px solid var(--line)}
+  table.adm th{background:var(--mist2);color:var(--forest);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em}
+  table.adm tr:last-child td{border:none}
+  table.adm td .act{color:var(--emerald);font-weight:600;cursor:pointer;margin-right:12px;font-size:13px}
+  table.adm td .act.del{color:var(--coral)}
+  .fcard{padding:22px;margin-top:18px}.fcard h3{font-size:15px;margin-bottom:8px}
+  select{width:100%;padding:12px 13px;border:1.5px solid var(--line);border-radius:11px;font-family:inherit;font-size:14px;color:var(--ink);background:#fff}
+
+  /* subtle review jumper (delete for production) */
+  .jump{position:fixed;right:16px;bottom:16px;z-index:90;font-size:13px}
+  .jbtn{background:#0B1710;color:#cfe8dd;padding:9px 15px;border-radius:999px;font-weight:600;box-shadow:0 8px 22px rgba(0,0,0,.22);cursor:pointer;opacity:.85}
+  .jbtn:hover{opacity:1}
+  .jmenu{position:absolute;right:0;bottom:48px;background:#0B1710;border-radius:12px;padding:8px;display:none;flex-direction:column;min-width:158px;box-shadow:0 14px 34px rgba(0,0,0,.3)}
+  .jmenu.open{display:flex}
+  .jmenu a{color:#9dc6b5;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px}
+  .jmenu a:hover{background:#16352697;color:#fff}
+  .jmenu .hd{color:#5f8374;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;padding:6px 12px 4px}
+
+  @media(max-width:900px){
+    .hero,.split,.sw2,.sw{grid-template-columns:1fr}
+    .paths,.roles,.rolegrid,.g3,.pr-grid{grid-template-columns:1fr 1fr}
+    .hero h1{font-size:34px}.summary{position:static}
+    .brow{grid-template-columns:110px 1fr 40px}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ LANDING ============ -->
+<section class="screen on" id="landing">
+  <div class="top"><div class="wrap">
+    <div class="logo" onclick="go('landing')">A</div><div class="bname">AceInterview</div>
+    <nav class="tnav"><a>How it works</a></nav>
+    <button class="btn ghost sm" onclick="go('login')">Log in</button>
+    <button class="btn sm" onclick="go('register')">Sign up</button>
+  </div></div>
+
+  <div class="wrap">
+    <div class="hero">
+      <div>
+        <span class="eyebrow">Tech interview prep</span>
+        <h1 style="margin-top:12px">Practice smarter.<br><span class="em">Prepare better.</span></h1>
+        <p class="lead">Realistic mock interviews for real tech roles and companies. Get scored feedback on every answer and watch your progress climb. Create a free account to begin.</p>
+        <div class="cta">
+          <button class="btn" onclick="go('register')">Sign up free →</button>
+          <button class="btn ghost" onclick="go('login')">Log in</button>
+        </div>
+      </div>
+      <div class="illus fl">
+        <svg viewBox="0 0 460 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A mock interview question being answered and scored instantly">
+          <defs><filter id="soft" x="-25%" y="-25%" width="150%" height="150%"><feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#0C1A13" flood-opacity="0.08"/></filter></defs>
+          <ellipse cx="140" cy="135" rx="120" ry="95" fill="#ECF6F1"/>
+          <ellipse cx="345" cy="300" rx="115" ry="92" fill="#F4FAF7"/>
+          <g filter="url(#soft)"><rect x="70" y="92" width="264" height="216" rx="22" fill="#FFFFFF" stroke="#E7ECE9"/></g>
+          <circle cx="92" cy="116" r="4" fill="#0E9E66"/><circle cx="108" cy="116" r="4" fill="#E4B85C"/><circle cx="124" cy="116" r="4" fill="#E08A80"/>
+          <line x1="70" y1="134" x2="334" y2="134" stroke="#EEF2F0" stroke-width="1.5"/>
+          <rect x="90" y="152" width="30" height="30" rx="9" fill="#0E9E66"/>
+          <text x="105" y="173" font-family="Plus Jakarta Sans, sans-serif" font-size="15" font-weight="800" fill="#fff" text-anchor="middle">Q</text>
+          <rect x="130" y="156" width="168" height="9" rx="4.5" fill="#E4EAE7"/><rect x="130" y="172" width="120" height="9" rx="4.5" fill="#EEF2F0"/>
+          <rect x="90" y="198" width="224" height="94" rx="12" fill="#F5F8F6"/>
+          <rect x="104" y="214" width="196" height="8" rx="4" fill="#DBE5DF"/><rect x="104" y="232" width="176" height="8" rx="4" fill="#E2EAE5"/>
+          <rect x="104" y="250" width="150" height="8" rx="4" fill="#E2EAE5"/><rect x="104" y="268" width="96" height="8" rx="4" fill="#E9EFEB"/>
+          <g filter="url(#soft)"><circle cx="366" cy="150" r="52" fill="#FFFFFF" stroke="#E7ECE9"/></g>
+          <circle cx="366" cy="150" r="38" fill="none" stroke="#EAF0ED" stroke-width="9"/>
+          <circle cx="366" cy="150" r="38" fill="none" stroke="#0E9E66" stroke-width="9" stroke-linecap="round" stroke-dasharray="181.5 238.8" transform="rotate(-90 366 150)"/>
+          <text x="366" y="157" font-family="Plus Jakarta Sans, sans-serif" font-size="21" font-weight="800" fill="#0A6E45" text-anchor="middle">76%</text>
+          <circle cx="398" cy="112" r="14" fill="#0E9E66" stroke="#fff" stroke-width="3"/>
+          <path d="M392 112 l4 4 l7 -8" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M84 356 l0 22 l20 -18 z" fill="#0E9E66"/>
+          <g filter="url(#soft)"><rect x="60" y="300" width="104" height="58" rx="18" fill="#0E9E66"/></g>
+          <text x="112" y="339" font-family="Plus Jakarta Sans, sans-serif" font-size="30" font-weight="800" fill="#fff" text-anchor="middle">?</text>
+          <path d="M346 240 l2.5 6 l6 2.5 l-6 2.5 l-2.5 6 l-2.5 -6 l-6 -2.5 l6 -2.5 z" fill="#E4B85C"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="grow">
+      <h2>Where do you want to grow?</h2>
+      <p>Sign up and pick a tech track to get a tailored set of questions.</p>
+      <div class="paths">
+        <div class="card pcard" onclick="go('register')"><div class="pi">💻</div><h3>Software Engineering</h3><p>DSA, coding & core CS fundamentals.</p></div>
+        <div class="card pcard" onclick="go('register')"><div class="pi">🎨</div><h3>Frontend & UI</h3><p>JavaScript, React, CSS, web performance.</p></div>
+        <div class="card pcard" onclick="go('register')"><div class="pi">📊</div><h3>Data & AI</h3><p>ML, statistics, data pipelines & SQL.</p></div>
+        <div class="card pcard" onclick="go('register')"><div class="pi">☁️</div><h3>Cloud & DevOps</h3><p>CI/CD, containers, system design.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REGISTER ============ -->
+<section class="screen" id="register">
+  <div class="top"><div class="wrap">
+    <div class="logo" onclick="go('landing')">A</div><div class="bname">AceInterview</div>
+    <button class="btn ghost sm" style="margin-left:auto" onclick="go('landing')">← Home</button>
+  </div></div>
+  <div class="wrap"><div class="auth"><div class="card authcard">
+    <span class="eyebrow">Get started</span>
+    <h1 style="margin-top:8px">Create your account</h1>
+    <p class="sub muted" style="margin-top:6px">Start practicing tech interviews in minutes.</p>
+    <label class="flab">Full name</label><input class="inp" type="text" placeholder="John Doe" />
+    <label class="flab">Email</label><input class="inp" type="email" placeholder="you@example.com" />
+    <label class="flab">Password</label><input class="inp" type="password" placeholder="Create a password" />
+    <button class="btn block" style="margin-top:22px" onclick="go('login')">Create account</button>
+    <p class="authlink">Already have an account? <a onclick="go('login')">Log in</a></p>
+  </div></div></div>
+</section>
+
+<!-- ============ LOGIN ============ -->
+<section class="screen" id="login">
+  <div class="top"><div class="wrap">
+    <div class="logo" onclick="go('landing')">A</div><div class="bname">AceInterview</div>
+    <button class="btn ghost sm" style="margin-left:auto" onclick="go('landing')">← Home</button>
+  </div></div>
+  <div class="wrap"><div class="auth"><div class="card authcard">
+    <span class="eyebrow">Welcome back</span>
+    <h1 style="margin-top:8px">Log in to AceInterview</h1>
+    <p class="sub muted" style="margin-top:6px">Pick up your practice where you left off.</p>
+    <label class="flab">Email</label><input class="inp" type="email" placeholder="you@example.com" />
+    <label class="flab">Password</label><input class="inp" type="password" placeholder="••••••••" />
+    <button class="btn block" style="margin-top:22px" onclick="go('dash')">Log in</button>
+    <p class="authlink">New here? <a onclick="go('register')">Create an account</a></p>
+  </div></div></div>
+</section>
+
+<!-- ============ DASHBOARD (home) ============ -->
+<section class="screen" id="dash">
+  <div class="top"><div class="wrap">
+    <div class="logo" onclick="go('dash')">A</div><div class="bname">AceInterview</div>
+    <nav class="tnav"><a onclick="go('allsessions')">My Sessions</a><a>Settings</a><a onclick="go('landing')">Logout</a></nav>
+    <div class="who">JD</div>
+  </div></div>
+
+  <div class="wrap pagepad">
+    <div class="welcome">
+      <h1>Welcome back, John! 👋</h1>
+      <p>Ready to improve your interview skills today?</p>
+    </div>
+    <button class="startbtn" onclick="go('role')">Start new interview</button>
+
+    <div class="sec-title">Your practiced job roles</div>
+    <div class="rolegrid">
+      <div class="card rolecard">
+        <div class="rc-top"><span class="rc-emoji">💻</span><span class="rc-name">Software Engineer</span><span class="rc-badge b-imp">📈 Improving</span></div>
+        <div class="rc-stats">
+          <div class="rc-stat"><div class="l">Interviews</div><div class="v">5</div></div>
+          <div class="rc-stat"><div class="l">Average</div><div class="v">69%</div></div>
+          <div class="rc-stat last"><div class="l">Last</div><div class="v">82%</div></div>
+        </div>
+        <div class="rc-actions"><button class="btn prime" onclick="go('setup')">Practice</button><button class="btn ghost" onclick="go('progress')">Details</button></div>
+      </div>
+
+      <div class="card rolecard">
+        <div class="rc-top"><span class="rc-emoji">🎨</span><span class="rc-name">Frontend Developer</span><span class="rc-badge b-new">✨ New</span></div>
+        <div class="rc-stats">
+          <div class="rc-stat"><div class="l">Interviews</div><div class="v">1</div></div>
+          <div class="rc-stat"><div class="l">Average</div><div class="v">76%</div></div>
+          <div class="rc-stat last"><div class="l">Last</div><div class="v">76%</div></div>
+        </div>
+        <div class="rc-actions"><button class="btn prime" onclick="go('setup')">Practice</button><button class="btn ghost" onclick="go('progress')">Details</button></div>
+      </div>
+
+      <div class="card rolecard">
+        <div class="rc-top"><span class="rc-emoji">⚙️</span><span class="rc-name">Backend Developer</span><span class="rc-badge b-stable">➡️ Stable</span></div>
+        <div class="rc-stats">
+          <div class="rc-stat"><div class="l">Interviews</div><div class="v">3</div></div>
+          <div class="rc-stat"><div class="l">Average</div><div class="v">70%</div></div>
+          <div class="rc-stat last"><div class="l">Last</div><div class="v">71%</div></div>
+        </div>
+        <div class="rc-actions"><button class="btn prime" onclick="go('setup')">Practice</button><button class="btn ghost" onclick="go('progress')">Details</button></div>
+      </div>
+
+      <div class="card rolecard">
+        <div class="rc-top"><span class="rc-emoji">📊</span><span class="rc-name">Data Scientist</span><span class="rc-badge b-dec">📉 Declining</span></div>
+        <div class="rc-stats">
+          <div class="rc-stat"><div class="l">Interviews</div><div class="v">2</div></div>
+          <div class="rc-stat"><div class="l">Average</div><div class="v">58%</div></div>
+          <div class="rc-stat last"><div class="l">Last</div><div class="v">50%</div></div>
+        </div>
+        <div class="rc-actions"><button class="btn prime" onclick="go('setup')">Practice</button><button class="btn ghost" onclick="go('progress')">Details</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SELECT ROLE ============ -->
+<section class="screen" id="role">
+  <div class="top"><div class="wrap">
+    <div class="logo" onclick="go('dash')">A</div><div class="bname">AceInterview</div>
+    <nav class="tnav"><a onclick="go('allsessions')">My Sessions</a><a>Settings</a><a onclick="go('landing')">Logout</a></nav>
+    <div class="who">JD</div>
+  </div></div>
+  <div class="wrap pagepad">
+    <h1 class="h-title">Select your role</h1>
+    <p class="sub">Choose the tech role you want to practice for.</p>
+    <div class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8A968F" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input placeholder="Search tech roles…" />
+    </div>
+    <div class="roles">
+      <div class="card role" onclick="go('setup')"><div class="ri">💻</div><div><h4>Software Engineer</h4><div class="rq">12 questions available</div></div><span class="arr">›</span></div>
+      <div class="card role" onclick="go('setup')"><div class="ri">🎨</div><div><h4>Frontend Developer</h4><div class="rq">10 questions available</div></div><span class="arr">›</span></div>
+      <div class="card role" onclick="go('setup')"><div class="ri">⚙️</div><div><h4>Backend Developer</h4><div class="rq">11 questions available</div></div><span class="arr">›</span></div>
+      <div class="card role" onclick="go('setup')"><div class="ri">🧩</div><div><h4>Full-Stack Developer</h4><div class="rq">14 questions available</div></div><span class="arr">›</span></div>
+      <div class="card role" onclick="go('setup')"><div class="ri">📊</div><div><h4>Data Scientist</h4><div class="rq">9 questions available</div></div><span class="arr">›</span></div>
+      <div class="card role" onclick="go('setup')"><div class="ri">🤖</div><div><h4>ML / AI Engineer</h4><div class="rq">13 questions available</div></div><span class="arr">›</span></div>
+      <div class="card role" onclick="go('setup')"><div class="ri">☁️</div><div><h4>Cloud / DevOps Engineer</h4><div class="rq">8 questions available</div></div><span class="arr">›</span></div>
+      <div class="card role" onclick="go('setup')"><div class="ri">📱</div><div><h4>Mobile Developer</h4><div class="rq">10 questions available</div></div><span class="arr">›</span></div>
+      <div class="card role" onclick="go('setup')"><div class="ri">🔐</div><div><h4>Cybersecurity Analyst</h4><div class="rq">8 questions available</div></div><span class="arr">›</span></div>
+      <div class="card role" onclick="go('setup')"><div class="ri">🧪</div><div><h4>QA / Test Engineer</h4><div class="rq">7 questions available</div></div><span class="arr">›</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SETUP ============ -->
+<section class="screen" id="setup">
+  <div class="top"><div class="wrap">
+    <div class="logo" onclick="go('dash')">A</div><div class="bname">AceInterview</div>
+    <nav class="tnav"><a onclick="go('allsessions')">My Sessions</a><a>Settings</a><a onclick="go('landing')">Logout</a></nav>
+    <div class="who">JD</div>
+  </div></div>
+  <div class="wrap pagepad">
+    <span class="eyebrow">Interview setup</span>
+    <h1 class="h-title" style="margin-top:8px">Set up your interview</h1>
+    <p class="sub">Pick the company and format you're targeting.</p>
+    <div style="margin-top:8px;max-width:720px">
+        <div class="field">
+          <label>Interview type</label>
+          <div class="g3">
+            <div class="opt sel" onclick="pick(this)"><div class="oi">💻</div><div><h4>Technical</h4><p>Coding & CS</p></div><div class="tk">✓</div></div>
+            <div class="opt" onclick="pick(this)"><div class="oi">🤝</div><div><h4>Behavioral</h4><p>STAR method</p></div><div class="tk">✓</div></div>
+            <div class="opt" onclick="pick(this)"><div class="oi">🏗️</div><div><h4>System Design</h4><p>Architecture</p></div><div class="tk">✓</div></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Target company <span class="muted" style="font-weight:400">— questions in that company's style</span></label>
+          <div class="g3">
+            <div class="co sel" onclick="pick(this)"><div class="cl" style="background:#4285F4">G</div><h4>Google</h4><p>14 questions</p></div>
+            <div class="co" onclick="pick(this)"><div class="cl" style="background:#FF9900">a</div><h4>Amazon</h4><p>12 questions</p></div>
+            <div class="co" onclick="pick(this)"><div class="cl" style="background:#00A4EF">M</div><h4>Microsoft</h4><p>11 questions</p></div>
+            <div class="co" onclick="pick(this)"><div class="cl" style="background:#0866FF">f</div><h4>Meta</h4><p>10 questions</p></div>
+            <div class="co" onclick="pick(this)"><div class="cl" style="background:#111">▲</div><h4>Apple</h4><p>9 questions</p></div>
+            <div class="co" onclick="pick(this)"><div class="cl" style="background:#E50914">N</div><h4>Netflix</h4><p>8 questions</p></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Experience level</label>
+          <div class="chips">
+            <div class="chip" onclick="one(this)">Intern</div><div class="chip sel" onclick="one(this)">Entry (0–2 yrs)</div>
+            <div class="chip" onclick="one(this)">Mid (3–5 yrs)</div><div class="chip" onclick="one(this)">Senior</div>
+          </div>
+        </div>
+        <div class="g2">
+          <div class="field"><label>Difficulty</label><div class="chips"><div class="chip" onclick="one(this)">Easy</div><div class="chip sel" onclick="one(this)">Medium</div><div class="chip" onclick="one(this)">Hard</div></div></div>
+          <div class="field"><label>Questions</label><div class="chips"><div class="chip sel" onclick="one(this)">5</div><div class="chip" onclick="one(this)">10</div><div class="chip" onclick="one(this)">15</div></div></div>
+        </div>
+        <div class="field">
+          <label>Topics to focus on</label>
+          <div class="chips">
+            <div class="chip sel" onclick="tog(this)">Data Structures</div><div class="chip sel" onclick="tog(this)">Algorithms</div>
+            <div class="chip" onclick="tog(this)">System Design</div><div class="chip" onclick="tog(this)">Databases</div>
+            <div class="chip" onclick="tog(this)">APIs</div><div class="chip" onclick="tog(this)">Behavioral</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Timer</label>
+          <div class="opt" style="cursor:default"><div class="oi">⏱️</div><div><h4>Timed session</h4><p>45 minutes total · shows a countdown during the interview</p></div><div class="switch" style="margin-left:auto;align-self:center"></div></div>
+        </div>
+      <button class="btn" style="margin-top:8px" onclick="go('ready')">Continue to review →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ READY (pre-interview) ============ -->
+<section class="screen" id="ready">
+  <div class="top"><div class="wrap">
+    <div class="logo" onclick="go('dash')">A</div><div class="bname">AceInterview</div>
+    <nav class="tnav"><a onclick="go('allsessions')">My Sessions</a><a>Settings</a><a onclick="go('landing')">Logout</a></nav>
+    <div class="who">JD</div>
+  </div></div>
+  <div class="wrap pagepad" style="max-width:720px">
+    <div class="ready-hd">
+      <h1>You're ready, John! 💪</h1>
+      <p>Take a deep breath. This is a safe space to practice.</p>
+    </div>
+
+    <div class="card" style="padding:6px 24px;margin-bottom:18px">
+      <div class="rdrow"><span class="k">You are interviewing for</span><span class="v">Software Engineer</span></div>
+      <div class="rdrow"><span class="k">Company</span><span class="v">Google</span></div>
+      <div class="rdrow"><span class="k">Interviewer</span><span class="v">Sarah, Engineering Manager</span></div>
+      <div class="rdrow"><span class="k">Session</span><span class="v">5 questions · ~45 minutes</span></div>
+    </div>
+
+    <div class="rdtips">
+      <h3>A few gentle tips</h3>
+      <ul>
+        <li>✅ Read each question carefully</li>
+        <li>✅ Answer in full sentences</li>
+        <li>✅ Use examples when possible</li>
+        <li>✅ Don't worry about being perfect — focus on learning</li>
+      </ul>
+    </div>
+
+    <button class="startbtn" style="margin-top:22px" onclick="go('session')">Begin interview</button>
+    <div style="text-align:center;margin-top:14px"><span class="cancel" onclick="go('setup')">Cancel and go back</span></div>
+  </div>
+</section>
+
+<!-- ============ SESSION ============ -->
+<section class="screen" id="session">
+  <div class="top"><div class="wrap">
+    <div class="logo" onclick="go('dash')">A</div><div class="bname" style="font-size:15px">Mock interview<br><span class="muted" style="font-weight:400;font-size:12px">Software Engineer · Google</span></div>
+    <button class="btn ghost sm" style="margin-left:auto" onclick="go('dash')">Leave session</button>
+  </div></div>
+  <div class="wrap pagepad" style="max-width:800px">
+    <div class="stop">
+      <span style="font-weight:700;font-size:14px">Question 3 of 5</span>
+      <div class="prog"><i></i></div>
+      <div class="timer">⏱️ 32:14</div>
+    </div>
+    <p class="muted" style="font-size:13px">2 questions left</p>
+    <div class="card qcard">
+      <div class="qhead"><div class="qbadge">3</div><div><span class="pill g" style="margin-bottom:9px">Technical</span><div class="qt">Explain how you would design a rate limiter for a public API. What data structure and trade-offs would you consider?</div></div></div>
+      <textarea placeholder="Type your answer here. Structure your thinking and give concrete examples…"></textarea>
+      <div class="cc">0 / 2000 characters</div>
+      <div class="tips"><h5>Tips for a strong answer</h5><ul><li>State your assumptions and requirements first.</li><li>Compare at least two approaches and their trade-offs.</li><li>Mention scale, edge cases, and how you'd test it.</li></ul></div>
+      <div class="sact"><button class="btn ghost sm">← Previous</button><button class="btn ghost sm">🔖 Mark for review</button><button class="btn end" onclick="go('results')">Next question →</button></div>
+    </div>
+    <div class="card" style="margin-top:16px;padding:15px 20px;display:flex;align-items:center;gap:12px">
+      <span class="muted" style="font-size:13px">You've answered 2 of 5 questions.</span>
+      <button class="btn sm" style="margin-left:auto" onclick="go('results')">End & calculate score</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RESULTS ============ -->
+<section class="screen" id="results">
+  <div class="top"><div class="wrap">
+    <div class="logo" onclick="go('dash')">A</div><div class="bname">AceInterview</div>
+    <nav class="tnav"><a onclick="go('allsessions')">My Sessions</a><a>Settings</a><a onclick="go('landing')">Logout</a></nav>
+    <div class="who">JD</div>
+  </div></div>
+  <div class="wrap pagepad">
+    <div class="toast"><span class="dot">✓</span> Session completed 🎉</div>
+    <div class="rhead"><h1>Interview results</h1><div class="rmeta">Software Engineer · Google · Aug 13, 2026 · 5/5 answered</div></div>
+    <div class="overall"><div class="lbl">Your overall score</div><div class="big">76%</div><div class="msg">Good effort, John! You're improving steadily.</div></div>
+    <div class="card break">
+      <h3>Score breakdown</h3>
+      <div class="brow"><span class="bl">Communication</span><span class="btr"><i style="width:82%"></i></span><span class="bv">82%</span></div>
+      <div class="brow"><span class="bl">Technical depth</span><span class="btr"><i style="width:68%"></i></span><span class="bv">68%</span></div>
+      <div class="brow"><span class="bl">Problem solving</span><span class="btr"><i style="width:74%"></i></span><span class="bv">74%</span></div>
+      <div class="brow"><span class="bl">Structure & clarity</span><span class="btr"><i style="width:80%"></i></span><span class="bv">80%</span></div>
+    </div>
+    <div class="sw2">
+      <div class="sbox good"><h4>💚 Top strengths</h4><ul><li>Clear introduction</li><li>Used relevant examples</li><li>Stayed calm and structured throughout</li></ul></div>
+      <div class="sbox imp"><h4>🌱 Top areas to improve</h4><ul><li>Add more specific detail in technical answers</li><li>End answers with a clear conclusion</li><li>Reduce filler words</li></ul></div>
+    </div>
+    <div class="qbq">
+      <h2>Question by question</h2>
+      <div class="card qitem"><div class="qih"><span class="qn">Q1</span><span class="qx">Tell me about yourself and why you're interested in this role.</span><span class="qs">75%</span></div>
+        <div class="qib"><div class="ans">"I'm a final-year CS student who enjoys building web apps. I've worked on a few academic projects and I'm interested in this role because…"</div>
+          <div class="sw"><div class="st"><h5>✅ Strengths</h5><ul><li>Good personal intro</li><li>Showed enthusiasm</li></ul></div><div class="wk"><h5>❌ Weaknesses</h5><ul><li>Didn't connect skills to the role</li><li>No specific examples</li></ul></div></div>
+          <div class="sug">💡 <b>Suggestion:</b> Mention 1–2 specific projects or achievements relevant to the role.</div>
+          <div class="model"><h5>📝 Model answer summary</h5><ul><li>A one-line summary of who you are professionally</li><li>Two relevant achievements with context</li><li>Why this role and company specifically</li><li>A short, confident closing line</li></ul></div>
+        </div>
+      </div>
+      <div class="card qitem"><div class="qih"><span class="qn">Q2</span><span class="qx">Explain the difference between an array and a linked list.</span><span class="qs" style="background:var(--amber-bg);color:var(--amber)">62%</span></div>
+        <div class="qib"><div class="ans">"An array stores items together and a linked list uses nodes with pointers, so insertion is different…"</div>
+          <div class="sw"><div class="st"><h5>✅ Strengths</h5><ul><li>Correct core concept</li><li>Mentioned insertion cost</li></ul></div><div class="wk"><h5>❌ Weaknesses</h5><ul><li>Missed time-complexity detail</li><li>No trade-off / when-to-use</li></ul></div></div>
+          <div class="sug">💡 <b>Suggestion:</b> State Big-O for access vs insertion, and give one real use case for each.</div>
+          <div class="model"><h5>📝 Model answer summary</h5><ul><li>Array: contiguous memory, O(1) random access, costly inserts</li><li>Linked list: dynamic size, O(1) inserts at known nodes, O(n) traversal</li><li>One sentence on when to prefer each</li></ul></div>
+        </div>
+      </div>
+      <div class="card qitem"><div class="qih"><span class="qn">Q3</span><span class="qx">What's the difference between a process and a thread?</span><span class="qs">81%</span></div>
+        <div class="qib"><div class="ans">"A process is a running program with its own memory, and threads run inside a process and share its memory, so threads are lighter to create…"</div>
+          <div class="sw"><div class="st"><h5>✅ Strengths</h5><ul><li>Correct core definitions</li><li>Noted shared vs isolated memory</li></ul></div><div class="wk"><h5>❌ Weaknesses</h5><ul><li>Didn't mention context-switching cost</li><li>No real-world example</li></ul></div></div>
+          <div class="sug">💡 <b>Suggestion:</b> Add a concrete example — browser tabs as processes, workers as threads.</div>
+          <div class="model"><h5>📝 Model answer summary</h5><ul><li>Process: isolated memory, heavier, safer</li><li>Thread: shares process memory, lighter, faster to switch</li><li>When to use each + one trade-off</li></ul></div>
+        </div>
+      </div>
+      <div class="card qitem"><div class="qih"><span class="qn">Q4</span><span class="qx">How does a hash map handle collisions?</span><span class="qs" style="background:var(--amber-bg);color:var(--amber)">70%</span></div>
+        <div class="qib"><div class="ans">"When two keys land in the same bucket you can use chaining with a linked list to store both values…"</div>
+          <div class="sw"><div class="st"><h5>✅ Strengths</h5><ul><li>Explained chaining correctly</li><li>Understood the bucket concept</li></ul></div><div class="wk"><h5>❌ Weaknesses</h5><ul><li>Missed open addressing / probing</li><li>No mention of load factor or resizing</li></ul></div></div>
+          <div class="sug">💡 <b>Suggestion:</b> Contrast chaining vs open addressing, and mention resizing at high load factor.</div>
+          <div class="model"><h5>📝 Model answer summary</h5><ul><li>Collision = two keys map to one bucket</li><li>Handle via chaining or open addressing (probing)</li><li>Load factor triggers resize / rehash</li></ul></div>
+        </div>
+      </div>
+      <div class="card qitem"><div class="qih"><span class="qn">Q5</span><span class="qx">Describe a challenging bug you fixed and how you approached it.</span><span class="qs">84%</span></div>
+        <div class="qib"><div class="ans">"In a group project our app crashed on login. I reproduced it, traced it to a null value from the API, added a check, and crash reports dropped to zero…"</div>
+          <div class="sw"><div class="st"><h5>✅ Strengths</h5><ul><li>Clear STAR structure</li><li>Quantified the impact</li></ul></div><div class="wk"><h5>❌ Weaknesses</h5><ul><li>Setup ran a little long</li><li>Could name the debugging tools used</li></ul></div></div>
+          <div class="sug">💡 <b>Suggestion:</b> Tighten the situation to one sentence so more time goes to actions and results.</div>
+          <div class="model"><h5>📝 Model answer summary</h5><ul><li>Situation & task in one line each</li><li>Specific actions taken to diagnose</li><li>Measurable result + what you learned</li></ul></div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;margin-top:8px">
+      <button class="btn" onclick="go('setup')">Practice again →</button>
+      <button class="btn ghost">⬇ Download PDF</button>
+      <button class="btn ghost" onclick="go('dash')">Back to dashboard</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROGRESS REPORT (Details pop-out) ============ -->
+<section class="screen" id="progress">
+  <div class="top"><div class="wrap">
+    <div class="logo" onclick="go('dash')">A</div><div class="bname">AceInterview</div>
+    <nav class="tnav"><a onclick="go('allsessions')">My Sessions</a><a>Settings</a><a onclick="go('landing')">Logout</a></nav>
+    <div class="who">JD</div>
+  </div></div>
+  <div class="wrap pagepad">
+    <button class="btn ghost sm" style="margin-bottom:16px" onclick="go('dash')">← Back to dashboard</button>
+    <h1 class="pr-title">Software Engineer — Progress Report</h1>
+
+    <div class="card pr-card">
+      <span class="pr-badge">📈 Improving</span>
+      <div class="pr-grid">
+        <div class="pr-stat"><div class="l">Interviews</div><div class="v">5</div></div>
+        <div class="pr-stat"><div class="l">Average score</div><div class="v">69%</div></div>
+        <div class="pr-stat"><div class="l">First score</div><div class="v">55%</div></div>
+        <div class="pr-stat"><div class="l">Last score</div><div class="v">82%</div></div>
+        <div class="pr-stat"><div class="l">Best score</div><div class="v">82%</div></div>
+        <div class="pr-stat"><div class="l">Improvement</div><div class="v" style="color:var(--forest)">+27%</div></div>
+      </div>
+    </div>
+
+    <div class="card pr-sec">
+      <h3>Score trend</h3>
+      <svg viewBox="0 0 700 250" style="width:100%;height:auto" role="img" aria-label="Score trend rising from 55% to 82% across five sessions">
+        <!-- gridlines + y labels -->
+        <g stroke="#EEF2F0" stroke-width="1" stroke-dasharray="4 5">
+          <line x1="48" y1="20" x2="688" y2="20"/><line x1="48" y1="67.5" x2="688" y2="67.5"/>
+          <line x1="48" y1="115" x2="688" y2="115"/><line x1="48" y1="162.5" x2="688" y2="162.5"/><line x1="48" y1="210" x2="688" y2="210"/>
+        </g>
+        <g font-family="Inter, sans-serif" font-size="11" fill="#8A968F" text-anchor="end">
+          <text x="38" y="24">100</text><text x="38" y="71.5">75</text><text x="38" y="119">50</text><text x="38" y="166.5">25</text><text x="38" y="214">0</text>
+        </g>
+        <!-- area + line -->
+        <path d="M48 105.5 L206 92.2 L364 77 L522 61.8 L680 54.2 L680 210 L48 210 Z" fill="#ECF6F1"/>
+        <polyline points="48,105.5 206,92.2 364,77 522,61.8 680,54.2" fill="none" stroke="#0A6E45" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <g fill="#0A6E45"><circle cx="48" cy="105.5" r="5"/><circle cx="206" cy="92.2" r="5"/><circle cx="364" cy="77" r="5"/><circle cx="522" cy="61.8" r="5"/><circle cx="680" cy="54.2" r="5"/></g>
+        <!-- x labels -->
+        <g font-family="Inter, sans-serif" font-size="11" fill="#8A968F" text-anchor="middle">
+          <text x="48" y="232">S1</text><text x="206" y="232">S2</text><text x="364" y="232">S3</text><text x="522" y="232">S4</text><text x="680" y="232">S5</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="card pr-sec">
+      <h3>Session history</h3>
+      <table class="ptbl">
+        <thead><tr><th>Date</th><th>Score</th><th>Change</th></tr></thead>
+        <tbody>
+          <tr><td>Aug 12, 2026</td><td class="score">82%</td><td class="up">+4% ↑</td></tr>
+          <tr><td>Aug 08, 2026</td><td class="score">78%</td><td class="up">+8% ↑</td></tr>
+          <tr><td>Aug 05, 2026</td><td class="score">70%</td><td class="up">+8% ↑</td></tr>
+          <tr><td>Aug 01, 2026</td><td class="score">62%</td><td class="up">+7% ↑</td></tr>
+          <tr><td>Jul 28, 2026</td><td class="score">55%</td><td class="firsttag">— first session</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card pr-sec">
+      <h3>Skill progress</h3>
+      <table class="ptbl">
+        <thead><tr><th>Skill</th><th>First</th><th>Last</th><th>Change</th></tr></thead>
+        <tbody>
+          <tr><td>Structure</td><td>40%</td><td>75%</td><td class="up">+35% ↑</td></tr>
+          <tr><td>Content</td><td>55%</td><td>70%</td><td class="up">+15% ↑</td></tr>
+          <tr><td>Relevance</td><td>60%</td><td>65%</td><td class="up">+5% ↑</td></tr>
+          <tr><td>Language</td><td>65%</td><td>62%</td><td class="down">−3% ↓</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ALL SESSIONS (My Sessions) ============ -->
+<section class="screen" id="allsessions">
+  <div class="top"><div class="wrap">
+    <div class="logo" onclick="go('dash')">A</div><div class="bname">AceInterview</div>
+    <nav class="tnav"><a onclick="go('allsessions')">My Sessions</a><a>Settings</a><a onclick="go('landing')">Logout</a></nav>
+    <div class="who">JD</div>
+  </div></div>
+  <div class="wrap pagepad">
+    <h1 class="h-title" style="margin-bottom:20px">All sessions</h1>
+    <div class="card assrow"><span class="date">Aug 12, 2026</span><span class="sc">82%</span><button class="btn ghost sm" onclick="go('results')">View results</button></div>
+    <div class="card assrow"><span class="date">Aug 08, 2026</span><span class="sc">78%</span><button class="btn ghost sm" onclick="go('results')">View results</button></div>
+    <div class="card assrow"><span class="date">Aug 05, 2026</span><span class="sc">70%</span><button class="btn ghost sm" onclick="go('results')">View results</button></div>
+    <div class="card assrow"><span class="date">Aug 01, 2026</span><span class="sc">62%</span><button class="btn ghost sm" onclick="go('results')">View results</button></div>
+    <div class="card assrow"><span class="date">Jul 28, 2026</span><span class="sc warn">55%</span><button class="btn ghost sm" onclick="go('results')">View results</button></div>
+  </div>
+</section>
+
+<!-- ============ ADMIN ============ -->
+<section class="screen" id="admin">
+  <div class="top"><div class="wrap">
+    <div class="logo" onclick="go('dash')">A</div><div class="bname" style="font-size:15px">Admin panel<br><span class="muted" style="font-weight:400;font-size:12px">Manage questions</span></div>
+    <nav class="tnav" style="margin-left:auto"><a>Users</a><a>Companies</a><a>Questions</a><a onclick="go('landing')">Logout</a></nav>
+    <div class="who" style="background:linear-gradient(140deg,#C77E24,#e0a758)">AD</div>
+  </div></div>
+  <div class="wrap pagepad">
+    <div class="ahd"><div><span class="eyebrow">Content</span><h1 class="h-title" style="margin-top:6px">Interview questions</h1></div><button class="btn">+ Add question</button></div>
+    <table class="adm">
+      <thead><tr><th>ID</th><th>Question</th><th>Role</th><th>Company</th><th>Difficulty</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr><td>#021</td><td>Design a rate limiter for a public API.</td><td>Software Engineer</td><td>Google</td><td><span class="pill c">Hard</span></td><td><span class="act">Edit</span><span class="act del">Delete</span></td></tr>
+        <tr><td>#022</td><td>Array vs linked list — trade-offs?</td><td>Backend</td><td>Amazon</td><td><span class="pill g">Easy</span></td><td><span class="act">Edit</span><span class="act del">Delete</span></td></tr>
+        <tr><td>#023</td><td>Explain the React rendering lifecycle.</td><td>Frontend</td><td>Meta</td><td><span class="pill a">Medium</span></td><td><span class="act">Edit</span><span class="act del">Delete</span></td></tr>
+        <tr><td>#024</td><td>Tell me about yourself.</td><td>Any</td><td>All</td><td><span class="pill g">Easy</span></td><td><span class="act">Edit</span><span class="act del">Delete</span></td></tr>
+      </tbody>
+    </table>
+    <div class="card fcard">
+      <span class="eyebrow">New question</span>
+      <h3 class="disp" style="margin-top:6px">Add a question</h3>
+      <div class="field" style="margin:16px 0 0"><label>Question text</label><textarea style="min-height:64px;margin-top:0">Design a rate limiter for a public API.</textarea></div>
+      <div class="field"><label>Model answer keywords (used for scoring)</label><textarea style="min-height:52px;margin-top:0" placeholder="token bucket, sliding window, Redis, throttling…"></textarea></div>
+      <div class="g3">
+        <div class="field" style="margin:0"><label>Role</label><select><option>Software Engineer</option><option>Frontend</option><option>Backend</option><option>Data Scientist</option></select></div>
+        <div class="field" style="margin:0"><label>Company</label><select><option>Google</option><option>Amazon</option><option>Microsoft</option><option>Meta</option><option>All</option></select></div>
+        <div class="field" style="margin:0"><label>Difficulty</label><select><option>Easy</option><option>Medium</option><option>Hard</option></select></div>
+      </div>
+      <div style="margin-top:18px;display:flex;gap:10px"><button class="btn">Save question</button><button class="btn ghost">Cancel</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- subtle review jumper — delete this whole block for production -->
+<div class="jump">
+  <button class="jbtn" onclick="tj()">⌗ Screens</button>
+  <div class="jmenu" id="jmenu">
+    <div class="hd">Flow</div>
+    <a onclick="go('landing')">Landing</a><a onclick="go('register')">Register</a><a onclick="go('login')">Login</a>
+    <a onclick="go('dash')">Dashboard</a><a onclick="go('role')">Select Role</a><a onclick="go('setup')">Setup</a>
+    <a onclick="go('ready')">Ready</a><a onclick="go('session')">Session</a><a onclick="go('results')">Results</a>
+    <div class="hd">Reports</div>
+    <a onclick="go('progress')">Progress Report</a><a onclick="go('allsessions')">All Sessions</a><a onclick="go('admin')">Admin</a>
+  </div>
+</div>
+
+<script>
+  function go(id){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+    document.getElementById(id).classList.add('on');
+    document.getElementById('jmenu').classList.remove('open');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  function tj(){document.getElementById('jmenu').classList.toggle('open');}
+  function pick(el){el.parentElement.querySelectorAll('.opt,.co').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
+  function one(el){el.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');}
+  function tog(el){el.classList.toggle('sel');}
+</script>
+</body>
+</html>

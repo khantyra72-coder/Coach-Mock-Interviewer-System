@@ -1,4 +1,8 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Menu, X } from 'lucide-react'
+import Logo from './Logo.jsx'
+import useScrolled from '../hooks/useScrolled.js'
 
 export default function TopBar({
   bname = 'AceInterview',
@@ -10,11 +14,14 @@ export default function TopBar({
   logoTo = '/dashboard',
 }) {
   const navigate = useNavigate()
+  const location = useLocation()
+  const scrolled = useScrolled(40)
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
-    <div className="top">
+    <div className={`top${scrolled ? ' scrolled' : ''}`}>
       <div className="wrap">
-        <div className="logo" onClick={() => navigate(logoTo)}>A</div>
+        <Logo onClick={() => navigate(logoTo)} />
         <div className="bname" style={subtitle ? { fontSize: 15 } : undefined}>
           {bname}
           {subtitle && (
@@ -26,15 +33,33 @@ export default function TopBar({
         </div>
 
         {nav && (
-          <nav className="tnav">
-            {nav.map((item, i) =>
-              item.to ? (
-                <Link key={i} to={item.to}>{item.label}</Link>
-              ) : (
-                <a key={i}>{item.label}</a>
-              )
-            )}
-          </nav>
+          <>
+            <nav className={`tnav${mobileOpen ? ' mobile-open' : ''}`}>
+              {nav.map((item, i) =>
+                item.to ? (
+                  <Link
+                    key={i}
+                    to={item.to}
+                    className={location.pathname === item.to ? 'active' : undefined}
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                ) : (
+                  <a key={i}>{item.label}</a>
+                )
+              )}
+            </nav>
+            <button
+              type="button"
+              className="nav-toggle"
+              onClick={() => setMobileOpen((v) => !v)}
+              aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={mobileOpen}
+            >
+              {mobileOpen ? <X size={20} strokeWidth={1.8} /> : <Menu size={20} strokeWidth={1.8} />}
+            </button>
+          </>
         )}
 
         {rightButton && (

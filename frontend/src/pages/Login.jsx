@@ -1,11 +1,13 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import TopBar from '../components/TopBar.jsx'
-import { apiPost, ApiError } from '../api/client.js'
-import { Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react'
+import { apiPost, ApiError, setSession } from '../api/client.js'
+import { Eye, EyeOff, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react'
 
 export default function Login() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const showLoggedOutNotice = Boolean(location.state?.loggedOut)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -18,8 +20,8 @@ export default function Login() {
     setError('')
     setSubmitting(true)
     try {
-      const user = await apiPost('/login', { email: email.trim(), password })
-      localStorage.setItem('aceinterview_user', JSON.stringify(user))
+      const { token, ...user } = await apiPost('/login', { email: email.trim(), password })
+      setSession(token, user)
       navigate(user.role === 'ADMIN' ? '/admin' : '/dashboard')
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
@@ -42,6 +44,10 @@ export default function Login() {
             <span className="eyebrow">Welcome back</span>
             <h1 style={{ marginTop: 8 }}>Log in to AceInterview</h1>
             <p className="sub muted" style={{ marginTop: 6 }}>Pick up your practice where you left off.</p>
+
+            {showLoggedOutNotice && (
+              <div className="notice"><CheckCircle2 size={15} strokeWidth={2} />You've been logged out.</div>
+            )}
 
             <form onSubmit={handleSubmit} noValidate>
               <label className="flab">Email</label>

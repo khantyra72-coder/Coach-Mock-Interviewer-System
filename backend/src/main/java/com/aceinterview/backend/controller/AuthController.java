@@ -1,18 +1,23 @@
 package com.aceinterview.backend.controller;
 
+import com.aceinterview.backend.dto.AuthResponse;
 import com.aceinterview.backend.dto.ErrorResponse;
 import com.aceinterview.backend.dto.LoginRequest;
 import com.aceinterview.backend.dto.RegisterRequest;
 import com.aceinterview.backend.dto.UserResponse;
 import com.aceinterview.backend.entity.User;
 import com.aceinterview.backend.repository.UserRepository;
+import com.aceinterview.backend.security.JwtService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,10 +31,12 @@ public class AuthController {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
-    public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     @PostMapping("/register")
@@ -66,7 +73,24 @@ public class AuthController {
                     .body(new ErrorResponse("Invalid email or password"));
         }
 
-        return ResponseEntity.ok(UserResponse.from(user.get()));
+        String token = jwtService.generateToken(user.get());
+        return ResponseEntity.ok(AuthResponse.from(user.get(), token));
+    }
+
+    // Protected — requires a valid "Authorization: Bearer <token>" header
+    // (enforced by SecurityConfig, not by anything in this method). Returns
+    // whoever the token belongs to. Useful both as a real "current user"
+    // endpoint for the frontend and as a simple way to test the JWT flow.
+    @GetMapping("/me")
+    public ResponseEntity<?> me() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long userId = Long.valueOf((String) auth.getPrincipal());
+
+        return userRepository.findById(userId)
+                .<ResponseEntity<?>>map(user -> ResponseEntity.ok(UserResponse.from(user)))
+                .orElse(ResponseEntity
+                        .status(HttpStatus.NOT_FOUND)
+                        .body(new ErrorResponse("User not found")));
     }
 
     // Turns @Valid failures (e.g. a password that doesn't meet the rules)

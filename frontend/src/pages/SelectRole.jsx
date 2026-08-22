@@ -5,7 +5,6 @@ import TopBar from '../components/TopBar.jsx'
 const APP_NAV = [
   { label: 'My Sessions', to: '/sessions' },
   { label: 'Settings' },
-  { label: 'Logout', to: '/' },
 ]
 
 const ROLES = [
@@ -32,7 +31,7 @@ export default function SelectRole() {
 
   return (
     <section className="screen" id="role">
-      <TopBar nav={APP_NAV} avatarText="JD" />
+      <TopBar nav={APP_NAV} showUser />
       <div className="wrap pagepad">
         <h1 className="h-title">Select your role</h1>
         <p className="sub">Choose the tech role you want to practice for.</p>

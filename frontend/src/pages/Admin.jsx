@@ -4,7 +4,6 @@ const ADMIN_NAV = [
   { label: 'Users' },
   { label: 'Companies' },
   { label: 'Questions' },
-  { label: 'Logout', to: '/' },
 ]
 
 const QUESTIONS = [
@@ -20,7 +19,7 @@ export default function Admin() {
       <TopBar
         subtitle="Manage questions"
         nav={ADMIN_NAV}
-        avatarText="AD"
+        showUser
         avatarStyle={{ background: 'linear-gradient(140deg,#C77E24,#e0a758)' }}
       />
       <div className="wrap pagepad">

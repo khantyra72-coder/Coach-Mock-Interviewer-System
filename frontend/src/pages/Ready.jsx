@@ -4,7 +4,6 @@ import TopBar from '../components/TopBar.jsx'
 const APP_NAV = [
   { label: 'My Sessions', to: '/sessions' },
   { label: 'Settings' },
-  { label: 'Logout', to: '/' },
 ]
 
 export default function Ready() {
@@ -12,7 +11,7 @@ export default function Ready() {
 
   return (
     <section className="screen" id="ready">
-      <TopBar nav={APP_NAV} avatarText="JD" />
+      <TopBar nav={APP_NAV} showUser />
       <div className="wrap pagepad" style={{ maxWidth: 720 }}>
         <div className="ready-hd">
           <h1>You're ready, John! 💪</h1>

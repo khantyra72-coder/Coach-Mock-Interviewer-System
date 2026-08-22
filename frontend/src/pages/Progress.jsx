@@ -4,7 +4,6 @@ import TopBar from '../components/TopBar.jsx'
 const APP_NAV = [
   { label: 'My Sessions', to: '/sessions' },
   { label: 'Settings' },
-  { label: 'Logout', to: '/' },
 ]
 
 const STATS = [
@@ -36,7 +35,7 @@ export default function Progress() {
 
   return (
     <section className="screen" id="progress">
-      <TopBar nav={APP_NAV} avatarText="JD" />
+      <TopBar nav={APP_NAV} showUser />
       <div className="wrap pagepad">
         <button className="btn ghost sm" style={{ marginBottom: 16 }} onClick={() => navigate('/dashboard')}>
           ← Back to dashboard

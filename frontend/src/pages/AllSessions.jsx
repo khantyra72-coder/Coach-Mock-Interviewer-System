@@ -4,7 +4,6 @@ import TopBar from '../components/TopBar.jsx'
 const APP_NAV = [
   { label: 'My Sessions', to: '/sessions' },
   { label: 'Settings' },
-  { label: 'Logout', to: '/' },
 ]
 
 const SESSIONS = [
@@ -20,7 +19,7 @@ export default function AllSessions() {
 
   return (
     <section className="screen" id="allsessions">
-      <TopBar nav={APP_NAV} avatarText="JD" />
+      <TopBar nav={APP_NAV} showUser />
       <div className="wrap pagepad">
         <h1 className="h-title" style={{ marginBottom: 20 }}>All sessions</h1>
         {SESSIONS.map((s) => (

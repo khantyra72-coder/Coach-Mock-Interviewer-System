@@ -5,7 +5,6 @@ import TopBar from '../components/TopBar.jsx'
 const APP_NAV = [
   { label: 'My Sessions', to: '/sessions' },
   { label: 'Settings' },
-  { label: 'Logout', to: '/' },
 ]
 
 const TYPES = [
@@ -45,7 +44,7 @@ export default function Setup() {
 
   return (
     <section className="screen" id="setup">
-      <TopBar nav={APP_NAV} avatarText="JD" />
+      <TopBar nav={APP_NAV} showUser />
       <div className="wrap pagepad">
         <span className="eyebrow">Interview setup</span>
         <h1 className="h-title" style={{ marginTop: 8 }}>Set up your interview</h1>

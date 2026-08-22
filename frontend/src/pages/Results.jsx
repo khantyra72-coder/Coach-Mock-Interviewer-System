@@ -4,7 +4,6 @@ import TopBar from '../components/TopBar.jsx'
 const APP_NAV = [
   { label: 'My Sessions', to: '/sessions' },
   { label: 'Settings' },
-  { label: 'Logout', to: '/' },
 ]
 
 const BREAKDOWN = [
@@ -97,7 +96,7 @@ export default function Results() {
 
   return (
     <section className="screen" id="results">
-      <TopBar nav={APP_NAV} avatarText="JD" />
+      <TopBar nav={APP_NAV} showUser />
       <div className="wrap pagepad">
         <div className="toast"><span className="dot">✓</span> Session completed 🎉</div>
         <div className="rhead">

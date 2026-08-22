@@ -8,12 +8,16 @@
   --r:16px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter',system-ui,sans-serif;background:var(--canvas);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--canvas);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased;min-height:100vh}
 h1,h2,h3,h4,.disp{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.01em}
 button{font-family:inherit;cursor:pointer;border:none;background:none}
 .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
 
 .screen{padding:0 0 70px;animation:f .28s ease}
+/* Landing ends in its own full-bleed dark footer, so it supplies its
+   own bottom spacing — the shared 70px page padding would otherwise
+   show up as a white gap below the footer's dark background. */
+#landing{padding-bottom:0}
 @keyframes f{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
 
 /* app chrome */
@@ -59,8 +63,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .btn:hover{background:linear-gradient(180deg,var(--emerald-d) 0%,var(--forest) 100%);transform:translateY(-2px);box-shadow:0 10px 26px rgba(14,158,102,.34),0 2px 4px rgba(12,26,19,.08)}
 .btn.ghost{background:var(--card);color:var(--ink);border:1px solid var(--line);box-shadow:none}
 .btn.ghost:hover{border-color:var(--emerald);color:var(--emerald-d);transform:none}
-.btn.ghost.hero-glass{background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.7);color:var(--forest);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 4px 14px rgba(12,26,19,.06)}
-.btn.ghost.hero-glass:hover{background:rgba(255,255,255,.78);border-color:rgba(255,255,255,.9);color:var(--forest-d);transform:translateY(-1px)}
+.btn.ghost.hero-glass{background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.7);color:var(--forest);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 4px 14px rgba(12,26,19,.06);transition:border-color .16s ease,color .16s ease,transform .16s ease,box-shadow .16s ease,background .16s ease}
+.btn.ghost.hero-glass:hover{background:rgba(255,255,255,.78);border-color:var(--emerald);color:var(--emerald-d);transform:translateY(-2px);box-shadow:var(--shadow)}
 .btn.sm{padding:9px 15px;font-size:13px;border-radius:10px}
 .btn.block{width:100%;justify-content:center}
 
@@ -264,6 +268,31 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .inp:focus{outline:none;border-color:var(--emerald)}
 .authlink{text-align:center;font-size:13.5px;color:var(--slate);margin-top:18px}
 .authlink a{color:var(--emerald-d);font-weight:600;cursor:pointer}
+
+.pw-toggle-wrap{position:relative}
+.pw-toggle-wrap .inp{padding-right:42px}
+.pw-eye{position:absolute;right:12px;top:calc(50% + 3px);transform:translateY(-50%);color:var(--slatel);cursor:pointer;display:grid;place-items:center;background:none;border:none;padding:2px;transition:color .16s ease}
+.pw-eye:hover{color:var(--slate)}
+
+.pw-rules{display:grid;grid-template-columns:1fr 1fr;gap:7px 14px;margin-top:10px;padding:12px 14px;background:var(--mist2);border-radius:11px}
+.pw-rule{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--slatel);transition:color .16s ease}
+.pw-rule svg{flex-shrink:0;color:var(--slatel);transition:color .16s ease}
+.pw-rule.met{color:var(--forest);font-weight:600}
+.pw-rule.met svg{color:var(--emerald)}
+
+.field-error{display:flex;align-items:center;gap:6px;color:var(--coral);font-size:12.5px;margin-top:8px}
+.field-error svg{flex-shrink:0}
+
+.forgot-link{display:block;text-align:right;font-size:12.5px;color:var(--slate);margin-top:8px;cursor:pointer}
+.forgot-link:hover{color:var(--emerald-d)}
+
+.btn:disabled{opacity:.55;cursor:not-allowed}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{animation:spin .8s linear infinite}
+@media (prefers-reduced-motion: reduce){.spin{animation-duration:1.6s}}
+
+.toast-icon{color:var(--emerald);flex-shrink:0}
 
 /* ===== READY (pre-interview) ===== */
 .ready-hd{text-align:center;margin-bottom:26px}

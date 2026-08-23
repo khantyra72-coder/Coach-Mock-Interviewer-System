@@ -88,7 +88,7 @@ export default function Dashboard() {
                 <div className="rc-stat last"><div className="l">Last</div><div className="v">{r.last}</div></div>
               </div>
               <div className="rc-actions">
-                <button className="btn prime" onClick={() => navigate('/setup')}>Practice</button>
+                <button className="btn prime" onClick={() => navigate('/setup', { state: { role: r.name } })}>Practice</button>
                 <button className="btn ghost" onClick={() => navigate('/progress')}>Details</button>
               </div>
             </Reveal>

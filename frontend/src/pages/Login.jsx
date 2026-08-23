@@ -77,7 +77,6 @@ export default function Login() {
                   {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
                 </button>
               </div>
-              <a className="forgot-link">Forgot password?</a>
 
               {error && (
                 <p className="field-error"><AlertCircle size={14} />{error}</p>

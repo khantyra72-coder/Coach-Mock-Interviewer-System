@@ -153,7 +153,7 @@ export default function TopBar({
                   <Link
                     key={i}
                     to={item.to}
-                    className={location.pathname === item.to ? 'active' : undefined}
+                    className={`${location.pathname}${location.search}` === item.to || location.pathname === item.to ? 'active' : undefined}
                     onClick={() => setMobileOpen(false)}
                   >
                     {item.label}

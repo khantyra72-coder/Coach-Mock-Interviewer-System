@@ -4,11 +4,14 @@ import TopBar from '../components/TopBar.jsx'
 import Reveal from '../components/Reveal.jsx'
 import { getStoredUser } from '../api/client.js'
 import { CheckCircle2, Briefcase, ListChecks, Lightbulb, ArrowRight, Building2 } from 'lucide-react'
-import { FaAmazon, FaMicrosoft, FaApple, FaMeta } from 'react-icons/fa6'
-import { SiNetflix } from 'react-icons/si'
+import { FaAirbnb, FaAmazon, FaApple, FaMeta, FaSpotify, FaUber } from 'react-icons/fa6'
+import { SiNetflix, SiStripe } from 'react-icons/si'
+import microsoftLogo from '../assets/logos/microsoft.svg'
 
 const APP_NAV = [
+  { label: 'Interview Setup', to: '/setup' },
   { label: 'My Sessions', to: '/sessions' },
+  { label: 'Progress Report', to: '/progress' },
   { label: 'Settings' },
 ]
 
@@ -22,10 +25,14 @@ const googleLogo = googleLogoFiles['../assets/logos/google.svg']
 const COMPANY_INFO = {
   Google: { color: '#4285F4', letter: 'G', logo: googleLogo, bg: googleLogo ? '#fff' : undefined },
   Amazon: { color: '#FF9900', letter: 'a', logo: FaAmazon },
-  Microsoft: { color: '#00A4EF', letter: 'M', logo: FaMicrosoft },
+  Microsoft: { color: '#00A4EF', letter: 'M', logo: microsoftLogo },
   Meta: { color: '#0866FF', letter: 'f', logo: FaMeta },
   Apple: { color: '#111', letter: '▲', logo: FaApple },
   Netflix: { color: '#E50914', letter: 'N', logo: SiNetflix },
+  Spotify: { color: '#1DB954', letter: 'S', logo: FaSpotify },
+  Stripe: { color: '#635BFF', letter: 'S', logo: SiStripe },
+  Airbnb: { color: '#FF385C', letter: 'A', logo: FaAirbnb },
+  Uber: { color: '#111', letter: 'U', logo: FaUber },
 }
 
 const ROLE_TIPS = {
@@ -63,9 +70,7 @@ export default function Ready() {
   const tips = ROLE_TIPS[role] || ROLE_TIPS['Software Engineer']
 
   const handleBegin = () => {
-    // /interview is a placeholder route — the actual interview page isn't
-    // built yet. Confirm the real path/name with whoever builds that page.
-    navigate('/interview', { state: { role, type, company, level, difficulty, questionCount, topics, timed } })
+    navigate('/session', { state: { role, type, company, level, difficulty, questionCount, topics, timed } })
   }
 
   return (
@@ -91,7 +96,7 @@ export default function Ready() {
               {companyInfo ? (
                 <span
                   className="rdrow-co-badge"
-                  style={{ background: companyInfo.bg || companyInfo.color, border: companyInfo.bg ? '1px solid var(--line)' : 'none' }}
+                  style={{ background: '#fff', border: '1px solid var(--line)', color: companyInfo.color }}
                 >
                   {typeof companyInfo.logo === 'string' ? (
                     <img src={companyInfo.logo} alt={`${displayCompany} logo`} />

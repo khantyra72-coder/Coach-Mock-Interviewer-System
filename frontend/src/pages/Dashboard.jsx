@@ -20,15 +20,17 @@ import {
 } from 'lucide-react'
 
 const APP_NAV = [
+  { label: 'Interview Setup', to: '/setup' },
   { label: 'My Sessions', to: '/sessions' },
+  { label: 'Progress Report', to: '/progress' },
   { label: 'Settings' },
 ]
 
 const DASH_STATS = [
-  { icon: ClipboardList, label: 'Total interviews', value: '11' },
+  { icon: ClipboardList, label: 'Total interviews', value: '11', to: '/sessions' },
   { icon: Target, label: 'Average score', value: '68%' },
   { icon: Award, label: 'Best score', value: '82%' },
-  { icon: Layers, label: 'Roles practiced', value: '4' },
+  { icon: Layers, label: 'Roles practiced', value: '4', to: '/sessions?view=roles' },
 ]
 
 const ROLES = [
@@ -53,21 +55,31 @@ export default function Dashboard() {
 
         <Reveal className="dash-stats" delay={60}>
           {DASH_STATS.map((s) => (
-            <div className="card dash-stat" key={s.label}>
+            <button
+              type="button"
+              className={`card dash-stat${s.to ? ' clickable' : ''}`}
+              key={s.label}
+              onClick={() => s.to && navigate(s.to)}
+              disabled={!s.to}
+              aria-label={s.to ? `View ${s.label.toLowerCase()}` : undefined}
+            >
               <div className="di"><s.icon size={18} strokeWidth={1.8} /></div>
               <div>
                 <div className="dv">{s.value}</div>
                 <div className="dl">{s.label}</div>
               </div>
-            </div>
+            </button>
           ))}
         </Reveal>
 
         <Reveal delay={100}>
-          <button className="dash-startbtn" onClick={() => navigate('/role')}>
-            <Play size={16} strokeWidth={2} fill="currentColor" />
-            Start new interview
-          </button>
+          <div className="dash-start-group">
+            <button className="dash-startbtn" onClick={() => navigate('/role')}>
+              <Play size={16} strokeWidth={2} fill="currentColor" />
+              Start new interview
+            </button>
+            <span>Written answers only · No live coding or diagrams</span>
+          </div>
         </Reveal>
 
         <div className="sec-title">Your practiced job roles</div>

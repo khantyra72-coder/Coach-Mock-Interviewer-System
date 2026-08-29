@@ -64,3 +64,27 @@ CREATE TABLE IF NOT EXISTS interview_results (
         FOREIGN KEY (interview_session_id) REFERENCES interview_sessions(id)
         ON DELETE CASCADE
 );
+
+ 
+INSERT INTO questions (question_text, category, difficulty, active)
+SELECT seed.question_text, seed.category, seed.difficulty, TRUE
+FROM (
+    SELECT 'Explain the difference between an interface and an abstract class in Java.'
+        AS question_text, 'Technical' AS category, 'Medium' AS difficulty
+    UNION ALL
+    SELECT 'What is dependency injection and why is it useful?',
+        'Technical', 'Medium'
+    UNION ALL
+    SELECT 'How would you design a scalable mock interview platform?',
+        'System Design', 'Hard'
+    UNION ALL
+    SELECT 'How would you store interview sessions and answers?',
+        'System Design', 'Medium'
+    UNION ALL
+    SELECT 'Tell me about a difficult problem you solved.',
+        'Behavioral', 'Medium'
+    UNION ALL
+    SELECT 'Describe a time you worked successfully in a team.',
+        'Behavioral', 'Easy'
+) AS seed
+WHERE NOT EXISTS (SELECT 1 FROM questions);

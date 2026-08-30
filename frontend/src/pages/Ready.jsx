@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import TopBar from '../components/TopBar.jsx'
 import Reveal from '../components/Reveal.jsx'
 import { getStoredUser } from '../api/client.js'
+import { getInterviewQuestions, startInterview } from '../api/interviews.js'
 import { CheckCircle2, Briefcase, ListChecks, Lightbulb, ArrowRight, Building2 } from 'lucide-react'
 import { FaAirbnb, FaAmazon, FaApple, FaMeta, FaSpotify, FaUber } from 'react-icons/fa6'
 import { SiNetflix, SiStripe } from 'react-icons/si'
@@ -52,6 +53,8 @@ export default function Ready() {
   const navigate = useNavigate()
   const location = useLocation()
   const [user] = useState(getStoredUser)
+  const [starting, setStarting] = useState(false)
+const [startError, setStartError] = useState('')
 
   const {
     role,
@@ -69,9 +72,52 @@ export default function Ready() {
   const companyInfo = COMPANY_INFO[company]
   const tips = ROLE_TIPS[role] || ROLE_TIPS['Software Engineer']
 
-  const handleBegin = () => {
-    navigate('/session', { state: { role, type, company, level, difficulty, questionCount, topics, timed } })
+  const handleBegin = async () => {
+  if (starting) return
+
+  setStarting(true)
+  setStartError('')
+
+  try {
+    const backendSession = await startInterview({
+      role: role || 'Software Engineer',
+      interviewType: type || 'Technical',
+      company: company || null,
+    })
+
+    const allQuestions = await getInterviewQuestions()
+    const matchingQuestions = allQuestions.filter(
+      (question) => question.category === (type || 'Technical')
+    )
+    const otherQuestions = allQuestions.filter(
+      (question) => question.category !== (type || 'Technical')
+    )
+    const selectedQuestions = [...matchingQuestions, ...otherQuestions]
+      .slice(0, Number(questionCount) || 5)
+
+    if (!selectedQuestions.length) {
+      throw new Error('No interview questions are available.')
+    }
+
+    navigate('/session', {
+      state: {
+        role,
+        type,
+        company,
+        level,
+        difficulty,
+        questionCount,
+        topics,
+        timed,
+        backendSessionId: backendSession.id,
+        backendQuestions: selectedQuestions,
+      },
+    })
+  } catch (error) {
+    setStartError(error.message || 'Could not start the interview.')
+    setStarting(false)
   }
+}
 
   return (
     <section className="screen" id="ready">
@@ -132,10 +178,21 @@ export default function Ready() {
           </ul>
         </Reveal>
 
-        <button className="startbtn" style={{ marginTop: 22 }} onClick={handleBegin}>
-          Begin interview
-          <ArrowRight size={19} strokeWidth={2} />
-        </button>
+        {startError && (
+  <p className="field-error" style={{ marginTop: 18 }}>
+    {startError}
+  </p>
+)}
+
+<button
+  className="startbtn"
+  style={{ marginTop: 22 }}
+  onClick={handleBegin}
+  disabled={starting}
+>
+  {starting ? 'Starting interview…' : 'Begin interview'}
+  {!starting && <ArrowRight size={19} strokeWidth={2} />}
+</button>
         <div style={{ textAlign: 'center', marginTop: 14 }}>
           <button type="button" className="cancel" onClick={() => navigate('/setup', { state: { role } })}>Cancel and go back</button>
         </div>

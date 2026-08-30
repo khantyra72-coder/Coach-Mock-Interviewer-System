@@ -4,6 +4,10 @@ import TopBar from '../components/TopBar.jsx'
 import { selectQuestions } from '../data/questionBank.js'
 import { evaluateSession } from '../utils/interviewEvaluator.js'
 import {
+  completeInterview,
+  submitInterviewAnswer,
+} from '../api/interviews.js'
+import {
   clearActiveSession,
   getActiveSession,
   saveActiveSession,
@@ -20,14 +24,28 @@ function formatTime(totalSeconds) {
 }
 
 function createSession(config) {
-  const questions = selectQuestions(
-    config.type || 'Technical',
-    config.questionCount || 5,
-    config.role || 'Software Engineer',
-    config.company || 'Google'
-  )
+  const questions = config.backendQuestions?.length
+    ? config.backendQuestions.map((question) => ({
+        id: question.id,
+        type: question.category,
+        prompt: question.questionText,
+        topic: question.category,
+        difficulty: question.difficulty,
+        tips: [
+          'Explain your reasoning clearly.',
+          'Use a concrete example when possible.',
+          'Mention important trade-offs.',
+        ],
+      }))
+    : selectQuestions(
+        config.type || 'Technical',
+        config.questionCount || 5,
+        config.role || 'Software Engineer',
+        config.company || 'Google'
+      )
   return {
-    id: `local-${Date.now()}`,
+    id: config.backendSessionId || `local-${Date.now()}`,
+backendSessionId: config.backendSessionId || null,
     role: config.role || 'Software Engineer',
     company: config.company || 'Google',
     type: config.type || 'Technical',
@@ -49,6 +67,8 @@ export default function Session() {
     hasNewConfig ? createSession(location.state) : getActiveSession() || createSession({})
   ))
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [finishing, setFinishing] = useState(false)
+const [finishError, setFinishError] = useState('')
   const [secondsLeft, setSecondsLeft] = useState(() => {
     const elapsed = Math.floor((Date.now() - new Date(session.startedAt).getTime()) / 1000)
     return Math.max(0, DEFAULT_DURATION_SECONDS - elapsed)
@@ -90,12 +110,47 @@ export default function Session() {
     }))
   }
 
-  const finishSession = () => {
-    const result = evaluateSession(session)
+  const finishSession = async () => {
+  if (finishing) return
+
+  setFinishing(true)
+  setFinishError('')
+
+  const result = evaluateSession(session)
+
+  try {
+    if (session.backendSessionId) {
+      const answerRequests = session.answers
+        .map((answerText, index) => {
+          if (!answerText.trim()) return null
+
+          return submitInterviewAnswer(session.backendSessionId, {
+            questionId: session.questions[index].id,
+            answerText: answerText.trim(),
+          })
+        })
+        .filter(Boolean)
+
+      await Promise.all(answerRequests)
+
+      await completeInterview(session.backendSessionId, {
+        overallScore: result.overallScore,
+        strengths: result.topStrengths.join('; '),
+        improvements: result.topImprovements.join('; '),
+        summaryFeedback: result.message,
+      })
+    }
+
     saveLastResult(result)
     clearActiveSession()
     navigate('/results', { state: { result } })
+  } catch (error) {
+    setFinishError(
+      error.message || 'Could not save the interview. Please try again.'
+    )
+    setFinishing(false)
   }
+}
 
   const goNext = () => {
     if (currentIndex === session.questions.length - 1) finishSession()
@@ -154,20 +209,40 @@ export default function Session() {
             <button type="button" className="btn ghost sm" onClick={toggleReview}>
               {session.reviewFlags[currentIndex] ? '✓ Marked for review' : '🔖 Mark for review'}
             </button>
-            <button type="button" className="btn end" onClick={goNext}>
-              {currentIndex === session.questions.length - 1 ? 'Finish interview →' : 'Next question →'}
-            </button>
+            <button
+  type="button"
+  className="btn end"
+  onClick={goNext}
+  disabled={finishing}
+>
+  {finishing
+    ? 'Saving…'
+    : currentIndex === session.questions.length - 1
+      ? 'Finish interview →'
+      : 'Next question →'}
+</button>
           </div>
         </div>
+
+        {finishError && (
+  <p className="field-error" style={{ marginTop: 16 }}>
+    {finishError}
+  </p>
+)}
 
         <div className="card" style={{ marginTop: 16, padding: '15px 20px', display: 'flex', alignItems: 'center', gap: 12 }}>
           <span className="muted" style={{ fontSize: 13 }}>
             You have answered {answeredCount} of {session.questions.length} questions
             {session.reviewFlags.some(Boolean) ? ` · ${session.reviewFlags.filter(Boolean).length} marked for review` : ''}.
           </span>
-          <button className="btn sm" style={{ marginLeft: 'auto' }} onClick={finishSession}>
-            End & calculate score
-          </button>
+          <button
+  className="btn sm"
+  style={{ marginLeft: 'auto' }}
+  onClick={finishSession}
+  disabled={finishing}
+>
+  {finishing ? 'Saving…' : 'End & calculate score'}
+</button>
         </div>
       </div>
     </section>

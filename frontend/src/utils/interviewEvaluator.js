@@ -9,29 +9,64 @@ function normalize(value = '') {
 
 export function evaluateAnswer(question, answerText) {
   const normalized = normalize(answerText)
+  const rubrics = question.concepts || []
+
+  if (!rubrics.length) {
+    const wordCount = normalized ? normalized.split(' ').length : 0
+    const score = normalized
+      ? Math.min(100, 25 + (wordCount * 3))
+      : 0
+
+    return {
+      score,
+      strengths: normalized
+        ? ['Submitted a clear written response']
+        : ['No answer submitted'],
+      weaknesses: wordCount < 20
+        ? ['Answer needs more explanation and detail']
+        : ['No major structural weakness detected'],
+      suggestion: wordCount < 20
+        ? 'Explain your reasoning in more detail and include a concrete example.'
+        : 'Add a concise conclusion and mention important trade-offs.',
+      matchedConcepts: [],
+      missingConcepts: [],
+    }
+  }
+
   const matched = []
   const missing = []
 
-  question.concepts.forEach((rubric) => {
-    const found = rubric.keywords.some((keyword) => normalized.includes(normalize(keyword)))
+  rubrics.forEach((rubric) => {
+    const found = rubric.keywords.some((keyword) =>
+      normalized.includes(normalize(keyword))
+    )
     ;(found ? matched : missing).push(rubric)
   })
 
   let score = matched.reduce((total, rubric) => total + rubric.weight, 0)
+
   if (normalized.length === 0) score = 0
   else if (normalized.length < 25) score = Math.min(score, 20)
   else if (normalized.length < 60) score = Math.min(score, 45)
 
-  const strengths = matched.map((rubric) => `Covered ${rubric.label.toLowerCase()}`)
-  const weaknesses = missing.map((rubric) => `Missing ${rubric.label.toLowerCase()}`)
+  const strengths = matched.map(
+    (rubric) => `Covered ${rubric.label.toLowerCase()}`
+  )
+  const weaknesses = missing.map(
+    (rubric) => `Missing ${rubric.label.toLowerCase()}`
+  )
   const suggestion = missing.length
     ? missing.slice(0, 2).map((rubric) => rubric.guidance).join(' ')
     : 'Strong coverage. Make the answer even clearer with a concise conclusion and a concrete example.'
 
   return {
     score: Math.round(score),
-    strengths: strengths.length ? strengths : ['Submitted an answer for review'],
-    weaknesses: weaknesses.length ? weaknesses : ['No major rubric concepts were missed'],
+    strengths: strengths.length
+      ? strengths
+      : ['Submitted an answer for review'],
+    weaknesses: weaknesses.length
+      ? weaknesses
+      : ['No major rubric concepts were missed'],
     suggestion,
     matchedConcepts: matched.map((rubric) => rubric.label),
     missingConcepts: missing.map((rubric) => rubric.label),

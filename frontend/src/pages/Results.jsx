@@ -42,7 +42,7 @@ export default function Results() {
     <section className="screen" id="results">
       <TopBar nav={APP_NAV} showUser />
       <div className="wrap pagepad">
-        <div className="toast"><span className="dot">✓</span> Session analyzed locally</div>
+        <div className="toast"><span className="dot">✓</span> Session saved and analyzed</div>
         <div className="rhead">
           <h1>Interview results</h1>
           <div className="rmeta">
@@ -102,9 +102,18 @@ export default function Results() {
                 </div>
                 <div className="sug">💡 <b>Suggestion:</b> {question.suggestion}</div>
                 <div className="model">
-                  <h5>📝 Model answer outline</h5>
-                  <ul>{question.model.map((point) => <li key={point}>{point}</li>)}</ul>
-                </div>
+  <h5>📝 Strong answer outline</h5>
+  <ul>
+    {(question.model || [
+      'State the main idea clearly.',
+      'Explain your reasoning.',
+      'Give a concrete example.',
+      'Mention important trade-offs.',
+    ]).map((point) => (
+      <li key={point}>{point}</li>
+    ))}
+  </ul>
+</div>
               </div>
             </div>
           ))}

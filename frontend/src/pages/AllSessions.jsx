@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { BarChart3, Code2, Database, Monitor, Search } from 'lucide-react'
 import { FaAirbnb, FaAmazon, FaApple, FaMeta, FaMicrosoft, FaSpotify, FaUber } from 'react-icons/fa6'
@@ -6,7 +6,10 @@ import { SiNetflix, SiStripe } from 'react-icons/si'
 import TopBar from '../components/TopBar.jsx'
 import googleLogo from '../assets/logos/google.svg'
 import { getCompanies } from '../data/companyCatalog.js'
-import { getSessionHistory } from '../data/sessionCatalog.js'
+import {
+  getInterviewDetails,
+  getInterviewHistory,
+} from '../api/interviews.js'
 
 const APP_NAV = [
   { label: 'Interview Setup', to: '/setup' },
@@ -67,12 +70,118 @@ function average(items) {
   return Math.round(items.reduce((sum, item) => sum + item.score, 0) / items.length)
 }
 
+function splitText(value, fallback) {
+  if (!value) return [fallback]
+  return value
+    .split(';')
+    .map((item) => item.trim())
+    .filter(Boolean)
+}
+
+function convertBackendSession(session, details) {
+  const result = details.result
+  const overallScore = result?.overallScore ?? 0
+
+  const frontendResult = {
+    id: session.id,
+    completedAt: session.completedAt || session.startedAt,
+    role: session.role,
+    company: session.company || 'Not specified',
+    type: session.interviewType,
+    answeredCount: details.answers.length,
+    questionCount: details.answers.length,
+    overallScore,
+    message: result?.summaryFeedback || 'Interview completed.',
+    breakdown: [
+      { label: 'Overall score', value: overallScore },
+      { label: 'Technical depth', value: overallScore },
+      { label: 'Behavioral structure', value: overallScore },
+      { label: 'Concept completion', value: overallScore },
+    ],
+    topStrengths: splitText(
+      result?.strengths,
+      'Completed the interview'
+    ),
+    topImprovements: splitText(
+      result?.improvements,
+      'Continue practising'
+    ),
+    questions: details.answers.map((answer, index) => ({
+      n: index + 1,
+      questionId: answer.questionId,
+      text: answer.questionText,
+      answer: answer.answerText,
+      score: answer.score ?? overallScore,
+      strengths: ['Answer saved successfully'],
+      weaknesses: answer.feedback
+        ? [answer.feedback]
+        : ['Review this answer for more detail'],
+      suggestion: answer.feedback || 'Add more detail and a concrete example.',
+      model: null,
+    })),
+  }
+
+  return {
+    id: session.id,
+    date: new Intl.DateTimeFormat('en', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }).format(new Date(session.completedAt || session.startedAt)),
+    completedAt: session.completedAt || session.startedAt,
+    role: session.role,
+    type: session.interviewType,
+    company: session.company || 'Not specified',
+    score: overallScore,
+    result: frontendResult,
+  }
+}
+
 export default function AllSessions() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const showingRoles = searchParams.get('view') === 'roles'
   const selectedRole = searchParams.get('role')
-  const [sessions] = useState(getSessionHistory)
+  const [sessions, setSessions] = useState([])
+const [loading, setLoading] = useState(true)
+const [loadError, setLoadError] = useState('')
+useEffect(() => {
+  let cancelled = false
+
+  async function loadSessions() {
+    try {
+      const history = await getInterviewHistory()
+      const completed = history.filter(
+        (session) => session.status === 'COMPLETED'
+      )
+
+      const sessionsWithDetails = await Promise.all(
+        completed.map(async (session) => {
+          const details = await getInterviewDetails(session.id)
+          return convertBackendSession(session, details)
+        })
+      )
+
+      if (!cancelled) {
+        setSessions(sessionsWithDetails)
+      }
+    } catch (error) {
+      if (!cancelled) {
+        setLoadError(
+          error.message || 'Could not load interview history.'
+        )
+      }
+    } finally {
+      if (!cancelled) setLoading(false)
+    }
+  }
+
+  loadSessions()
+
+  return () => {
+    cancelled = true
+  }
+}, [])
   const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState('All roles')
   const [typeFilter, setTypeFilter] = useState('All interview types')
@@ -104,10 +213,10 @@ export default function AllSessions() {
     })
 
     return [...filteredSessions].sort((a, b) => {
-      if (sort === 'Oldest first') return new Date(a.date) - new Date(b.date)
+      if (sort === 'Oldest first') return new Date(a.completedAt) - new Date(b.completedAt)
       if (sort === 'Highest score') return b.score - a.score
       if (sort === 'Lowest score') return a.score - b.score
-      return new Date(b.date) - new Date(a.date)
+      return new Date(b.completedAt) - new Date(a.completedAt)
     })
   }, [companyFilter, roleFilter, search, selectedRole, sessions, sort, typeFilter])
 
@@ -132,6 +241,13 @@ export default function AllSessions() {
         <button type="button" className="btn ghost sm" style={{ marginBottom: 16 }} onClick={back}>
           ← {selectedRole ? 'Back to roles' : 'Back to dashboard'}
         </button>
+        {loading && <p className="sub muted">Loading interview history…</p>}
+
+{loadError && (
+  <p className="field-error">
+    {loadError}
+  </p>
+)}
 
         {showingRoles && !selectedRole ? (
           <>
@@ -217,9 +333,15 @@ export default function AllSessions() {
                         <td><CompanyCell company={session.company} /></td>
                         <td><span className={`ass-score${session.score < 75 ? ' amber' : ''}`}>{session.score}%</span></td>
                         <td>
-                          <button className="ass-results" type="button" onClick={() => navigate('/results')}>
-                            View results <span aria-hidden="true">→</span>
-                          </button>
+                          <button
+  className="ass-results"
+  type="button"
+  onClick={() =>
+    navigate('/results', { state: { result: session.result } })
+  }
+>
+  View results <span aria-hidden="true">→</span>
+</button>
                         </td>
                       </tr>
                     ))}

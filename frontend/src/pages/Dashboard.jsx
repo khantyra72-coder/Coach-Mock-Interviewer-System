@@ -1,8 +1,12 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TopBar from '../components/TopBar.jsx'
 import Reveal from '../components/Reveal.jsx'
 import { getStoredUser } from '../api/client.js'
+import {
+  getInterviewDetails,
+  getInterviewHistory,
+} from '../api/interviews.js'
 import {
   ClipboardList,
   Target,
@@ -26,23 +30,124 @@ const APP_NAV = [
   { label: 'Settings', to: '/profile' },
 ]
 
-const DASH_STATS = [
-  { icon: ClipboardList, label: 'Total interviews', value: '11', to: '/sessions' },
-  { icon: Target, label: 'Average score', value: '68%' },
-  { icon: Award, label: 'Best score', value: '82%' },
-  { icon: Layers, label: 'Roles practiced', value: '4', to: '/sessions?view=roles' },
-]
-
-const ROLES = [
-  { icon: Code, name: 'Software Engineer', badge: 'b-imp', badgeIcon: TrendingUp, badgeLabel: 'Improving', interviews: 5, average: '69%', last: '82%' },
-  { icon: Layout, name: 'Frontend Developer', badge: 'b-new', badgeIcon: Sparkles, badgeLabel: 'New', interviews: 1, average: '76%', last: '76%' },
-  { icon: Server, name: 'Backend Developer', badge: 'b-stable', badgeIcon: Minus, badgeLabel: 'Stable', interviews: 3, average: '70%', last: '71%' },
-  { icon: BarChart3, name: 'Data Scientist', badge: 'b-dec', badgeIcon: TrendingDown, badgeLabel: 'Declining', interviews: 2, average: '58%', last: '50%' },
-]
+const ROLE_ICONS = {
+  'Software Engineer': Code,
+  'Frontend Developer': Layout,
+  'Backend Developer': Server,
+  'Data Scientist': BarChart3,
+}
 
 export default function Dashboard() {
   const navigate = useNavigate()
   const [user] = useState(getStoredUser)
+  const [sessions, setSessions] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
+
+  useEffect(() => {
+  let cancelled = false
+
+  async function loadDashboard() {
+    try {
+      const history = await getInterviewHistory()
+      const completed = history.filter(
+        (session) => session.status === 'COMPLETED'
+      )
+
+      const withScores = await Promise.all(
+        completed.map(async (session) => {
+          const details = await getInterviewDetails(session.id)
+          return {
+            ...session,
+            score: details.result?.overallScore ?? 0,
+          }
+        })
+      )
+
+      if (!cancelled) setSessions(withScores)
+    } catch (error) {
+      if (!cancelled) {
+        setLoadError(
+          error.message || 'Could not load dashboard statistics.'
+        )
+      }
+    } finally {
+      if (!cancelled) setLoading(false)
+    }
+  }
+
+  loadDashboard()
+
+  return () => {
+    cancelled = true
+  }
+}, [])
+
+const totalInterviews = sessions.length
+const averageScore = totalInterviews
+  ? Math.round(
+      sessions.reduce((sum, session) => sum + session.score, 0)
+      / totalInterviews
+    )
+  : 0
+const bestScore = totalInterviews
+  ? Math.max(...sessions.map((session) => session.score))
+  : 0
+const roleNames = [...new Set(sessions.map((session) => session.role))]
+
+const dashboardStats = [
+  {
+    icon: ClipboardList,
+    label: 'Total interviews',
+    value: String(totalInterviews),
+    to: '/sessions',
+  },
+  {
+    icon: Target,
+    label: 'Average score',
+    value: `${averageScore}%`,
+  },
+  {
+    icon: Award,
+    label: 'Best score',
+    value: `${bestScore}%`,
+  },
+  {
+    icon: Layers,
+    label: 'Roles practiced',
+    value: String(roleNames.length),
+    to: '/sessions?view=roles',
+  },
+]
+
+const roleSummaries = roleNames.map((role) => {
+  const roleSessions = sessions
+    .filter((session) => session.role === role)
+    .sort(
+      (a, b) =>
+        new Date(b.completedAt || b.startedAt)
+        - new Date(a.completedAt || a.startedAt)
+    )
+
+  const roleAverage = Math.round(
+    roleSessions.reduce((sum, session) => sum + session.score, 0)
+    / roleSessions.length
+  )
+  const lastScore = roleSessions[0]?.score ?? 0
+  const isNew = roleSessions.length === 1
+  const improving = lastScore >= roleAverage
+
+  return {
+    icon: ROLE_ICONS[role] || Code,
+    name: role,
+    badge: isNew ? 'b-new' : improving ? 'b-imp' : 'b-dec',
+    badgeIcon: isNew ? Sparkles : improving ? TrendingUp : TrendingDown,
+    badgeLabel: isNew ? 'New' : improving ? 'Improving' : 'Needs focus',
+    interviews: roleSessions.length,
+    average: `${roleAverage}%`,
+    last: `${lastScore}%`,
+  }
+})
 
   return (
     <section className="screen" id="dash">
@@ -53,8 +158,16 @@ export default function Dashboard() {
           <p>Ready to improve your interview skills today?</p>
         </Reveal>
 
+        {loading && (
+  <p className="sub muted">Loading dashboard statistics…</p>
+)}
+
+{loadError && (
+  <p className="field-error">{loadError}</p>
+)}
+
         <Reveal className="dash-stats" delay={60}>
-          {DASH_STATS.map((s) => (
+          {dashboardStats.map((s) => (
             <button
               type="button"
               className={`card dash-stat${s.to ? ' clickable' : ''}`}
@@ -84,7 +197,7 @@ export default function Dashboard() {
 
         <div className="sec-title">Your practiced job roles</div>
         <div className="rolegrid">
-          {ROLES.map((r, i) => (
+          {roleSummaries.map((r, i) => (
             <Reveal as="div" className="card rolecard" key={r.name} delay={i * 60}>
               <div className="rc-top">
                 <div className="rc-icon"><r.icon size={19} strokeWidth={1.8} /></div>

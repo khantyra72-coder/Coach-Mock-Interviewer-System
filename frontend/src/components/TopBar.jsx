@@ -71,9 +71,10 @@ function UserMenu({ avatarStyle }) {
   }, [open])
 
   const handleLogoutConfirmed = () => {
+    const loginPath = user?.role === 'ADMIN' ? '/admin/login' : '/login'
     clearSession()
     setConfirmOpen(false)
-    navigate('/login', { state: { loggedOut: true } })
+    navigate(loginPath, { state: { loggedOut: true } })
   }
 
   return (

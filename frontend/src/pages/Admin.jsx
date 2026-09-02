@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import TopBar from '../components/TopBar.jsx'
 import {
@@ -10,19 +10,12 @@ import {
 } from '../data/questionBank.js'
 import { getCompanies, saveCompanies } from '../data/companyCatalog.js'
 import { getSessionHistory } from '../data/sessionCatalog.js'
+import { apiGet } from '../api/client.js'
 
 const ADMIN_NAV = [
   { label: 'Users', to: '/admin?section=users' },
   { label: 'Companies', to: '/admin?section=companies' },
   { label: 'Questions', to: '/admin?section=questions' },
-]
-
-const USERS = [
-  { id: '#001', name: 'John Carter', email: 'john@example.com', role: 'USER', interviews: 11, status: 'Active', joined: 'Aug 2, 2026' },
-  { id: '#002', name: 'Maya Lin', email: 'maya@example.com', role: 'USER', interviews: 7, status: 'Active', joined: 'Aug 6, 2026' },
-  { id: '#003', name: 'Alex Morgan', email: 'alex@example.com', role: 'USER', interviews: 3, status: 'Active', joined: 'Aug 10, 2026' },
-  { id: '#004', name: 'Nora Patel', email: 'nora@example.com', role: 'USER', interviews: 0, status: 'New', joined: 'Aug 19, 2026' },
-  { id: '#005', name: 'Admin User', email: 'admin@aceinterview.dev', role: 'ADMIN', interviews: 0, status: 'Active', joined: 'Jul 20, 2026' },
 ]
 
 const ROLES = ['Software Engineer', 'Frontend Developer', 'Backend Developer', 'Full-Stack Developer', 'Data Scientist', 'ML / AI Engineer', 'Cloud / DevOps Engineer', 'Mobile Developer', 'Cybersecurity Analyst', 'QA / Test Engineer', 'Any']
@@ -46,16 +39,32 @@ function AdminHeader({ eyebrow, title, action, onAction }) {
 }
 
 function UsersPage() {
-  const [users, setUsers] = useState(USERS)
+  const [users, setUsers] = useState([])
   const [filter, setFilter] = useState('all')
   const [selected, setSelected] = useState(null)
-  const [editing, setEditing] = useState(null)
-  const visibleUsers = users.filter((user) => filter === 'active' ? user.status === 'Active' : filter === 'interviewed' ? user.interviews > 0 : true)
-  const saveEdit = (event) => {
-    event.preventDefault()
-    setUsers((items) => items.map((item) => item.id === editing.id ? editing : item))
-    setSelected(editing); setEditing(null)
-  }
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    let active = true
+    apiGet('/admin/users')
+      .then((data) => {
+        if (active) setUsers(data)
+      })
+      .catch((err) => {
+        if (active) setError(err.message || 'Could not load registered users.')
+      })
+      .finally(() => {
+        if (active) setLoading(false)
+      })
+    return () => { active = false }
+  }, [])
+
+  const visibleUsers = users.filter((user) => filter === 'active' ? true : filter === 'interviewed' ? user.interviews > 0 : true)
+  const joinedDate = (value) => value
+    ? new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'short', day: 'numeric' }).format(new Date(value))
+    : '—'
+  const displayId = (id) => `#${String(id).padStart(3, '0')}`
   return (
     <>
       <AdminHeader eyebrow="Access" title="Users" />
@@ -64,22 +73,22 @@ function UsersPage() {
         <button className={`card${filter === 'active' ? ' selected' : ''}`} onClick={() => setFilter('active')}><b>{users.filter((user) => user.status === 'Active').length}</b><span>Active users</span></button>
         <button className={`card${filter === 'interviewed' ? ' selected' : ''}`} onClick={() => setFilter('interviewed')}><b>{users.reduce((sum, user) => sum + user.interviews, 0)}</b><span>Interviews completed</span></button>
       </div>
-      {(selected || editing) && <div className="card admin-action-panel">
-        {editing ? <form onSubmit={saveEdit}><h3>Edit user</h3><div className="g3">
-          <div className="field"><label>Name</label><input className="inp" value={editing.name} onChange={(e) => setEditing({ ...editing, name: e.target.value })} /></div>
-          <div className="field"><label>Email</label><input className="inp" value={editing.email} onChange={(e) => setEditing({ ...editing, email: e.target.value })} /></div>
-          <div className="field"><label>Status</label><select value={editing.status} onChange={(e) => setEditing({ ...editing, status: e.target.value })}><option>Active</option><option>Suspended</option><option>New</option></select></div>
-        </div><div className="admin-form-actions"><button className="btn">Save changes</button><button type="button" className="btn ghost" onClick={() => setEditing(null)}>Cancel</button></div></form>
-          : <><h3>{selected.name}</h3><p className="muted">{selected.email} · {selected.role} · {selected.status}</p><p>{selected.interviews} interviews completed · Joined {selected.joined}</p><button className="btn ghost sm" onClick={() => setSelected(null)}>Close</button></>}
+      {error && <div className="card admin-action-panel"><p>{error}</p></div>}
+      {selected && <div className="card admin-action-panel">
+        <h3>{selected.name}</h3><p className="muted">{selected.email} · {selected.role} · Active</p><p>{selected.interviews} interviews completed · Joined {joinedDate(selected.joinedAt)}</p><button className="btn ghost sm" onClick={() => setSelected(null)}>Close</button>
       </div>}
       <div className="admin-table-wrap">
         <table className="adm">
           <thead><tr><th>ID</th><th>User</th><th>Role</th><th>Interviews</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
-          <tbody>{visibleUsers.map((user) => (
+          <tbody>{loading ? (
+            <tr><td colSpan="7">Loading registered users…</td></tr>
+          ) : visibleUsers.length === 0 ? (
+            <tr><td colSpan="7">No registered users found.</td></tr>
+          ) : visibleUsers.map((user) => (
             <tr key={user.id}>
-              <td>{user.id}</td><td><b>{user.name}</b><div className="admin-subtext">{user.email}</div></td>
-              <td>{user.role}</td><td>{user.interviews}</td><td><span className="pill g">{user.status}</span></td><td>{user.joined}</td>
-              <td><button type="button" className="act" onClick={() => { setSelected(user); setEditing(null) }}>View</button><button type="button" className="act" onClick={() => { setEditing({ ...user }); setSelected(null) }}>Edit</button></td>
+              <td>{displayId(user.id)}</td><td><b>{user.name}</b><div className="admin-subtext">{user.email}</div></td>
+              <td>{user.role}</td><td>{user.interviews}</td><td><span className="pill g">Active</span></td><td>{joinedDate(user.joinedAt)}</td>
+              <td><button type="button" className="act" onClick={() => setSelected(user)}>View</button></td>
             </tr>
           ))}</tbody>
         </table>

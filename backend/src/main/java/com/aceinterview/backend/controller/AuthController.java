@@ -62,9 +62,19 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
+        return authenticate(request, "USER");
+    }
+
+    @PostMapping("/admin-login")
+    public ResponseEntity<?> adminLogin(@Valid @RequestBody LoginRequest request) {
+        return authenticate(request, "ADMIN");
+    }
+
+    private ResponseEntity<?> authenticate(LoginRequest request, String requiredRole) {
         Optional<User> user = userRepository.findByEmail(request.email());
 
         boolean passwordMatches = user.isPresent()
+                && requiredRole.equalsIgnoreCase(user.get().getRole())
                 && passwordEncoder.matches(request.password(), user.get().getPasswordHash());
 
         if (!passwordMatches) {

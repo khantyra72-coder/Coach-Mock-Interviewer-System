@@ -1,12 +1,12 @@
-const API_BASE_URL = 'http://localhost:8080/api'
+const API_BASE_URL = 'http://localhost:8081/api'
 
 const TOKEN_KEY = 'aceinterview_token'
 const USER_KEY = 'aceinterview_user'
 
-// A 401 from these two endpoints just means "wrong email/password" — it's
+// A 401 from these public endpoints is an expected form-level error — it's
 // not a sign the user's session expired, so it must NOT clear storage or
 // redirect (that would blow away the login form's own error handling).
-const PUBLIC_PATHS = ['/login', '/register']
+const PUBLIC_PATHS = ['/login', '/admin-login', '/register']
 
 // status is 0 for network-level failures (server down, CORS, no connection —
 // anything that never got back an HTTP response at all).

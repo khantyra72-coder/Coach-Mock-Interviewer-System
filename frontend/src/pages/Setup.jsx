@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import TopBar from '../components/TopBar.jsx'
-import { ChevronDown, ChevronRight, Clock, Code2, Handshake, Network, Search } from 'lucide-react'
+import { Check, ChevronDown, ChevronRight, Clock, Code2, Handshake, Network, Search } from 'lucide-react'
 import { FaAirbnb, FaAmazon, FaApple, FaMeta, FaSpotify, FaUber } from 'react-icons/fa6'
 import { SiNetflix, SiStripe } from 'react-icons/si'
 import { getCompanies, getSelectedCompany, setSelectedCompany } from '../data/companyCatalog.js'
@@ -206,13 +206,16 @@ export default function Setup() {
               <label>Experience level</label>
               <div className="chips">
                 {LEVELS.map((l) => (
-                  <div
+                  <button
+                    type="button"
                     key={l}
                     className={`chip${level === l ? ' sel' : ''}`}
                     onClick={() => setLevel(l)}
+                    aria-pressed={level === l}
                   >
+                    {level === l && <Check className="setup-chip-check" size={14} strokeWidth={3} />}
                     {l}
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
@@ -222,13 +225,16 @@ export default function Setup() {
                 <label>Difficulty</label>
                 <div className="chips">
                   {DIFFICULTIES.map((d) => (
-                    <div
+                    <button
+                      type="button"
                       key={d}
                       className={`chip${difficulty === d ? ' sel' : ''}`}
                       onClick={() => setDifficulty(d)}
+                      aria-pressed={difficulty === d}
                     >
+                      {difficulty === d && <Check className="setup-chip-check" size={14} strokeWidth={3} />}
                       {d}
-                    </div>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -236,13 +242,16 @@ export default function Setup() {
                 <label>Questions</label>
                 <div className="chips">
                   {QUESTION_COUNTS.map((q) => (
-                    <div
+                    <button
+                      type="button"
                       key={q}
                       className={`chip${questionCount === q ? ' sel' : ''}`}
                       onClick={() => setQuestionCount(q)}
+                      aria-pressed={questionCount === q}
                     >
+                      {questionCount === q && <Check className="setup-chip-check" size={14} strokeWidth={3} />}
                       {q}
-                    </div>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -253,13 +262,16 @@ export default function Setup() {
             <label>Topics to focus on</label>
             <div className="chips">
               {availableTopics.map((t) => (
-                <div
+                <button
+                  type="button"
                   key={t}
                   className={`chip${topics.includes(t) ? ' sel' : ''}`}
                   onClick={() => toggleTopic(t)}
+                  aria-pressed={topics.includes(t)}
                 >
+                  {topics.includes(t) && <Check className="topic-chip-check" size={14} strokeWidth={3} />}
                   {t}
-                </div>
+                </button>
               ))}
             </div>
           </div>

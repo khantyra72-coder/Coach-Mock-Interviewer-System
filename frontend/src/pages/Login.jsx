@@ -95,6 +95,12 @@ export default function Login() {
               <p className="authlink">
                 New here? <a onClick={() => navigate('/register')}>Create an account</a>
               </p>
+              <div className="admin-login-entry">
+                <span>Administrator access</span>
+                <button type="button" className="btn ghost block" onClick={() => navigate('/admin/login')}>
+                  Log in as admin
+                </button>
+              </div>
             </form>
           </div>
         </div>

@@ -20,12 +20,30 @@ export default function AdminLogin() {
     setSubmitting(true)
 
     try {
-      const { token, ...user } = await apiPost('/admin-login', { email: email.trim(), password })
+      const credentials = { email: email.trim(), password }
+      let response
+
+      try {
+        response = await apiPost('/admin-login', credentials)
+      } catch (err) {
+        // Older running backends do not have the dedicated endpoint yet.
+        // Their regular login still returns the role, so it is safe to use
+        // only as a 404 compatibility fallback and verify ADMIN below.
+        if (!(err instanceof ApiError) || err.status !== 404) throw err
+        response = await apiPost('/login', credentials)
+      }
+
+      const { token, ...user } = response
+      if (user.role !== 'ADMIN') {
+        throw new ApiError('This account does not have administrator access.', 403)
+      }
       setSession(token, user)
       navigate('/admin', { replace: true })
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
         setError('Invalid admin email or password. Please try again.')
+      } else if (err instanceof ApiError && err.status === 403) {
+        setError(err.message)
       } else if (err instanceof ApiError) {
         setError(err.message)
       } else {

@@ -1,6 +1,8 @@
 import { Navigate, Outlet } from 'react-router-dom'
-import { getToken } from '../api/client.js'
+import { getStoredUser, getToken } from '../api/client.js'
 
 export default function ProtectedRoute() {
-  return getToken() ? <Outlet /> : <Navigate to="/login" replace />
+  if (!getToken()) return <Navigate to="/login" replace />
+  if (getStoredUser()?.role === 'ADMIN') return <Navigate to="/admin" replace />
+  return <Outlet />
 }

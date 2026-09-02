@@ -296,6 +296,12 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .inp:focus{outline:none;border-color:var(--emerald)}
 .authlink{text-align:center;font-size:13.5px;color:var(--slate);margin-top:18px}
 .authlink a{color:var(--emerald-d);font-weight:600;cursor:pointer}
+.admin-login-card{border-top:3px solid #C77E24}
+.admin-login-icon{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:18px;background:#fff4df;color:#9a5c12}
+.admin-login-entry{margin-top:16px;padding-top:16px;border-top:1px solid var(--line);text-align:center}
+.admin-login-entry span{display:block;margin-bottom:10px;color:var(--slate);font-size:12px;font-weight:650;text-transform:uppercase;letter-spacing:.06em}
+.admin-login-entry .btn{border-color:#d7b887;color:#855012;background:#fffaf2}
+.admin-login-entry .btn:hover{border-color:#C77E24;background:#fff4df}
 
 .pw-toggle-wrap{position:relative}
 .pw-toggle-wrap .inp{padding-right:42px}
@@ -493,9 +499,17 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 #setup .setup-config-grid{padding-top:20px;border-top:1px solid var(--line);gap:32px}
 #setup .setup-config-section .chips{display:grid;grid-template-columns:repeat(4,minmax(100px,1fr));gap:10px}
 #setup .setup-config-grid .chips{grid-template-columns:repeat(3,minmax(76px,1fr))}
-#setup .setup-config-section .chip{text-align:center;border-radius:10px;padding:11px 12px}
+#setup .setup-config-section .chip{min-height:44px;border:1px solid var(--line);border-radius:7px;padding:9px 12px;display:flex;align-items:center;justify-content:center;gap:8px;text-align:center;color:var(--ink);background:#fff;box-shadow:0 1px 2px rgba(12,26,19,.03)}
+#setup .setup-config-section .chip:hover{border-color:#9fd9bd;background:#fbfefc}
+#setup .setup-config-section .chip.sel{border-color:var(--emerald);background:#f1fbf6;color:var(--emerald-d);box-shadow:0 0 0 1px rgba(14,158,102,.08)}
+#setup .setup-config-section .setup-chip-check{flex:0 0 auto;width:18px;height:18px;padding:3px;border-radius:50%;background:var(--emerald);color:#fff}
+#setup .setup-config-section .chip:focus-visible{outline:3px solid rgba(14,158,102,.18);outline-offset:2px}
 #setup .setup-topics-section .chips{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
-#setup .setup-topics-section .chip{min-height:54px;border-radius:10px;padding:10px;display:grid;place-items:center;text-align:center;line-height:1.35}
+#setup .setup-topics-section .chip{min-height:44px;border:1px solid var(--line);border-radius:7px;padding:9px 12px;display:flex;align-items:center;justify-content:center;gap:8px;text-align:center;line-height:1.25;color:var(--ink);background:#fff;box-shadow:0 1px 2px rgba(12,26,19,.03)}
+#setup .setup-topics-section .chip:hover{border-color:#9fd9bd;background:#fbfefc}
+#setup .setup-topics-section .chip.sel{border-color:var(--emerald);background:#f1fbf6;color:var(--emerald-d);box-shadow:0 0 0 1px rgba(14,158,102,.08)}
+#setup .setup-topics-section .topic-chip-check{flex:0 0 auto;width:18px;height:18px;padding:3px;border-radius:50%;background:var(--emerald);color:#fff}
+#setup .setup-topics-section .chip:focus-visible{outline:3px solid rgba(14,158,102,.18);outline-offset:2px}
 #setup .setup-timer-section .opt{margin-top:2px;align-items:center;padding:17px 18px;background:var(--mist2)}
 #setup .setup-actions{display:flex;justify-content:flex-end;padding-top:4px}
 #setup .setup-actions .btn{min-width:210px;padding:13px 22px}

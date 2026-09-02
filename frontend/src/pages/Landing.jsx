@@ -28,9 +28,9 @@ import {
 } from 'lucide-react'
 
 const STATS = [
-  { value: 9, suffix: '', label: 'Tech roles' },
-  { value: 6, suffix: '', label: 'Top companies' },
-  { value: 3, suffix: '', label: 'Interview types' },
+  { value: 10, suffix: '', label: 'Tech roles' },
+  { value: 10, suffix: '', label: 'Top companies' },
+  { value: 1000, suffix: '+', label: 'Interview questions' },
   { value: 100, suffix: '%', label: 'Free to practise' },
 ]
 
@@ -177,7 +177,7 @@ function StatItem({ value, suffix, label, active }) {
 
   return (
     <div className="stat">
-      <div className="num">{displayValue}{suffix}</div>
+      <div className="num">{displayValue.toLocaleString()}{suffix}</div>
       <div className="label">{label}</div>
     </div>
   )

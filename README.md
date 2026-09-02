@@ -86,6 +86,12 @@ spring.datasource.password=YOUR_APP_PASSWORD
 app.jwt.secret=YOUR_RANDOM_JWT_SECRET
 app.jwt.expiration-ms=86400000
 
+# Local administrator account (choose your own strong values)
+app.admin.enabled=true
+app.admin.name=AceInterview Admin
+app.admin.email=admin@aceinterview.local
+app.admin.password=YOUR_ADMIN_PASSWORD
+
 spring.jpa.hibernate.ddl-auto=validate
 Generate a JWT secret with:
 openssl rand -hex 32
@@ -128,5 +134,6 @@ Authorization: Bearer <JWT_TOKEN>
 Security notes
 - Never commit database passwords.
 - Never commit JWT secrets.
+- Never commit administrator credentials. Keep them in `application-local.properties` or environment variables.
 - Do not run the Java application with the MySQL root account.
 - Use environment variables or private local configuration in production.

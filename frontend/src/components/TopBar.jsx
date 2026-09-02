@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Menu, X, User, LogOut } from 'lucide-react'
+import { Menu, X, User, UserCog, LogOut } from 'lucide-react'
 import Logo from './Logo.jsx'
 import useScrolled from '../hooks/useScrolled.js'
 import { getStoredUser, clearSession } from '../api/client.js'
@@ -99,6 +99,17 @@ function UserMenu({ avatarStyle }) {
           <button
             type="button"
             className="user-dropdown-item"
+            onClick={() => {
+              setOpen(false)
+              navigate('/profile')
+            }}
+          >
+            <UserCog size={15} strokeWidth={1.8} />
+            Profile
+          </button>
+          <button
+            type="button"
+            className="user-dropdown-item logout"
             onClick={() => {
               setOpen(false)
               setConfirmOpen(true)

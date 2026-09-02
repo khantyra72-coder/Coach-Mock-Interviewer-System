@@ -13,7 +13,7 @@ const APP_NAV = [
   { label: 'Interview Setup', to: '/setup' },
   { label: 'My Sessions', to: '/sessions' },
   { label: 'Progress Report', to: '/progress' },
-  { label: 'Settings' },
+  { label: 'Settings', to: '/profile' },
 ]
 
 // Mirrors the company logo setup in Setup.jsx (kept as a local copy here

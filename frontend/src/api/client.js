@@ -84,3 +84,7 @@ export function apiPost(path, body) {
 export function apiGet(path) {
   return apiRequest('GET', path)
 }
+
+export function apiPut(path, body) {
+  return apiRequest('PUT', path, body)
+}

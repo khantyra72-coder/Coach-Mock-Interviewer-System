@@ -12,6 +12,7 @@ import Results from './pages/Results.jsx'
 import Progress from './pages/Progress.jsx'
 import AllSessions from './pages/AllSessions.jsx'
 import Admin from './pages/Admin.jsx'
+import Profile from './pages/Profile.jsx'
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
         <Route path="/progress" element={<Progress />} />
         <Route path="/sessions" element={<AllSessions />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/profile" element={<Profile />} />
       </Route>
     </Routes>
   )

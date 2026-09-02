@@ -44,8 +44,10 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .user-dropdown-info{padding:10px 12px 12px;border-bottom:1px solid var(--line);margin-bottom:6px}
 .user-dropdown-name{font-weight:700;font-size:14px;color:var(--ink);font-family:'Plus Jakarta Sans'}
 .user-dropdown-email{font-size:12.5px;color:var(--slate);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.user-dropdown-item{display:flex;align-items:center;gap:9px;width:100%;padding:9px 12px;border-radius:9px;font-size:13.5px;font-weight:600;color:var(--coral);cursor:pointer;transition:background .16s ease}
-.user-dropdown-item:hover{background:var(--coral-bg)}
+.user-dropdown-item{display:flex;align-items:center;gap:9px;width:100%;padding:9px 12px;border-radius:9px;font-size:13.5px;font-weight:600;color:var(--ink);cursor:pointer;transition:background .16s ease}
+.user-dropdown-item:hover{background:var(--mist2)}
+.user-dropdown-item.logout{color:var(--coral)}
+.user-dropdown-item.logout:hover{background:var(--coral-bg)}
 @media (prefers-reduced-motion: reduce){.user-dropdown{animation:none}}
 
 /* ---- confirmation modal (logout, etc.) ---- */
@@ -364,6 +366,20 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .dash-stat .di{width:40px;height:40px;border-radius:11px;background:var(--mist);color:var(--forest);display:grid;place-items:center;flex-shrink:0}
 .dash-stat .dv{font-family:'Plus Jakarta Sans';font-weight:800;font-size:20px;color:var(--ink);line-height:1.2}
 .dash-stat .dl{font-size:11.5px;color:var(--slate);margin-top:2px}
+
+/* ---- profile page ---- */
+.profile-hd{margin-bottom:26px}
+.profile-hd h1{font-size:32px;font-weight:800;margin-top:6px}
+.profile-hd p{margin-top:8px;font-size:15px}
+
+.profile-card{padding:30px;margin-bottom:20px}
+.profile-card:last-child{margin-bottom:0}
+.profile-card-hd{display:flex;align-items:center;gap:14px;margin-bottom:22px}
+.profile-card-hd h2{font-size:18px;font-weight:800}
+.profile-card-hd p{font-size:13px;margin-top:2px}
+.profile-card-icon{width:40px;height:40px;border-radius:11px;background:var(--mist);color:var(--forest);display:grid;place-items:center;flex-shrink:0}
+
+.profile-loading{display:flex;align-items:center;gap:8px;color:var(--slate);font-size:14px;padding:6px 0}
 
 .startbtn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:linear-gradient(180deg,var(--emerald) 0%,var(--forest) 100%);color:#fff;padding:22px;border-radius:16px;font-family:'Plus Jakarta Sans';font-weight:700;font-size:18px;margin:28px 0 4px;box-shadow:0 10px 24px rgba(14,158,102,.28),0 2px 4px rgba(12,26,19,.06);transition:transform .16s ease,box-shadow .16s ease,background .16s ease}
 .startbtn:hover{background:linear-gradient(180deg,var(--forest) 0%,var(--forest-d) 100%);transform:translateY(-2px);box-shadow:0 14px 32px rgba(14,158,102,.36),0 3px 6px rgba(12,26,19,.08)}

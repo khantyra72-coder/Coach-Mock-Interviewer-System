@@ -142,6 +142,10 @@ export default function TopBar({
   const location = useLocation()
   const scrolled = useScrolled(40)
   const [mobileOpen, setMobileOpen] = useState(false)
+  // Dashboard is prepended here (not in each page's own nav array) so every
+  // page that passes `nav` gets the link automatically, with one place to
+  // change it.
+  const navItems = nav ? [{ label: 'Dashboard', to: '/dashboard' }, ...nav] : null
 
   return (
     <div className={`top${scrolled ? ' scrolled' : ''}`}>
@@ -157,10 +161,10 @@ export default function TopBar({
           )}
         </div>
 
-        {nav && (
+        {navItems && (
           <>
             <nav className={`tnav${mobileOpen ? ' mobile-open' : ''}`}>
-              {nav.map((item, i) =>
+              {navItems.map((item, i) =>
                 item.to ? (
                   <Link
                     key={i}

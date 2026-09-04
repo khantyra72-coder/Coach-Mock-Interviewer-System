@@ -19,10 +19,9 @@ import {
 } from 'lucide-react'
 
 const APP_NAV = [
-  { label: 'Interview Setup', to: '/setup' },
+  { label: 'Interview Setup', to: '/role' },
   { label: 'My Sessions', to: '/sessions' },
   { label: 'Progress Report', to: '/progress' },
-  { label: 'Settings', to: '/profile' },
 ]
 
 const ROLES = [
@@ -139,6 +138,10 @@ export default function SelectRole() {
                 key={r.name}
                 className={`card role${isSelected ? ' selected' : ''}`}
                 delay={i * 50}
+                style={{
+                  '--role-image-x': `${(i % 5) * 25}%`,
+                  '--role-image-y': i < 5 ? '0%' : '100%',
+                }}
                 onClick={() => setSelected(r.name)}
               >
                 {isSelected && (

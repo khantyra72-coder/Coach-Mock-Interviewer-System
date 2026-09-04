@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import AdminRoute from './components/AdminRoute.jsx'
+import AuthenticatedRoute from './components/AuthenticatedRoute.jsx'
 import Landing from './pages/Landing.jsx'
 import Login from './pages/Login.jsx'
 import AdminLogin from './pages/AdminLogin.jsx'
@@ -37,6 +38,9 @@ function App() {
 
       <Route element={<AdminRoute />}>
         <Route path="/admin" element={<Admin />} />
+      </Route>
+
+      <Route element={<AuthenticatedRoute />}>
         <Route path="/profile" element={<Profile />} />
       </Route>
     </Routes>

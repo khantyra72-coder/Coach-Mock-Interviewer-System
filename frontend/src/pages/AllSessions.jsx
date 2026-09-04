@@ -10,15 +10,30 @@ import {
   getInterviewDetails,
   getInterviewHistory,
 } from '../api/interviews.js'
+import { getUnsyncedLocalSessions, syncLocalCompletedSessions } from '../utils/syncLocalInterviewHistory.js'
 
 const APP_NAV = [
-  { label: 'Interview Setup', to: '/setup' },
+  { label: 'Interview Setup', to: '/role' },
   { label: 'My Sessions', to: '/sessions' },
   { label: 'Progress Report', to: '/progress' },
-  { label: 'Settings', to: '/profile' },
 ]
 
 const PAGE_SIZE = 6
+
+const FILTER_ROLES = [
+  'Software Engineer',
+  'Frontend Developer',
+  'Backend Developer',
+  'Full-Stack Developer',
+  'Data Scientist',
+  'ML / AI Engineer',
+  'Cloud / DevOps Engineer',
+  'Mobile Developer',
+  'Cybersecurity Analyst',
+  'QA / Test Engineer',
+]
+
+const INTERVIEW_TYPES = ['Technical', 'Behavioral', 'System Design']
 
 const ROLE_ICONS = {
   'Software Engineer': { icon: Code2, className: 'software' },
@@ -150,6 +165,7 @@ useEffect(() => {
 
   async function loadSessions() {
     try {
+      await syncLocalCompletedSessions()
       const history = await getInterviewHistory()
       const completed = history.filter(
         (session) => session.status === 'COMPLETED'
@@ -162,13 +178,18 @@ useEffect(() => {
         })
       )
 
+      const backendIds = new Set(sessionsWithDetails.map((session) => String(session.id)))
+      const localOnly = getUnsyncedLocalSessions().filter((session) =>
+        !backendIds.has(String(session.id))
+      )
       if (!cancelled) {
-        setSessions(sessionsWithDetails)
+        setSessions([...sessionsWithDetails, ...localOnly])
       }
     } catch (error) {
       if (!cancelled) {
+        setSessions(getUnsyncedLocalSessions())
         setLoadError(
-          error.message || 'Could not load interview history.'
+          error.message || 'Could not sync interview history with the server.'
         )
       }
     } finally {
@@ -188,8 +209,10 @@ useEffect(() => {
   const [companyFilter, setCompanyFilter] = useState('All companies')
   const [sort, setSort] = useState('Newest first')
   const [page, setPage] = useState(1)
-  const roles = useMemo(() => [...new Set(sessions.map((session) => session.role))], [sessions])
-  const interviewTypes = useMemo(() => [...new Set(sessions.map((session) => session.type))], [sessions])
+  const roles = useMemo(
+    () => [...new Set(sessions.map((session) => session.role).filter(Boolean))],
+    [sessions]
+  )
   const roleSummaries = useMemo(() => roles.map((role) => {
     const roleSessions = sessions.filter((session) => session.role === role)
     return {
@@ -253,7 +276,8 @@ useEffect(() => {
           <>
             <h1 className="h-title">Roles practiced</h1>
             <p className="sub muted" style={{ marginTop: 6, marginBottom: 20 }}>
-              You have practiced 4 roles across 11 interviews.
+              You have practiced {roles.length} role{roles.length === 1 ? '' : 's'} across{' '}
+              {sessions.length} interview{sessions.length === 1 ? '' : 's'}.
             </p>
             <div className="ass-role-grid">
               {roleSummaries.map((summary) => (
@@ -294,11 +318,11 @@ useEffect(() => {
                 </label>
                 <select value={roleFilter} onChange={updateFilter(setRoleFilter)} aria-label="Filter by role">
                   <option>All roles</option>
-                  {roles.map((role) => <option key={role}>{role}</option>)}
+                  {FILTER_ROLES.map((role) => <option key={role}>{role}</option>)}
                 </select>
                 <select value={typeFilter} onChange={updateFilter(setTypeFilter)} aria-label="Filter by interview type">
                   <option>All interview types</option>
-                  {interviewTypes.map((type) => <option key={type}>{type}</option>)}
+                  {INTERVIEW_TYPES.map((type) => <option key={type}>{type}</option>)}
                 </select>
                 <select value={companyFilter} onChange={updateFilter(setCompanyFilter)} aria-label="Filter by company">
                   <option>All companies</option>

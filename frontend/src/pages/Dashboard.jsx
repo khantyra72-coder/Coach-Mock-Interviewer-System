@@ -7,6 +7,7 @@ import {
   getInterviewDetails,
   getInterviewHistory,
 } from '../api/interviews.js'
+import { getUnsyncedLocalSessions, syncLocalCompletedSessions } from '../utils/syncLocalInterviewHistory.js'
 import {
   ClipboardList,
   Target,
@@ -24,10 +25,9 @@ import {
 } from 'lucide-react'
 
 const APP_NAV = [
-  { label: 'Interview Setup', to: '/setup' },
+  { label: 'Interview Setup', to: '/role' },
   { label: 'My Sessions', to: '/sessions' },
   { label: 'Progress Report', to: '/progress' },
-  { label: 'Settings', to: '/profile' },
 ]
 
 const ROLE_ICONS = {
@@ -49,6 +49,7 @@ export default function Dashboard() {
 
   async function loadDashboard() {
     try {
+      await syncLocalCompletedSessions()
       const history = await getInterviewHistory()
       const completed = history.filter(
         (session) => session.status === 'COMPLETED'
@@ -64,11 +65,16 @@ export default function Dashboard() {
         })
       )
 
-      if (!cancelled) setSessions(withScores)
+      const backendIds = new Set(withScores.map((session) => String(session.id)))
+      const localOnly = getUnsyncedLocalSessions().filter((session) =>
+        !backendIds.has(String(session.id))
+      )
+      if (!cancelled) setSessions([...withScores, ...localOnly])
     } catch (error) {
       if (!cancelled) {
+        setSessions(getUnsyncedLocalSessions())
         setLoadError(
-          error.message || 'Could not load dashboard statistics.'
+          error.message || 'Could not sync dashboard statistics with the server.'
         )
       }
     } finally {

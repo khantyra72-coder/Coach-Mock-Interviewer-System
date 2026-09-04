@@ -111,6 +111,10 @@ npm run dev
 The frontend normally runs at:
 http://localhost:5173
 
+The frontend connects to `http://localhost:8080/api` by default. If your backend
+uses another port, copy `frontend/.env.example` to `frontend/.env.local`, update
+`VITE_API_BASE_URL`, and restart Vite. The `.env.local` file is ignored by Git.
+
 6. Run tests
 Backend:
 cd backend

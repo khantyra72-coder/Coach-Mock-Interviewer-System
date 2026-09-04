@@ -9,6 +9,12 @@ import {
   Layout,
   BarChart3,
   Cloud,
+  Server,
+  Layers,
+  BrainCircuit,
+  Smartphone,
+  ShieldCheck,
+  FlaskConical,
   Target,
   MessageSquare,
   LineChart,
@@ -35,10 +41,16 @@ const STATS = [
 ]
 
 const PATHS = [
-  { icon: Code, title: 'Software Engineering', desc: 'Data structures, algorithms, and core computer-science fundamentals.' },
-  { icon: Layout, title: 'UI', desc: 'JavaScript, React, CSS, and building fast, accessible interfaces.' },
-  { icon: BarChart3, title: 'Data & AI', desc: 'Machine learning, statistics, SQL, and data pipelines.' },
-  { icon: Cloud, title: 'Cloud & DevOps', desc: 'CI/CD, containers, and system design at scale.' },
+  { icon: Code, title: 'Software Engineer', desc: 'Data structures, algorithms, and core CS fundamentals.' },
+  { icon: Layout, title: 'Frontend Developer', desc: 'JavaScript, React, CSS, and building fast, accessible UIs.' },
+  { icon: Server, title: 'Backend Developer', desc: 'APIs, databases, and scalable server-side systems.' },
+  { icon: Layers, title: 'Full-Stack Developer', desc: 'End-to-end product development across the whole stack.' },
+  { icon: BarChart3, title: 'Data Scientist', desc: 'Statistics, machine learning, and data-driven insights.' },
+  { icon: BrainCircuit, title: 'ML / AI Engineer', desc: 'Model architecture, training pipelines, and deployment.' },
+  { icon: Cloud, title: 'Cloud / DevOps Engineer', desc: 'CI/CD, containers, and infrastructure at scale.' },
+  { icon: Smartphone, title: 'Mobile Developer', desc: 'Native and cross-platform mobile app development.' },
+  { icon: ShieldCheck, title: 'Cybersecurity Analyst', desc: 'Threat detection, risk assessment, and security best practices.' },
+  { icon: FlaskConical, title: 'QA / Test Engineer', desc: 'Test strategy, automation, and quality assurance.' },
 ]
 
 const STEPS = [
@@ -390,6 +402,26 @@ export default function Landing() {
   const [heroRef, heroInView] = useInViewOnce(0.3)
   const scrolled = useScrolled(40)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const pathTrackRef = useRef(null)
+  const pathScrollPaused = useRef(false)
+
+  useEffect(() => {
+    const track = pathTrackRef.current
+    if (!track || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
+    let frameId
+    let previousTime = performance.now()
+    const scroll = (time) => {
+      const elapsed = Math.min(time - previousTime, 32)
+      previousTime = time
+      if (!pathScrollPaused.current) {
+        track.scrollLeft += elapsed * 0.025
+        if (track.scrollLeft >= track.scrollWidth / 2) track.scrollLeft -= track.scrollWidth / 2
+      }
+      frameId = requestAnimationFrame(scroll)
+    }
+    frameId = requestAnimationFrame(scroll)
+    return () => cancelAnimationFrame(frameId)
+  }, [])
 
   const goToSection = (id) => {
     scrollToId(id)
@@ -491,14 +523,24 @@ export default function Landing() {
         <div className="grow">
           <Reveal as="h2">Choose your path</Reveal>
           <Reveal as="p" delay={60}>Pick a tech track and get questions tailored to the role you're aiming for.</Reveal>
-          <div className="paths">
-            {PATHS.map((p, i) => (
+          <div
+            className="paths"
+            ref={pathTrackRef}
+            onMouseEnter={() => { pathScrollPaused.current = true }}
+            onMouseLeave={() => { pathScrollPaused.current = false }}
+            onPointerDown={() => { pathScrollPaused.current = true }}
+            onPointerUp={() => { pathScrollPaused.current = false }}
+            onPointerCancel={() => { pathScrollPaused.current = false }}
+            aria-label="Available interview roles"
+          >
+            {[...PATHS, ...PATHS].map((p, i) => (
               <Reveal
                 as="div"
                 className="card pcard"
-                key={p.title}
-                delay={i * 70}
+                key={`${p.title}-${i}`}
+                delay={(i % PATHS.length) * 45}
                 onClick={() => navigate('/register')}
+                aria-hidden={i >= PATHS.length}
               >
                 <div className="pi"><p.icon size={22} strokeWidth={1.8} /></div>
                 <h3>{p.title}</h3>

@@ -2,15 +2,20 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TopBar from '../components/TopBar.jsx'
 import Reveal from '../components/Reveal.jsx'
-import { ApiError, getToken, setSession } from '../api/client.js'
+import { ApiError, getStoredUser, getToken, setSession } from '../api/client.js'
 import { getMe, updateProfile, changePassword } from '../api/profile.js'
 import { UserCog, KeyRound, Eye, EyeOff, Loader2, AlertCircle, CheckCircle2, Circle } from 'lucide-react'
 
 const APP_NAV = [
-  { label: 'Interview Setup', to: '/setup' },
+  { label: 'Interview Setup', to: '/role' },
   { label: 'My Sessions', to: '/sessions' },
   { label: 'Progress Report', to: '/progress' },
-  { label: 'Settings', to: '/profile' },
+]
+
+const ADMIN_NAV = [
+  { label: 'Users', to: '/admin?section=users' },
+  { label: 'Companies', to: '/admin?section=companies' },
+  { label: 'Questions', to: '/admin?section=questions' },
 ]
 
 // Keep this exact character set in sync with the backend's password regex
@@ -25,7 +30,7 @@ const PASSWORD_RULES = [
   { key: 'special', label: 'One special character', test: (pw) => SPECIAL_CHAR_RE.test(pw) },
 ]
 
-function AccountDetailsCard() {
+function AccountDetailsCard({ returnTo }) {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
@@ -67,7 +72,7 @@ function AccountDetailsCard() {
       // TopBar shows the new name/initials as soon as it remounts.
       setSession(getToken(), updated)
       setSuccess(true)
-      setTimeout(() => navigate('/dashboard'), 900)
+      setTimeout(() => navigate(returnTo), 900)
     } catch (err) {
       setSubmitting(false)
       setError(err instanceof ApiError ? err.message : 'Could not save your changes. Please try again.')
@@ -286,9 +291,10 @@ function ChangePasswordCard() {
 }
 
 export default function Profile() {
+  const isAdmin = getStoredUser()?.role === 'ADMIN'
   return (
     <section className="screen" id="profile">
-      <TopBar nav={APP_NAV} showUser />
+      <TopBar nav={isAdmin ? ADMIN_NAV : APP_NAV} showUser logoTo={isAdmin ? '/admin' : '/dashboard'} />
       <div className="wrap pagepad" style={{ maxWidth: 640 }}>
         <div className="profile-hd">
           <span className="eyebrow">Your account</span>
@@ -296,7 +302,7 @@ export default function Profile() {
           <p className="muted">Manage your profile details and password.</p>
         </div>
 
-        <AccountDetailsCard />
+        <AccountDetailsCard returnTo={isAdmin ? '/admin' : '/dashboard'} />
         <ChangePasswordCard />
       </div>
     </section>

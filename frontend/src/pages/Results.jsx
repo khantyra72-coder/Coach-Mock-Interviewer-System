@@ -3,10 +3,9 @@ import TopBar from '../components/TopBar.jsx'
 import { getLastResult } from '../utils/localInterviewStore.js'
 
 const APP_NAV = [
-  { label: 'Interview Setup', to: '/setup' },
+  { label: 'Interview Setup', to: '/role' },
   { label: 'My Sessions', to: '/sessions' },
   { label: 'Progress Report', to: '/progress' },
-  { label: 'Settings', to: '/profile' },
 ]
 
 function scoreStyle(score) {

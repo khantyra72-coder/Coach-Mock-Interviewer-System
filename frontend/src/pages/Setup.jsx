@@ -18,10 +18,9 @@ const googleLogoFiles = import.meta.glob('../assets/logos/google.svg', { eager: 
 const googleLogo = googleLogoFiles['../assets/logos/google.svg']
 
 const APP_NAV = [
-  { label: 'Interview Setup', to: '/setup' },
+  { label: 'Interview Setup', to: '/role' },
   { label: 'My Sessions', to: '/sessions' },
   { label: 'Progress Report', to: '/progress' },
-  { label: 'Settings', to: '/profile' },
 ]
 
 const TYPES = [
@@ -119,7 +118,6 @@ export default function Setup() {
         >
           ← Back to dashboard
         </button>
-        <span className="eyebrow">Interview setup</span>
         <h1 className="h-title" style={{ marginTop: 8 }}>Set up your interview</h1>
         <p className="sub">Pick the company and format you're targeting.</p>
         <div className="setup-text-mode"><Code2 size={17} strokeWidth={1.8} /><span><b>Written responses only.</b> No live coding, diagrams, voice recording, or file uploads are required.</span></div>
@@ -269,7 +267,6 @@ export default function Setup() {
                   onClick={() => toggleTopic(t)}
                   aria-pressed={topics.includes(t)}
                 >
-                  {topics.includes(t) && <Check className="topic-chip-check" size={14} strokeWidth={3} />}
                   {t}
                 </button>
               ))}
@@ -290,7 +287,7 @@ export default function Setup() {
           </div>
 
           <div className="setup-actions">
-            <button className="btn" onClick={handleContinue}>Continue to review →</button>
+            <button className="btn" onClick={handleContinue}>Continue to interview →</button>
           </div>
         </div>
       </div>

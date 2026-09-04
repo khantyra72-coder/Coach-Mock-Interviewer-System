@@ -10,10 +10,9 @@ import { SiNetflix, SiStripe } from 'react-icons/si'
 import microsoftLogo from '../assets/logos/microsoft.svg'
 
 const APP_NAV = [
-  { label: 'Interview Setup', to: '/setup' },
+  { label: 'Interview Setup', to: '/role' },
   { label: 'My Sessions', to: '/sessions' },
   { label: 'Progress Report', to: '/progress' },
-  { label: 'Settings', to: '/profile' },
 ]
 
 // Mirrors the company logo setup in Setup.jsx (kept as a local copy here
@@ -79,13 +78,27 @@ const [startError, setStartError] = useState('')
   setStartError('')
 
   try {
-    const backendSession = await startInterview({
-      role: role || 'Software Engineer',
-      interviewType: type || 'Technical',
-      company: company || null,
-    })
-
     const allQuestions = await getInterviewQuestions()
+
+    // A fresh database may not have question rows yet. Session.jsx already
+    // supports the bundled question bank, so continue in local mode instead
+    // of preventing the user from starting an interview.
+    if (!allQuestions.length) {
+      const backendSession = await startInterview({
+        role: role || 'Software Engineer',
+        interviewType: type || 'Technical',
+        company: company || null,
+      })
+      navigate('/session', {
+        state: {
+          role, type, company, level, difficulty, questionCount, topics, timed,
+          backendSessionId: backendSession.id,
+          backendQuestionsPersisted: false,
+        },
+      })
+      return
+    }
+
     const matchingQuestions = allQuestions.filter(
       (question) => question.category === (type || 'Technical')
     )
@@ -95,9 +108,11 @@ const [startError, setStartError] = useState('')
     const selectedQuestions = [...matchingQuestions, ...otherQuestions]
       .slice(0, Number(questionCount) || 5)
 
-    if (!selectedQuestions.length) {
-      throw new Error('No interview questions are available.')
-    }
+    const backendSession = await startInterview({
+      role: role || 'Software Engineer',
+      interviewType: type || 'Technical',
+      company: company || null,
+    })
 
     navigate('/session', {
       state: {
@@ -111,6 +126,7 @@ const [startError, setStartError] = useState('')
         timed,
         backendSessionId: backendSession.id,
         backendQuestions: selectedQuestions,
+        backendQuestionsPersisted: true,
       },
     })
   } catch (error) {

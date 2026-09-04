@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api")
@@ -83,6 +84,8 @@ public class AuthController {
                     .body(new ErrorResponse("Invalid email or password"));
         }
 
+        user.get().setLastLoginAt(LocalDateTime.now());
+        userRepository.save(user.get());
         String token = jwtService.generateToken(user.get());
         return ResponseEntity.ok(AuthResponse.from(user.get(), token));
     }

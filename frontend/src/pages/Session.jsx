@@ -46,6 +46,7 @@ function createSession(config) {
   return {
     id: config.backendSessionId || `local-${Date.now()}`,
 backendSessionId: config.backendSessionId || null,
+    backendQuestionsPersisted: config.backendQuestionsPersisted ?? Boolean(config.backendQuestions?.length),
     role: config.role || 'Software Engineer',
     company: config.company || 'Google',
     type: config.type || 'Technical',
@@ -120,7 +121,7 @@ const [finishError, setFinishError] = useState('')
 
   try {
     if (session.backendSessionId) {
-      const answerRequests = session.answers
+      const answerRequests = session.backendQuestionsPersisted ? session.answers
         .map((answerText, index) => {
           if (!answerText.trim()) return null
 
@@ -129,7 +130,7 @@ const [finishError, setFinishError] = useState('')
             answerText: answerText.trim(),
           })
         })
-        .filter(Boolean)
+        .filter(Boolean) : []
 
       await Promise.all(answerRequests)
 

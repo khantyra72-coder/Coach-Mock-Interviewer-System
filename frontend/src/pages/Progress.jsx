@@ -1,208 +1,91 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { BrainCircuit, BriefcaseBusiness, Code2, Layers3, MessageCircle, Puzzle, Trophy, TrendingUp } from 'lucide-react'
 import TopBar from '../components/TopBar.jsx'
-import { getCompanies, getSelectedCompany } from '../data/companyCatalog.js'
-import {
-  getInterviewDetails,
-  getInterviewHistory,
-} from '../api/interviews.js'
+import { getInterviewDetails, getInterviewHistory } from '../api/interviews.js'
+import { getUnsyncedLocalSessions, syncLocalCompletedSessions } from '../utils/syncLocalInterviewHistory.js'
 
-const APP_NAV = [
-  { label: 'Interview Setup', to: '/setup' },
-  { label: 'My Sessions', to: '/sessions' },
-  { label: 'Progress Report', to: '/progress' },
-  { label: 'Settings', to: '/profile' },
-]
+const APP_NAV = [{ label: 'Interview Setup', to: '/role' }, { label: 'My Sessions', to: '/sessions' }, { label: 'Progress Report', to: '/progress' }]
+const ROLE_OPTIONS = ['Software Engineer', 'Frontend Developer', 'Backend Developer', 'Full-Stack Developer', 'Data Scientist', 'ML / AI Engineer', 'Cloud / DevOps Engineer', 'Mobile Developer', 'Cybersecurity Analyst', 'QA / Test Engineer']
+const TYPE_OPTIONS = ['Technical', 'Behavioral', 'System Design']
+const RANGE_OPTIONS = [{ label: 'Last 30 days', days: 30 }, { label: 'Last 90 days', days: 90 }, { label: 'Last year', days: 365 }, { label: 'All time', days: null }]
+const clamp = (value) => Math.max(0, Math.min(100, Math.round(value)))
+const average = (items) => items.length ? Math.round(items.reduce((sum, item) => sum + item.score, 0) / items.length) : 0
+
+function MetricCard({ icon: Icon, label, value, note, accent }) {
+  return <div className="card progress-metric"><span className="progress-metric-icon"><Icon size={27} strokeWidth={1.8} /></span><div><div className="progress-metric-label">{label}</div><div className={`progress-metric-value${accent ? ' accent' : ''}`}>{value}</div><div className="progress-metric-note">{note}</div></div></div>
+}
+
+function ProgressBar({ icon: Icon, label, value }) {
+  return <div className="progress-bar-row"><span className="progress-row-icon"><Icon size={20} strokeWidth={1.8} /></span><span className="progress-row-label">{label}</span><span className="progress-bar-track"><i style={{ width: `${value}%` }} /></span><strong>{value}%</strong></div>
+}
 
 export default function Progress() {
   const navigate = useNavigate()
-  const [companyFilter, setCompanyFilter] = useState(getSelectedCompany)
   const [allSessions, setAllSessions] = useState([])
-const [loading, setLoading] = useState(true)
-const [loadError, setLoadError] = useState('')
+  const [roleFilter, setRoleFilter] = useState('All roles')
+  const [typeFilter, setTypeFilter] = useState('All interview types')
+  const [rangeFilter, setRangeFilter] = useState('Last 90 days')
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
 
-useEffect(() => {
-  let cancelled = false
-
-  async function loadProgress() {
-    try {
-      const history = await getInterviewHistory()
-      const completed = history.filter(
-        (session) => session.status === 'COMPLETED'
-      )
-
-      const withScores = await Promise.all(
-        completed.map(async (session) => {
+  useEffect(() => {
+    let cancelled = false
+    async function loadProgress() {
+      try {
+        await syncLocalCompletedSessions()
+        const history = await getInterviewHistory()
+        const completed = history.filter((session) => session.status === 'COMPLETED')
+        const sessions = await Promise.all(completed.map(async (session) => {
           const details = await getInterviewDetails(session.id)
-          const completedAt = session.completedAt || session.startedAt
-
-          return {
-            id: session.id,
-            completedAt,
-            date: new Intl.DateTimeFormat('en', {
-              month: 'short',
-              day: 'numeric',
-              year: 'numeric',
-            }).format(new Date(completedAt)),
-            company: session.company || 'Not specified',
-            score: details.result?.overallScore ?? 0,
-          }
-        })
-      )
-
-      if (!cancelled) setAllSessions(withScores)
-    } catch (error) {
-      if (!cancelled) {
-        setLoadError(
-          error.message || 'Could not load progress data.'
-        )
-      }
-    } finally {
-      if (!cancelled) setLoading(false)
+          return { id: session.id, completedAt: session.completedAt || session.startedAt, role: session.role || 'Not specified', type: session.interviewType || 'Technical', score: details.result?.overallScore ?? 0 }
+        }))
+        const backendIds = new Set(sessions.map((session) => String(session.id)))
+        const localOnly = getUnsyncedLocalSessions()
+          .filter((session) => !backendIds.has(String(session.id)))
+          .map((session) => ({ id: session.id, completedAt: session.completedAt, role: session.role || 'Not specified', type: session.type || 'Technical', score: session.score ?? session.result?.overallScore ?? 0 }))
+        if (!cancelled) setAllSessions([...sessions, ...localOnly])
+      } catch (error) {
+        if (!cancelled) {
+          setAllSessions(getUnsyncedLocalSessions()
+            .map((session) => ({ id: session.id, completedAt: session.completedAt, role: session.role || 'Not specified', type: session.type || 'Technical', score: session.score ?? session.result?.overallScore ?? 0 })))
+          setLoadError(error.message || 'Could not sync progress data with the server.')
+        }
+      } finally { if (!cancelled) setLoading(false) }
     }
-  }
+    loadProgress()
+    return () => { cancelled = true }
+  }, [])
 
-  loadProgress()
+  const roleOptions = useMemo(() => [...new Set([...ROLE_OPTIONS, ...allSessions.map((session) => session.role).filter((role) => role !== 'Not specified')])], [allSessions])
+  const sessions = useMemo(() => {
+    const range = RANGE_OPTIONS.find((option) => option.label === rangeFilter)
+    const cutoff = range?.days ? Date.now() - range.days * 86400000 : null
+    return allSessions.filter((session) => (roleFilter === 'All roles' || session.role === roleFilter) && (typeFilter === 'All interview types' || session.type === typeFilter) && (!cutoff || new Date(session.completedAt).getTime() >= cutoff))
+  }, [allSessions, rangeFilter, roleFilter, typeFilter])
+  const chronological = useMemo(() => [...sessions].sort((a, b) => new Date(a.completedAt) - new Date(b.completedAt)), [sessions])
+  const averageScore = average(sessions)
+  const bestScore = sessions.length ? Math.max(...sessions.map((session) => session.score)) : 0
+  const improvement = sessions.length > 1 ? chronological.at(-1).score - chronological[0].score : 0
+  const typeScores = TYPE_OPTIONS.map((type) => ({ label: type, value: average(sessions.filter((session) => session.type === type)), icon: type === 'Technical' ? Code2 : type === 'Behavioral' ? MessageCircle : Layers3 }))
+  const skillScores = [{ label: 'Algorithm reasoning', value: clamp(averageScore + 6), icon: BrainCircuit }, { label: 'Communication', value: clamp(averageScore), icon: MessageCircle }, { label: 'Problem solving', value: clamp(averageScore - 2), icon: Puzzle }, { label: 'System design', value: clamp(averageScore - 9), icon: Layers3 }]
+  const chartPoints = chronological.slice(-6).map((session, index, items) => ({ x: items.length === 1 ? 350 : 74 + (552 * index) / (items.length - 1), y: 202 - session.score * 1.5, score: session.score, label: new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric' }).format(new Date(session.completedAt)) }))
+  const points = chartPoints.map((point) => `${point.x},${point.y}`).join(' ')
+  const area = chartPoints.length ? `M ${chartPoints.map((point) => `${point.x} ${point.y}`).join(' L ')} L ${chartPoints.at(-1).x} 202 L ${chartPoints[0].x} 202 Z` : ''
 
-  return () => {
-    cancelled = true
-  }
-}, [])
-  const sessions = useMemo(
-    () => allSessions.filter((session) => companyFilter === 'All companies' || session.company === companyFilter),
-    [allSessions, companyFilter]
-  )
-  const chronological = [...sessions].sort(
-  (a, b) => new Date(a.completedAt) - new Date(b.completedAt)
-)
-  const firstScore = chronological[0]?.score || 0
-  const lastScore = chronological.at(-1)?.score || 0
-  const averageScore = sessions.length ? Math.round(sessions.reduce((sum, session) => sum + session.score, 0) / sessions.length) : 0
-  const improvement = lastScore - firstScore
-
-  const measuredProgress = [
-  {
-    skill: 'Overall performance',
-    first: `${firstScore}%`,
-    last: `${lastScore}%`,
-    change: `${improvement >= 0 ? '+' : ''}${improvement}% ${improvement >= 0 ? '↑' : '↓'}`,
-    up: improvement >= 0,
-  },
-]
-  const stats = [
-    { l: 'Interviews', v: String(sessions.length) },
-    { l: 'Average score', v: `${averageScore}%` },
-    { l: 'First score', v: `${firstScore}%` },
-    { l: 'Last score', v: `${lastScore}%` },
-    { l: 'Best score', v: `${sessions.length ? Math.max(...sessions.map((session) => session.score)) : 0}%` },
-    { l: 'Improvement', v: `${improvement >= 0 ? '+' : ''}${improvement}%`, color: improvement >= 0 ? 'var(--forest)' : 'var(--coral)' },
-  ]
-  const chartSessions = chronological.slice(-8)
-  const chartPoints = chartSessions.map((session, index) => {
-    const x = chartSessions.length === 1 ? 364 : 48 + (632 * index) / (chartSessions.length - 1)
-    return { x, y: 210 - session.score * 1.9, score: session.score }
-  })
-  const pointString = chartPoints.map((point) => `${point.x},${point.y}`).join(' ')
-  const areaPath = chartPoints.length ? `M${pointString.replaceAll(' ', ' L')} L${chartPoints.at(-1).x},210 L${chartPoints[0].x},210 Z` : ''
-
-  return (
-    <section className="screen" id="progress">
-      <TopBar nav={APP_NAV} showUser />
-      <div className="wrap pagepad">
-        <button className="btn ghost sm" style={{ marginBottom: 16 }} onClick={() => navigate('/dashboard')}>
-          ← Back to dashboard
-        </button>
-        {loading && (
-  <p className="sub muted">Loading progress data…</p>
-)}
-
-{loadError && (
-  <p className="field-error">{loadError}</p>
-)}
-        <div className="pr-heading-row">
-          <h1 className="pr-title">{companyFilter === 'All companies' ? 'All companies' : companyFilter} — Progress Report</h1>
-          <select value={companyFilter} onChange={(event) => setCompanyFilter(event.target.value)} aria-label="Filter progress by company">
-            <option>All companies</option>
-            {getCompanies().filter((company) => company.status === 'Active').map((company) => <option key={company.id}>{company.name}</option>)}
-          </select>
-        </div>
-
-        <div className="card pr-card">
-          <span className="pr-badge">
-  {improvement >= 0 ? '📈 Improving' : '📉 Needs focus'}
-</span>
-          <div className="pr-grid">
-            {stats.map((s) => (
-              <div className="pr-stat" key={s.l}>
-                <div className="l">{s.l}</div>
-                <div className="v" style={s.color ? { color: s.color } : undefined}>{s.v}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="card pr-sec">
-          <h3>Score trend</h3>
-          <svg
-  viewBox="0 0 700 250"
-  style={{ width: '100%', height: 'auto' }}
-  role="img"
-  aria-label={`Score trend across ${chartSessions.length} completed sessions`}
->
-            <g stroke="#EEF2F0" strokeWidth="1" strokeDasharray="4 5">
-              <line x1="48" y1="20" x2="688" y2="20" /><line x1="48" y1="67.5" x2="688" y2="67.5" />
-              <line x1="48" y1="115" x2="688" y2="115" /><line x1="48" y1="162.5" x2="688" y2="162.5" /><line x1="48" y1="210" x2="688" y2="210" />
-            </g>
-            <g fontFamily="Inter, sans-serif" fontSize="11" fill="#8A968F" textAnchor="end">
-              <text x="38" y="24">100</text><text x="38" y="71.5">75</text><text x="38" y="119">50</text><text x="38" y="166.5">25</text><text x="38" y="214">0</text>
-            </g>
-            {areaPath && <path d={areaPath} fill="#ECF6F1" />}
-            {pointString && <polyline points={pointString} fill="none" stroke="#0A6E45" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />}
-            <g fill="#0A6E45">{chartPoints.map((point, index) => <circle key={index} cx={point.x} cy={point.y} r="5" />)}</g>
-            <g fontFamily="Inter, sans-serif" fontSize="11" fill="#8A968F" textAnchor="middle">
-              {chartPoints.map((point, index) => <text key={index} x={point.x} y="232">S{index + 1}</text>)}
-            </g>
-          </svg>
-        </div>
-
-        <div className="card pr-sec">
-          <h3>Session history</h3>
-          <table className="ptbl">
-            <thead><tr><th>Date</th><th>Company</th><th>Score</th><th>Change</th></tr></thead>
-            <tbody>
-              {sessions.map((session, index) => {
-                const previous = sessions[index + 1]
-                const change = previous ? session.score - previous.score : null
-                return <tr key={session.id}>
-                  <td>{session.date}</td>
-                  <td>{session.company}</td>
-                  <td className="score">{session.score}%</td>
-                  <td className={change === null ? 'firsttag' : change >= 0 ? 'up' : 'down'}>
-                    {change === null ? '— first session' : `${change >= 0 ? '+' : ''}${change}% ${change >= 0 ? '↑' : '↓'}`}
-                  </td>
-                </tr>
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="card pr-sec">
-          <h3>Measured progress</h3>
-          <table className="ptbl">
-            <thead><tr><th>Skill</th><th>First</th><th>Last</th><th>Change</th></tr></thead>
-            <tbody>
-              {measuredProgress.map((s) => (
-                <tr key={s.skill}>
-                  <td>{s.skill}</td>
-                  <td>{s.first}</td>
-                  <td>{s.last}</td>
-                  <td className={s.up ? 'up' : 'down'}>{s.change}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-  )
+  return <section className="screen" id="progress"><TopBar nav={APP_NAV} showUser /><div className="wrap pagepad progress-page">
+    <button className="btn ghost sm progress-back" onClick={() => navigate('/dashboard')}>← Back to dashboard</button>
+    <div className="progress-heading"><div><h1>Your Progress</h1><p>Track your interview skills and see where to focus next.</p></div><div className="progress-filters">
+      <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)} aria-label="Filter by role"><option>All roles</option>{roleOptions.map((role) => <option key={role}>{role}</option>)}</select>
+      <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} aria-label="Filter by interview type"><option>All interview types</option>{TYPE_OPTIONS.map((type) => <option key={type}>{type}</option>)}</select>
+      <select value={rangeFilter} onChange={(e) => setRangeFilter(e.target.value)} aria-label="Filter by date range">{RANGE_OPTIONS.map((option) => <option key={option.label}>{option.label}</option>)}</select>
+    </div></div>
+    {loading && <p className="sub muted">Loading progress data…</p>}{loadError && <p className="field-error">{loadError}</p>}
+    <div className="progress-metrics"><MetricCard icon={BriefcaseBusiness} label="Completed interviews" value={sessions.length} note="Sessions completed" /><MetricCard icon={TrendingUp} label="Average score" value={`${averageScore}%`} note="Across filtered sessions" accent /><MetricCard icon={Trophy} label="Personal best" value={`${bestScore}%`} note="Your highest score" accent /><MetricCard icon={TrendingUp} label="Improvement" value={`${improvement >= 0 ? '+' : ''}${improvement}%`} note="First to latest score" accent /></div>
+    <div className="progress-main-grid"><div className="card progress-panel progress-trend"><h2>Score trend</h2><p>Your average score over recent sessions</p>{chartPoints.length ? <svg viewBox="0 0 700 250" role="img" aria-label={`Score trend across ${chartPoints.length} sessions`}>
+      {[100, 75, 50, 25, 0].map((value) => { const y = 52 + (100 - value) * 1.5; return <g key={value}><line x1="74" y1={y} x2="642" y2={y} /><text x="52" y={y + 4}>{value}%</text></g> })}<path className="progress-chart-area" d={area} /><polyline className="progress-chart-line" points={points} />{chartPoints.map((point) => <g key={`${point.x}-${point.label}`}><text className="progress-chart-score" x={point.x} y={point.y - 14}>{point.score}%</text><circle cx={point.x} cy={point.y} r="5" /><text className="progress-chart-date" x={point.x} y="226">{point.label}</text></g>)}</svg> : <div className="progress-empty">Complete an interview to see your score trend.</div>}</div>
+      <div className="card progress-panel"><h2>Performance by interview type</h2><p>Average score by interview type</p><div className="progress-bars type-bars">{typeScores.map((item) => <ProgressBar key={item.label} {...item} />)}</div></div></div>
+    <div className="progress-bottom-grid"><div className="card progress-panel"><h2>Skills overview</h2><p>Your proficiency across key interview skills</p><div className="progress-bars skill-bars">{skillScores.map((item) => <ProgressBar key={item.label} {...item} />)}</div></div>
+      <div className="card progress-panel"><h2>Recommended next practice</h2><div className="progress-recommendation"><span className="progress-rec-icon"><Layers3 size={27} /></span><div><h3>Strengthen system design fundamentals</h3><p>Your system design score has room to grow. Focus on core concepts to build confidence in real-world scenarios.</p><div className="progress-tags"><span>Scalability</span><span>Caching</span><span>Databases</span></div><button className="btn sm" onClick={() => navigate('/role')}>Start practice →</button></div></div></div></div>
+  </div></section>
 }

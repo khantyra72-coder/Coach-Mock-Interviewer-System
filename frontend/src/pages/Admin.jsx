@@ -47,20 +47,37 @@ function UsersPage() {
 
   useEffect(() => {
     let active = true
-    apiGet('/admin/users')
-      .then((data) => {
-        if (active) setUsers(data)
-      })
-      .catch((err) => {
-        if (active) setError(err.message || 'Could not load registered users.')
-      })
-      .finally(() => {
-        if (active) setLoading(false)
-      })
-    return () => { active = false }
+    const loadUsers = () => apiGet('/admin/users')
+        .then((data) => {
+          if (active) {
+            const nextUsers = Array.isArray(data) ? data : []
+            setUsers(nextUsers)
+            setSelected((current) => current
+              ? nextUsers.find((user) => user.id === current.id) || current
+              : null
+            )
+            setError('')
+          }
+        })
+        .catch((err) => {
+          if (active) setError(err.message || 'Could not load registered users.')
+        })
+        .finally(() => {
+          if (active) setLoading(false)
+        })
+
+    loadUsers()
+    const refreshId = window.setInterval(loadUsers, 10000)
+    const refreshOnFocus = () => loadUsers()
+    window.addEventListener('focus', refreshOnFocus)
+    return () => {
+      active = false
+      window.clearInterval(refreshId)
+      window.removeEventListener('focus', refreshOnFocus)
+    }
   }, [])
 
-  const visibleUsers = users.filter((user) => filter === 'active' ? true : filter === 'interviewed' ? user.interviews > 0 : true)
+  const visibleUsers = users.filter((user) => filter === 'active' ? Boolean(user.lastLoginAt) : filter === 'interviewed' ? user.interviews > 0 : true)
   const joinedDate = (value) => value
     ? new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'short', day: 'numeric' }).format(new Date(value))
     : '—'
@@ -70,12 +87,12 @@ function UsersPage() {
       <AdminHeader eyebrow="Access" title="Users" />
       <div className="admin-summary">
         <button className={`card${filter === 'all' ? ' selected' : ''}`} onClick={() => setFilter('all')}><b>{users.length}</b><span>Total users</span></button>
-        <button className={`card${filter === 'active' ? ' selected' : ''}`} onClick={() => setFilter('active')}><b>{users.filter((user) => user.status === 'Active').length}</b><span>Active users</span></button>
+        <button className={`card${filter === 'active' ? ' selected' : ''}`} onClick={() => setFilter('active')}><b>{users.filter((user) => user.lastLoginAt).length}</b><span>Users logged in</span></button>
         <button className={`card${filter === 'interviewed' ? ' selected' : ''}`} onClick={() => setFilter('interviewed')}><b>{users.reduce((sum, user) => sum + user.interviews, 0)}</b><span>Interviews completed</span></button>
       </div>
       {error && <div className="card admin-action-panel"><p>{error}</p></div>}
       {selected && <div className="card admin-action-panel">
-        <h3>{selected.name}</h3><p className="muted">{selected.email} · {selected.role} · Active</p><p>{selected.interviews} interviews completed · Joined {joinedDate(selected.joinedAt)}</p><button className="btn ghost sm" onClick={() => setSelected(null)}>Close</button>
+        <h3>{selected.name}</h3><p className="muted">{selected.email} · {selected.role} · {selected.lastLoginAt ? 'Has logged in' : 'Registered'}</p><p>{selected.interviews} interviews completed · Joined {joinedDate(selected.joinedAt)} · Last login {selected.lastLoginAt ? joinedDate(selected.lastLoginAt) : 'Not recorded yet'}</p><button className="btn ghost sm" onClick={() => setSelected(null)}>Close</button>
       </div>}
       <div className="admin-table-wrap">
         <table className="adm">
@@ -87,7 +104,7 @@ function UsersPage() {
           ) : visibleUsers.map((user) => (
             <tr key={user.id}>
               <td>{displayId(user.id)}</td><td><b>{user.name}</b><div className="admin-subtext">{user.email}</div></td>
-              <td>{user.role}</td><td>{user.interviews}</td><td><span className="pill g">Active</span></td><td>{joinedDate(user.joinedAt)}</td>
+              <td>{user.role}</td><td>{user.interviews}</td><td><span className={`pill ${user.lastLoginAt ? 'g' : 'a'}`}>{user.lastLoginAt ? 'Logged in' : 'Registered'}</span></td><td>{joinedDate(user.joinedAt)}</td>
               <td><button type="button" className="act" onClick={() => setSelected(user)}>View</button></td>
             </tr>
           ))}</tbody>

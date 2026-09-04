@@ -10,7 +10,8 @@ public record AdminUserResponse(
         String email,
         String role,
         long interviews,
-        LocalDateTime joinedAt
+        LocalDateTime joinedAt,
+        LocalDateTime lastLoginAt
 ) {
     public static AdminUserResponse from(User user, long interviews) {
         return new AdminUserResponse(
@@ -19,7 +20,8 @@ public record AdminUserResponse(
                 user.getEmail(),
                 user.getRole(),
                 interviews,
-                user.getCreatedAt()
+                user.getCreatedAt(),
+                user.getLastLoginAt()
         );
     }
 }

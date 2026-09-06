@@ -1,19 +1,15 @@
+import { COMPANIES, isCompany } from './interviewTaxonomy.js'
+
 const COMPANY_KEY = 'aceinterview_admin_companies'
 const SELECTED_COMPANY_KEY = 'aceinterview_selected_company'
 const DATA_EVENT = 'aceinterview:data-changed'
 
-export const DEFAULT_COMPANIES = [
-  { id: '#C01', name: 'Google', letter: 'G', color: '#4285F4', style: 'Structured reasoning, algorithms, and scalable systems', sessions: 2, status: 'Active' },
-  { id: '#C02', name: 'Microsoft', letter: 'M', color: '#00A4EF', style: 'Collaboration, product thinking, and practical engineering', sessions: 1, status: 'Active' },
-  { id: '#C03', name: 'Amazon', letter: 'A', color: '#FF9900', style: 'Leadership principles, ownership, and customer obsession', sessions: 1, status: 'Active' },
-  { id: '#C04', name: 'Spotify', letter: 'S', color: '#1DB954', style: 'Autonomous teams, experimentation, and audio products', sessions: 1, status: 'Active' },
-  { id: '#C05', name: 'Stripe', letter: 'S', color: '#635BFF', style: 'API quality, correctness, and financial infrastructure', sessions: 1, status: 'Active' },
-  { id: '#C06', name: 'Airbnb', letter: 'A', color: '#FF385C', style: 'Marketplace trust, product craft, and belonging', sessions: 1, status: 'Active' },
-  { id: '#C07', name: 'Meta', letter: 'M', color: '#0866FF', style: 'Product impact, execution speed, and high-scale systems', sessions: 1, status: 'Active' },
-  { id: '#C08', name: 'Netflix', letter: 'N', color: '#E50914', style: 'Streaming reliability, judgment, and high ownership', sessions: 1, status: 'Active' },
-  { id: '#C09', name: 'Apple', letter: 'A', color: '#111111', style: 'Product quality, privacy, and platform fundamentals', sessions: 1, status: 'Active' },
-  { id: '#C10', name: 'Uber', letter: 'U', color: '#111111', style: 'Real-time systems, logistics, and operational scale', sessions: 1, status: 'Active' },
-]
+export const DEFAULT_COMPANIES = COMPANIES.map((company, index) => ({
+  id: `#C${String(index + 1).padStart(2, '0')}`,
+  ...company,
+  sessions: 0,
+  status: 'Active',
+}))
 
 function normalizeCompany(company, index) {
   const name = company.name?.trim()
@@ -37,7 +33,7 @@ export function getCompanies() {
 
     const defaultsByName = new Map(DEFAULT_COMPANIES.map((company) => [company.name.toLowerCase(), company]))
     const byName = new Map(DEFAULT_COMPANIES.map((company, index) => [company.name.toLowerCase(), normalizeCompany(company, index)]))
-    stored.forEach((company, index) => {
+    stored.filter((company) => isCompany(company.name)).forEach((company, index) => {
       const defaultCompany = defaultsByName.get(company.name?.trim().toLowerCase())
       const normalized = normalizeCompany({
         ...defaultCompany,
@@ -55,7 +51,7 @@ export function getCompanies() {
 }
 
 export function saveCompanies(companies) {
-  localStorage.setItem(COMPANY_KEY, JSON.stringify(companies.map(normalizeCompany)))
+  localStorage.setItem(COMPANY_KEY, JSON.stringify(companies.filter((company) => isCompany(company.name)).map(normalizeCompany)))
   window.dispatchEvent(new CustomEvent(DATA_EVENT, { detail: { type: 'companies' } }))
 }
 

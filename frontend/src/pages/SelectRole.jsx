@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TopBar from '../components/TopBar.jsx'
 import Reveal from '../components/Reveal.jsx'
+import { TECH_ROLES } from '../data/interviewTaxonomy.js'
 import {
   Code2,
   Palette,
@@ -24,78 +25,70 @@ const APP_NAV = [
   { label: 'Progress Report', to: '/progress' },
 ]
 
-const ROLES = [
-  {
+const ROLE_DETAILS = {
+  'Software Engineer': {
     icon: Code2,
-    name: 'Software Engineer',
     count: 12,
     blurb: 'Data structures, algorithms, and core CS fundamentals.',
     skills: ['DSA', 'Algorithms', 'System Design'],
   },
-  {
+  'Frontend Developer': {
     icon: Palette,
-    name: 'Frontend Developer',
     count: 10,
     blurb: 'JavaScript, React, CSS, and building fast, accessible UIs.',
     skills: ['React', 'CSS', 'Accessibility'],
   },
-  {
+  'Backend Developer': {
     icon: Server,
-    name: 'Backend Developer',
     count: 11,
     blurb: 'APIs, databases, and scalable server-side systems.',
     skills: ['APIs', 'Databases', 'Scalability'],
   },
-  {
+  'Full-Stack Developer': {
     icon: Layers,
-    name: 'Full-Stack Developer',
     count: 14,
     blurb: 'End-to-end product development across the whole stack.',
     skills: ['Frontend', 'Backend', 'Databases'],
   },
-  {
+  'Data Scientist': {
     icon: BarChart3,
-    name: 'Data Scientist',
     count: 9,
     blurb: 'Statistics, machine learning, and data-driven insights.',
     skills: ['Statistics', 'ML', 'SQL'],
   },
-  {
+  'ML / AI Engineer': {
     icon: BrainCircuit,
-    name: 'ML / AI Engineer',
     count: 13,
     blurb: 'Model architecture, training pipelines, and deployment.',
     skills: ['ML Models', 'Python', 'MLOps'],
   },
-  {
+  'Cloud / DevOps Engineer': {
     icon: Cloud,
-    name: 'Cloud / DevOps Engineer',
     count: 8,
     blurb: 'CI/CD, containers, and infrastructure at scale.',
     skills: ['CI/CD', 'Containers', 'Infra'],
   },
-  {
+  'Mobile Developer': {
     icon: Smartphone,
-    name: 'Mobile Developer',
     count: 10,
     blurb: 'Native and cross-platform mobile app development.',
     skills: ['iOS', 'Android', 'React Native'],
   },
-  {
+  'Cybersecurity Analyst': {
     icon: ShieldCheck,
-    name: 'Cybersecurity Analyst',
     count: 8,
     blurb: 'Threat detection, risk assessment, and security best practices.',
     skills: ['Security', 'Risk', 'Compliance'],
   },
-  {
+  'QA / Test Engineer': {
     icon: FlaskConical,
-    name: 'QA / Test Engineer',
     count: 7,
     blurb: 'Test strategy, automation, and quality assurance.',
     skills: ['Testing', 'Automation', 'QA'],
   },
-]
+}
+
+const ROLES = TECH_ROLES.map((name) => ({ name, ...ROLE_DETAILS[name] }))
 
 export default function SelectRole() {
   const navigate = useNavigate()
@@ -138,10 +131,6 @@ export default function SelectRole() {
                 key={r.name}
                 className={`card role${isSelected ? ' selected' : ''}`}
                 delay={i * 50}
-                style={{
-                  '--role-image-x': `${(i % 5) * 25}%`,
-                  '--role-image-y': i < 5 ? '0%' : '100%',
-                }}
                 onClick={() => setSelected(r.name)}
               >
                 {isSelected && (

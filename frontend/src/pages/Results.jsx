@@ -9,6 +9,7 @@ const APP_NAV = [
 ]
 
 function scoreStyle(score) {
+  if (!Number.isFinite(score)) return undefined
   return score < 70 ? { background: 'var(--amber-bg)', color: 'var(--amber)' } : undefined
 }
 
@@ -83,7 +84,7 @@ export default function Results() {
               <div className="qih">
                 <span className="qn">Q{question.n}</span>
                 <span className="qx">{question.text}</span>
-                <span className="qs" style={scoreStyle(question.score)}>{question.score}%</span>
+                <span className="qs" style={scoreStyle(question.score)}>{Number.isFinite(question.score) ? `${question.score}%` : 'Not scored'}</span>
               </div>
               <div className="qib">
                 <div className="ans">
@@ -100,18 +101,13 @@ export default function Results() {
                   </div>
                 </div>
                 <div className="sug">💡 <b>Suggestion:</b> {question.suggestion}</div>
-                <div className="model">
+<div className="model">
   <h5>📝 Strong answer outline</h5>
-  <ul>
-    {(question.model || [
-      'State the main idea clearly.',
-      'Explain your reasoning.',
-      'Give a concrete example.',
-      'Mention important trade-offs.',
-    ]).map((point) => (
+  {question.model?.length ? <ul>
+    {question.model.map((point) => (
       <li key={point}>{point}</li>
     ))}
-  </ul>
+  </ul> : <p className="muted">No saved answer outline is available for this question.</p>}
 </div>
               </div>
             </div>

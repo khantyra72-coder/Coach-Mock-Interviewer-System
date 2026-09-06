@@ -33,6 +33,14 @@ public class InterviewResult {
     @Column(name = "overall_score", nullable = false)
     private Integer overallScore;
 
+    private Integer technicalScore;
+    private Integer behavioralScore;
+    private Integer conceptScore;
+    private Integer algorithmScore;
+    private Integer communicationScore;
+    private Integer problemSolvingScore;
+    private Integer systemDesignScore;
+
     @Column(columnDefinition = "TEXT")
     private String strengths;
 
@@ -41,6 +49,9 @@ public class InterviewResult {
 
     @Column(name = "summary_feedback", columnDefinition = "TEXT")
     private String summaryFeedback;
+
+    @Column(name = "result_details", columnDefinition = "LONGTEXT")
+    private String resultDetails;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();

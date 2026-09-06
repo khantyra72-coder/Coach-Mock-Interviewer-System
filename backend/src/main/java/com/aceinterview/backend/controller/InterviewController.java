@@ -26,7 +26,7 @@ public class InterviewController {
     }
 
     @PostMapping
-    public ResponseEntity<InterviewDtos.SessionResponse> startInterview(
+    public ResponseEntity<InterviewDtos.StartResponse> startInterview(
             Authentication authentication,
             @Valid @RequestBody InterviewDtos.StartRequest request
     ) {

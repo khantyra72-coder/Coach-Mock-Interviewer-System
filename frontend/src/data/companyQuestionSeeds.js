@@ -1,6 +1,5 @@
 import { DEFAULT_COMPANIES } from './companyCatalog.js'
-
-const ROLES = ['Software Engineer', 'Frontend Developer', 'Backend Developer', 'Full-Stack Developer', 'Data Scientist', 'ML / AI Engineer', 'Cloud / DevOps Engineer', 'Mobile Developer', 'Cybersecurity Analyst', 'QA / Test Engineer']
+import { TECH_ROLES } from './interviewTaxonomy.js'
 
 const TECHNICAL_TOPICS = [
   'arrays and linked lists', 'hash maps and collision handling', 'trees and graph traversal', 'sorting and search algorithms',
@@ -65,7 +64,7 @@ function conceptsFor(type, topic) {
 }
 
 function buildQuestion(company, type, topic, index) {
-  const role = ROLES[index % ROLES.length]
+  const role = TECH_ROLES[index % TECH_ROLES.length]
   const prompt = type === 'Technical'
     ? `${company.name} technical scenario: explain in writing ${topic}, its key trade-offs, and how you would apply it in a production system. No executable code is required.`
     : type === 'System Design'

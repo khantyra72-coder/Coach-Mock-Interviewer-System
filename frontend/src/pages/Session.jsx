@@ -5,6 +5,7 @@ import { selectQuestions } from '../data/questionBank.js'
 import { evaluateSession } from '../utils/interviewEvaluator.js'
 import {
   completeInterview,
+  getInterviewDetails,
   submitInterviewAnswer,
 } from '../api/interviews.js'
 import {
@@ -15,7 +16,7 @@ import {
 } from '../utils/localInterviewStore.js'
 
 const MAX_CHARS = 2000
-const DEFAULT_DURATION_SECONDS = 45 * 60
+const MINUTES_PER_QUESTION = 3
 
 function formatTime(totalSeconds) {
   const minutes = Math.floor(totalSeconds / 60)
@@ -24,12 +25,13 @@ function formatTime(totalSeconds) {
 }
 
 function createSession(config) {
+  const selectedTypes = config.types?.length ? config.types : [config.type || 'Technical']
   const questions = config.backendQuestions?.length
     ? config.backendQuestions.map((question) => ({
         id: question.id,
         type: question.category,
         prompt: question.questionText,
-        topic: question.category,
+        topic: question.topic,
         difficulty: question.difficulty,
         tips: [
           'Explain your reasoning clearly.',
@@ -37,19 +39,20 @@ function createSession(config) {
           'Mention important trade-offs.',
         ],
       }))
-    : selectQuestions(
-        config.type || 'Technical',
-        config.questionCount || 5,
+    : selectedTypes.flatMap((interviewType, index) => selectQuestions(
+        interviewType,
+        Math.floor((Number(config.questionCount) || 15) / selectedTypes.length) + (index < (Number(config.questionCount) || 15) % selectedTypes.length ? 1 : 0),
         config.role || 'Software Engineer',
         config.company || 'Google'
-      )
+      )).filter((question, index, all) => all.findIndex((candidate) => candidate.id === question.id || candidate.prompt === question.prompt) === index)
   return {
     id: config.backendSessionId || `local-${Date.now()}`,
 backendSessionId: config.backendSessionId || null,
     backendQuestionsPersisted: config.backendQuestionsPersisted ?? Boolean(config.backendQuestions?.length),
     role: config.role || 'Software Engineer',
     company: config.company || 'Google',
-    type: config.type || 'Technical',
+    type: selectedTypes.join(', '),
+    types: selectedTypes,
     level: config.level || 'Entry (0–2 yrs)',
     difficulty: config.difficulty || 'Medium',
     timed: config.timed ?? true,
@@ -72,7 +75,8 @@ export default function Session() {
 const [finishError, setFinishError] = useState('')
   const [secondsLeft, setSecondsLeft] = useState(() => {
     const elapsed = Math.floor((Date.now() - new Date(session.startedAt).getTime()) / 1000)
-    return Math.max(0, DEFAULT_DURATION_SECONDS - elapsed)
+    const sessionDuration = session.questions.length * MINUTES_PER_QUESTION * 60
+    return Math.max(0, sessionDuration - elapsed)
   })
 
   const currentQuestion = session.questions[currentIndex]
@@ -117,29 +121,64 @@ const [finishError, setFinishError] = useState('')
   setFinishing(true)
   setFinishError('')
 
-  const result = evaluateSession(session)
+  let result = evaluateSession(session)
 
   try {
     if (session.backendSessionId) {
-      const answerRequests = session.backendQuestionsPersisted ? session.answers
+      const answerPayloads = session.backendQuestionsPersisted ? session.answers
         .map((answerText, index) => {
           if (!answerText.trim()) return null
 
-          return submitInterviewAnswer(session.backendSessionId, {
+          return {
             questionId: session.questions[index].id,
             answerText: answerText.trim(),
-          })
+            score: result.questions[index].score,
+            feedback: result.questions[index].suggestion,
+            coveredConcepts: result.questions[index].strengths.join('; '),
+            missingConcepts: result.questions[index].weaknesses.join('; '),
+          }
         })
         .filter(Boolean) : []
 
-      await Promise.all(answerRequests)
+      for (const answerPayload of answerPayloads) {
+        await submitInterviewAnswer(session.backendSessionId, answerPayload)
+      }
 
-      await completeInterview(session.backendSessionId, {
+      const backendResult = await completeInterview(session.backendSessionId, {
         overallScore: result.overallScore,
+        technicalScore: result.breakdown.find((item) => item.label === 'Technical depth')?.value ?? null,
+        behavioralScore: result.breakdown.find((item) => item.label === 'Behavioral structure')?.value ?? null,
+        conceptScore: result.breakdown.find((item) => item.label === 'Concept completion')?.value ?? null,
+        algorithmScore: result.skillScores.algorithm,
+        communicationScore: result.skillScores.communication,
+        problemSolvingScore: result.skillScores.problemSolving,
+        systemDesignScore: result.skillScores.systemDesign,
         strengths: result.topStrengths.join('; '),
         improvements: result.topImprovements.join('; '),
         summaryFeedback: result.message,
+        resultDetails: JSON.stringify(result),
       })
+      const backendDetails = await getInterviewDetails(session.backendSessionId)
+      const answerByQuestion = new Map(backendDetails.answers.map((item) => [item.questionId, item]))
+      result = {
+        ...result,
+        overallScore: backendResult.overallScore,
+        message: backendResult.summaryFeedback,
+        scoringSource: 'SERVER_RUBRIC',
+        topStrengths: backendResult.strengths?.split(';').map((item) => item.trim()).filter(Boolean) || [],
+        topImprovements: backendResult.improvements?.split(';').map((item) => item.trim()).filter(Boolean) || [],
+        questions: result.questions.map((question) => {
+          const serverAnswer = answerByQuestion.get(question.questionId)
+          if (!serverAnswer) return question
+          return {
+            ...question,
+            score: serverAnswer.score,
+            strengths: serverAnswer.coveredConcepts?.split(';').map((item) => item.trim()).filter(Boolean) || [],
+            weaknesses: serverAnswer.missingConcepts?.split(';').map((item) => item.trim()).filter(Boolean) || [],
+            suggestion: serverAnswer.feedback || 'Review the rubric feedback for this answer.',
+          }
+        }),
+      }
     }
 
     saveLastResult(result)

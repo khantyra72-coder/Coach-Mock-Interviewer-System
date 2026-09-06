@@ -30,6 +30,18 @@ public class InterviewSession {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tech_role_id")
+    private TechRole techRole;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "interview_type_id")
+    private InterviewType interviewTypeDefinition;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id")
+    private Company companyDefinition;
+
     @Column(nullable = false)
     private String role;
 
@@ -37,6 +49,9 @@ public class InterviewSession {
     private String interviewType;
 
     private String company;
+
+    @Column(name = "experience_level", nullable = false)
+    private String experienceLevel = "Entry (0-2 yrs)";
 
     @Column(nullable = false)
     private String status = "IN_PROGRESS";

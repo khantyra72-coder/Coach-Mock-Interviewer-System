@@ -35,7 +35,7 @@ import {
 
 const STATS = [
   { value: 10, suffix: '', label: 'Tech roles' },
-  { value: 10, suffix: '', label: 'Top companies' },
+  { value: 5, suffix: '', label: 'Top companies' },
   { value: 1000, suffix: '+', label: 'Interview questions' },
   { value: 100, suffix: '%', label: 'Free to practise' },
 ]

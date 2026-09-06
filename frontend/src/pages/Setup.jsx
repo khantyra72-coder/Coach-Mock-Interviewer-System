@@ -2,10 +2,10 @@ import { useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import TopBar from '../components/TopBar.jsx'
 import { Check, ChevronDown, ChevronRight, Clock, Code2, Handshake, Network, Search } from 'lucide-react'
-import { FaAirbnb, FaAmazon, FaApple, FaMeta, FaSpotify, FaUber } from 'react-icons/fa6'
-import { SiNetflix, SiStripe } from 'react-icons/si'
+import { FaAmazon, FaApple, FaMeta } from 'react-icons/fa6'
 import { getCompanies, getSelectedCompany, setSelectedCompany } from '../data/companyCatalog.js'
 import { getQuestionBank } from '../data/questionBank.js'
+import { DIFFICULTIES, INTERVIEW_TYPES } from '../data/interviewTaxonomy.js'
 import microsoftLogo from '../assets/logos/microsoft.svg'
 
 // A plain `import googleLogo from '../assets/logos/google.svg'` would fail
@@ -23,11 +23,13 @@ const APP_NAV = [
   { label: 'Progress Report', to: '/progress' },
 ]
 
-const TYPES = [
-  { key: 'Technical', icon: Code2, desc: 'Technical reasoning & CS' },
-  { key: 'Behavioral', icon: Handshake, desc: 'STAR method' },
-  { key: 'System Design', icon: Network, desc: 'Architecture explained in writing' },
-]
+const TYPE_DETAILS = {
+  Technical: { icon: Code2, desc: 'Technical reasoning & CS' },
+  Behavioral: { icon: Handshake, desc: 'STAR method' },
+  'System Design': { icon: Network, desc: 'Architecture explained in writing' },
+}
+
+const TYPES = INTERVIEW_TYPES.map((key) => ({ key, ...TYPE_DETAILS[key] }))
 
 // logo: a string means a local SVG (rendered as <img>, real colors as-is); a
 // function means a react-icons component (rendered as <Logo/>, tinted via
@@ -42,15 +44,9 @@ const COMPANY_LOGOS = {
   Microsoft: microsoftLogo,
   Meta: FaMeta,
   Apple: FaApple,
-  Netflix: SiNetflix,
-  Spotify: FaSpotify,
-  Stripe: SiStripe,
-  Airbnb: FaAirbnb,
-  Uber: FaUber,
 }
 
 const LEVELS = ['Intern', 'Entry (0–2 yrs)', 'Mid (3–5 yrs)', 'Senior']
-const DIFFICULTIES = ['Easy', 'Medium', 'Hard']
 const QUESTION_COUNTS = ['5', '10', '15']
 
 const ROLE_TOPICS = {
@@ -71,11 +67,11 @@ export default function Setup() {
   const location = useLocation()
   const role = location.state?.role
   const availableTopics = ROLE_TOPICS[role] || ROLE_TOPICS['Software Engineer']
-  const [type, setType] = useState('Technical')
+  const [types, setTypes] = useState(['Technical'])
   const [company, setCompany] = useState(getSelectedCompany)
   const [level, setLevel] = useState('Entry (0–2 yrs)')
   const [difficulty, setDifficulty] = useState('Medium')
-  const [questionCount, setQuestionCount] = useState('5')
+  const [questionCount, setQuestionCount] = useState('15')
   const [topics, setTopics] = useState(availableTopics)
   const [timed, setTimed] = useState(false)
   const [companies] = useState(() => {
@@ -102,8 +98,15 @@ export default function Setup() {
     )
   }
 
+  const toggleType = (interviewType) => {
+    setTypes((current) => current.includes(interviewType)
+      ? current.length === 1 ? current : current.filter((item) => item !== interviewType)
+      : [...current, interviewType]
+    )
+  }
+
   const handleContinue = () => {
-    navigate('/ready', { state: { role, type, company, level, difficulty, questionCount, topics, timed } })
+    navigate('/ready', { state: { role, type: types.join(', '), types, company, level, difficulty, questionCount, topics, timed } })
   }
 
   return (
@@ -125,17 +128,17 @@ export default function Setup() {
 
         <div className="setup-form">
           <div className="field card setup-section setup-type-section">
-            <label>Interview type</label>
+            <label>Interview types <span className="muted" style={{ fontWeight: 400 }}>— choose one, two, or three</span></label>
             <div className="g3 setup-type-grid">
               {TYPES.map((t) => (
                 <div
                   key={t.key}
-                  className={`opt${type === t.key ? ' sel' : ''}`}
-                  onClick={() => setType(t.key)}
+                  className={`opt${types.includes(t.key) ? ' sel' : ''}`}
+                  onClick={() => toggleType(t.key)}
                 >
                   <div className="oi"><t.icon size={18} strokeWidth={1.8} /></div>
                   <div><h4>{t.key}</h4><p>{t.desc}</p></div>
-                  <div className="tk">✓</div>
+                  {types.includes(t.key) && <div className="tk">✓</div>}
                 </div>
               ))}
             </div>

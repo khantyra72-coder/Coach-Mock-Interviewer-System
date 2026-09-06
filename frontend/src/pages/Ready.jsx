@@ -3,10 +3,9 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import TopBar from '../components/TopBar.jsx'
 import Reveal from '../components/Reveal.jsx'
 import { getStoredUser } from '../api/client.js'
-import { getInterviewQuestions, startInterview } from '../api/interviews.js'
+import { startInterview } from '../api/interviews.js'
 import { CheckCircle2, Briefcase, ListChecks, Lightbulb, ArrowRight, Building2 } from 'lucide-react'
-import { FaAirbnb, FaAmazon, FaApple, FaMeta, FaSpotify, FaUber } from 'react-icons/fa6'
-import { SiNetflix, SiStripe } from 'react-icons/si'
+import { FaAmazon, FaApple, FaMeta } from 'react-icons/fa6'
 import microsoftLogo from '../assets/logos/microsoft.svg'
 
 const APP_NAV = [
@@ -28,11 +27,6 @@ const COMPANY_INFO = {
   Microsoft: { color: '#00A4EF', letter: 'M', logo: microsoftLogo },
   Meta: { color: '#0866FF', letter: 'f', logo: FaMeta },
   Apple: { color: '#111', letter: '▲', logo: FaApple },
-  Netflix: { color: '#E50914', letter: 'N', logo: SiNetflix },
-  Spotify: { color: '#1DB954', letter: 'S', logo: FaSpotify },
-  Stripe: { color: '#635BFF', letter: 'S', logo: SiStripe },
-  Airbnb: { color: '#FF385C', letter: 'A', logo: FaAirbnb },
-  Uber: { color: '#111', letter: 'U', logo: FaUber },
 }
 
 const ROLE_TIPS = {
@@ -58,16 +52,19 @@ const [startError, setStartError] = useState('')
   const {
     role,
     type,
+    types = type ? [type] : ['Technical'],
     company,
     level,
     difficulty,
-    questionCount = '5',
+    questionCount = '15',
     topics,
     timed = false,
   } = location.state || {}
 
   const displayRole = role || type || 'Not specified'
+  const displayTypes = types.join(', ')
   const displayCompany = company || 'Not specified'
+  const selectedQuestionCount = [5, 10, 15].includes(Number(questionCount)) ? Number(questionCount) : 15
   const companyInfo = COMPANY_INFO[company]
   const tips = ROLE_TIPS[role] || ROLE_TIPS['Software Engineer']
 
@@ -78,58 +75,44 @@ const [startError, setStartError] = useState('')
   setStartError('')
 
   try {
-    const allQuestions = await getInterviewQuestions()
-
-    // A fresh database may not have question rows yet. Session.jsx already
-    // supports the bundled question bank, so continue in local mode instead
-    // of preventing the user from starting an interview.
-    if (!allQuestions.length) {
-      const backendSession = await startInterview({
-        role: role || 'Software Engineer',
-        interviewType: type || 'Technical',
-        company: company || null,
-      })
-      navigate('/session', {
-        state: {
-          role, type, company, level, difficulty, questionCount, topics, timed,
-          backendSessionId: backendSession.id,
-          backendQuestionsPersisted: false,
-        },
-      })
-      return
-    }
-
-    const matchingQuestions = allQuestions.filter(
-      (question) => question.category === (type || 'Technical')
-    )
-    const otherQuestions = allQuestions.filter(
-      (question) => question.category !== (type || 'Technical')
-    )
-    const selectedQuestions = [...matchingQuestions, ...otherQuestions]
-      .slice(0, Number(questionCount) || 5)
-
     const backendSession = await startInterview({
       role: role || 'Software Engineer',
-      interviewType: type || 'Technical',
+      interviewType: types[0] || 'Technical',
+      interviewTypes: types,
       company: company || null,
+      difficulty: difficulty || 'Medium',
+      experienceLevel: level || 'Entry (0–2 yrs)',
+      topics: Array.isArray(topics) ? topics : [],
+      questionCount: selectedQuestionCount,
     })
 
     navigate('/session', {
       state: {
         role,
-        type,
+        type: displayTypes,
+        types,
         company,
         level,
         difficulty,
         questionCount,
         topics,
         timed,
-        backendSessionId: backendSession.id,
-        backendQuestions: selectedQuestions,
+        backendSessionId: backendSession.session.id,
+        backendQuestions: backendSession.questions,
         backendQuestionsPersisted: true,
       },
     })
   } catch (error) {
+    if (error.status === 0) {
+      navigate('/session', {
+        state: {
+          role, type: displayTypes, types, company, level, difficulty, questionCount: selectedQuestionCount, topics, timed,
+          backendQuestionsPersisted: false,
+          offlineFallback: true,
+        },
+      })
+      return
+    }
     setStartError(error.message || 'Could not start the interview.')
     setStarting(false)
   }
@@ -181,7 +164,7 @@ const [startError, setStartError] = useState('')
               <span className="rdrow-icon"><ListChecks size={16} strokeWidth={1.8} /></span>
               <span className="k">Session</span>
             </div>
-            <span className="v">{questionCount} questions{timed ? ' · ~45 minutes' : ''}</span>
+            <span className="v">{selectedQuestionCount} questions · {displayTypes}{timed ? ` · ~${selectedQuestionCount * 3} minutes` : ''}</span>
           </div>
         </Reveal>
 

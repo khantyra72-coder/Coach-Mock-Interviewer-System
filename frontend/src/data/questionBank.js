@@ -222,7 +222,7 @@ const ROLE_QUESTIONS = [
   roleQuestion('be-idempotency', 'Backend Developer', 'Amazon', 'Technical', 'APIs', 'Medium', 'How would you make a payment API idempotent?', [
     ['Idempotency key', ['idempotency key', 'request key']], ['Persistent record', ['store key', 'database record']], ['Atomicity', ['transaction', 'atomic']], ['Duplicate response', ['return same response', 'cached response']], ['Expiry and conflicts', ['ttl', 'expiry', 'payload mismatch']],
   ]),
-  roleQuestion('be-caching', 'Backend Developer', 'Netflix', 'System Design', 'Caching', 'Hard', 'Design a caching strategy for a read-heavy content API.', [
+  roleQuestion('be-caching', 'Backend Developer', 'Microsoft', 'System Design', 'Caching', 'Hard', 'Design a caching strategy for a read-heavy content API.', [
     ['Cache placement', ['redis', 'cdn', 'cache aside']], ['Cache key', ['cache key', 'key design']], ['Invalidation', ['invalidate', 'ttl', 'expiration']], ['Stampede protection', ['cache stampede', 'single flight', 'locking']], ['Observability', ['hit rate', 'miss rate', 'metrics']],
   ]),
   roleQuestion('be-api-versioning', 'Backend Developer', 'Microsoft', 'Technical', 'API Design', 'Medium', 'How would you evolve a public API without breaking existing clients?', [
@@ -234,7 +234,7 @@ const ROLE_QUESTIONS = [
   roleQuestion('fullstack-data-flow', 'Full-Stack Developer', 'Meta', 'Technical', 'Architecture', 'Medium', 'Explain how data should flow from a React form to a backend database safely.', [
     ['Client validation', ['client validation', 'form validation']], ['API contract', ['api contract', 'request schema']], ['Server validation', ['server validation', 'sanitize']], ['Transaction', ['transaction', 'database write']], ['Error handling', ['error response', 'rollback', 'user feedback']],
   ]),
-  roleQuestion('ds-experiment', 'Data Scientist', 'Netflix', 'Technical', 'Experimentation', 'Hard', 'How would you design and evaluate an A/B test for a recommendation feature?', [
+  roleQuestion('ds-experiment', 'Data Scientist', 'Google', 'Technical', 'Experimentation', 'Hard', 'How would you design and evaluate an A/B test for a recommendation feature?', [
     ['Hypothesis', ['hypothesis', 'expected effect']], ['Randomization', ['random assignment', 'randomization']], ['Primary metric', ['primary metric', 'success metric']], ['Statistical validity', ['sample size', 'significance', 'confidence interval']], ['Guardrails', ['guardrail metric', 'negative impact', 'segment']],
   ]),
   roleQuestion('ds-missing-data', 'Data Scientist', 'Amazon', 'Technical', 'Data Preparation', 'Medium', 'How would you investigate and handle missing values in a dataset?', [
@@ -249,7 +249,7 @@ const ROLE_QUESTIONS = [
   roleQuestion('devops-deployment', 'Cloud / DevOps Engineer', 'Amazon', 'System Design', 'Deployment', 'Hard', 'Design a safe zero-downtime deployment process for a critical service.', [
     ['Deployment strategy', ['blue green', 'canary', 'rolling']], ['Health checks', ['health check', 'readiness']], ['Database compatibility', ['backward compatible migration', 'expand contract']], ['Observability', ['metrics', 'logs', 'alert']], ['Rollback', ['rollback', 'automatic rollback']],
   ]),
-  roleQuestion('devops-incident', 'Cloud / DevOps Engineer', 'Netflix', 'Behavioral', 'Incident Response', 'Hard', 'Tell me about a production incident you helped resolve.', [
+  roleQuestion('devops-incident', 'Cloud / DevOps Engineer', 'Amazon', 'Behavioral', 'Incident Response', 'Hard', 'Tell me about a production incident you helped resolve.', [
     ['Incident context', ['incident', 'outage', 'impact']], ['Triage', ['triage', 'severity', 'diagnose']], ['Communication', ['status update', 'stakeholder', 'incident channel']], ['Recovery', ['mitigation', 'recovery', 'rollback']], ['Prevention', ['postmortem', 'action item', 'prevent recurrence']],
   ]),
   roleQuestion('mobile-offline', 'Mobile Developer', 'Apple', 'System Design', 'Offline Data', 'Hard', 'Design offline synchronization for a mobile task application.', [
@@ -296,17 +296,34 @@ const DELETED_QUESTIONS_KEY = 'aceinterview_admin_deleted_questions'
 
 export const QUESTION_BANK = [...CORE_QUESTION_BANK, ...ROLE_QUESTIONS, ...generateCompanyQuestionSeeds()].map(withDefaults)
 
+function questionIdentity(question) {
+  return String(question.prompt || question.questionText || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+}
+
+export function deduplicateQuestions(questions) {
+  const seen = new Set()
+  return questions.filter((question) => {
+    const identity = questionIdentity(question)
+    if (!identity || seen.has(identity)) return false
+    seen.add(identity)
+    return true
+  })
+}
+
 export function getQuestionBank() {
   if (typeof localStorage === 'undefined') return QUESTION_BANK
   try {
     const custom = JSON.parse(localStorage.getItem(CUSTOM_QUESTIONS_KEY)) || []
     const overrides = JSON.parse(localStorage.getItem(QUESTION_OVERRIDES_KEY)) || {}
     const deleted = new Set(JSON.parse(localStorage.getItem(DELETED_QUESTIONS_KEY)) || [])
-    return [...QUESTION_BANK
+    return deduplicateQuestions([...QUESTION_BANK
       .filter((question) => !deleted.has(question.id))
       .map((question) => overrides[question.id] ? { ...question, ...overrides[question.id] } : question),
       ...custom.map((question) => ({ responseMode: 'Written response', textAnswerable: true, ...question })),
-    ]
+    ])
   } catch {
     return QUESTION_BANK
   }
@@ -343,7 +360,8 @@ export function deleteQuestion(id) {
 
 export function selectQuestions(type = 'Technical', requestedCount = 5, role, company) {
   const count = Math.max(1, Number(requestedCount) || 5)
-  const allQuestions = getQuestionBank().filter((question) => question.textAnswerable !== false)
+  const allQuestions = deduplicateQuestions(getQuestionBank())
+    .filter((question) => question.textAnswerable !== false)
   const ranked = allQuestions.map((question, index) => ({
     question,
     index,
@@ -351,5 +369,6 @@ export function selectQuestions(type = 'Technical', requestedCount = 5, role, co
       + (question.role === role ? 4 : question.role === 'Any' ? 1 : 0)
       + (question.company === company ? 2 : question.company === 'All' ? 1 : 0),
   })).sort((a, b) => b.score - a.score || a.index - b.index)
-  return ranked.slice(0, Math.min(count, ranked.length)).map(({ question }) => question)
+  return deduplicateQuestions(ranked.map(({ question }) => question))
+    .slice(0, Math.min(count, ranked.length))
 }

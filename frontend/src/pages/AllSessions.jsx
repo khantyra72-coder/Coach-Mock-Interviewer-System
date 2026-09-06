@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { BarChart3, Code2, Database, Monitor, Search } from 'lucide-react'
-import { FaAirbnb, FaAmazon, FaApple, FaMeta, FaMicrosoft, FaSpotify, FaUber } from 'react-icons/fa6'
-import { SiNetflix, SiStripe } from 'react-icons/si'
+import { FaAmazon, FaApple, FaMeta, FaMicrosoft } from 'react-icons/fa6'
 import TopBar from '../components/TopBar.jsx'
 import googleLogo from '../assets/logos/google.svg'
 import { getCompanies } from '../data/companyCatalog.js'
+import { INTERVIEW_TYPES, TECH_ROLES } from '../data/interviewTaxonomy.js'
 import {
   getInterviewDetails,
   getInterviewHistory,
@@ -20,21 +20,6 @@ const APP_NAV = [
 
 const PAGE_SIZE = 6
 
-const FILTER_ROLES = [
-  'Software Engineer',
-  'Frontend Developer',
-  'Backend Developer',
-  'Full-Stack Developer',
-  'Data Scientist',
-  'ML / AI Engineer',
-  'Cloud / DevOps Engineer',
-  'Mobile Developer',
-  'Cybersecurity Analyst',
-  'QA / Test Engineer',
-]
-
-const INTERVIEW_TYPES = ['Technical', 'Behavioral', 'System Design']
-
 const ROLE_ICONS = {
   'Software Engineer': { icon: Code2, className: 'software' },
   'Frontend Developer': { icon: Monitor, className: 'frontend' },
@@ -46,13 +31,8 @@ const COMPANY_ICONS = {
   Google: { image: googleLogo },
   Microsoft: { icon: FaMicrosoft, color: '#00a4ef' },
   Amazon: { icon: FaAmazon, color: '#ff9900' },
-  Spotify: { icon: FaSpotify, color: '#1db954' },
-  Stripe: { icon: SiStripe, color: '#635bff' },
-  Airbnb: { icon: FaAirbnb, color: '#ff385c' },
   Meta: { icon: FaMeta, color: '#0866ff' },
-  Netflix: { icon: SiNetflix, color: '#e50914' },
   Apple: { icon: FaApple, color: '#111' },
-  Uber: { icon: FaUber, color: '#111' },
 }
 
 function RoleCell({ role }) {
@@ -86,7 +66,7 @@ function average(items) {
 }
 
 function splitText(value, fallback) {
-  if (!value) return [fallback]
+  if (!value) return fallback ? [fallback] : []
   return value
     .split(';')
     .map((item) => item.trim())
@@ -96,12 +76,35 @@ function splitText(value, fallback) {
 function convertBackendSession(session, details) {
   const result = details.result
   const overallScore = result?.overallScore ?? 0
+  let savedResult = null
+  try {
+    savedResult = result?.resultDetails ? JSON.parse(result.resultDetails) : null
+  } catch {
+    savedResult = null
+  }
+
+  if (savedResult && Array.isArray(savedResult.breakdown) && Array.isArray(savedResult.topStrengths)
+    && Array.isArray(savedResult.topImprovements) && Array.isArray(savedResult.questions)) {
+    const completedAt = session.completedAt || session.startedAt
+    return {
+      id: session.id,
+      date: new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(completedAt)),
+      completedAt,
+      role: session.role,
+      type: session.interviewType,
+      company: session.company || 'Not specified',
+      level: session.experienceLevel || 'Not specified',
+      score: overallScore,
+      result: { ...savedResult, id: session.id, completedAt },
+    }
+  }
 
   const frontendResult = {
     id: session.id,
     completedAt: session.completedAt || session.startedAt,
     role: session.role,
     company: session.company || 'Not specified',
+    level: session.experienceLevel || 'Not specified',
     type: session.interviewType,
     answeredCount: details.answers.length,
     questionCount: details.answers.length,
@@ -109,10 +112,16 @@ function convertBackendSession(session, details) {
     message: result?.summaryFeedback || 'Interview completed.',
     breakdown: [
       { label: 'Overall score', value: overallScore },
-      { label: 'Technical depth', value: overallScore },
-      { label: 'Behavioral structure', value: overallScore },
-      { label: 'Concept completion', value: overallScore },
-    ],
+      { label: 'Technical depth', value: result?.technicalScore },
+      { label: 'Behavioral structure', value: result?.behavioralScore },
+      { label: 'Concept completion', value: result?.conceptScore },
+    ].filter((item) => Number.isFinite(item.value)),
+    skillScores: {
+      algorithm: result?.algorithmScore ?? null,
+      communication: result?.communicationScore ?? null,
+      problemSolving: result?.problemSolvingScore ?? null,
+      systemDesign: result?.systemDesignScore ?? null,
+    },
     topStrengths: splitText(
       result?.strengths,
       'Completed the interview'
@@ -126,12 +135,10 @@ function convertBackendSession(session, details) {
       questionId: answer.questionId,
       text: answer.questionText,
       answer: answer.answerText,
-      score: answer.score ?? overallScore,
-      strengths: ['Answer saved successfully'],
-      weaknesses: answer.feedback
-        ? [answer.feedback]
-        : ['Review this answer for more detail'],
-      suggestion: answer.feedback || 'Add more detail and a concrete example.',
+      score: answer.score,
+      strengths: splitText(answer.coveredConcepts),
+      weaknesses: splitText(answer.missingConcepts),
+      suggestion: answer.feedback || 'No saved feedback is available for this older answer.',
       model: null,
     })),
   }
@@ -252,18 +259,10 @@ useEffect(() => {
     setPage(1)
   }
 
-  const back = () => {
-    if (selectedRole) setSearchParams({ view: 'roles' })
-    else navigate('/dashboard')
-  }
-
   return (
     <section className="screen" id="allsessions">
       <TopBar nav={APP_NAV} showUser />
       <div className="wrap pagepad">
-        <button type="button" className="btn ghost sm" style={{ marginBottom: 16 }} onClick={back}>
-          ← {selectedRole ? 'Back to roles' : 'Back to dashboard'}
-        </button>
         {loading && <p className="sub muted">Loading interview history…</p>}
 
 {loadError && (
@@ -318,7 +317,7 @@ useEffect(() => {
                 </label>
                 <select value={roleFilter} onChange={updateFilter(setRoleFilter)} aria-label="Filter by role">
                   <option>All roles</option>
-                  {FILTER_ROLES.map((role) => <option key={role}>{role}</option>)}
+                  {TECH_ROLES.map((role) => <option key={role}>{role}</option>)}
                 </select>
                 <select value={typeFilter} onChange={updateFilter(setTypeFilter)} aria-label="Filter by interview type">
                   <option>All interview types</option>

@@ -1,0 +1,2802 @@
+[
+  {
+    "type": "Technical",
+    "topic": "Arrays and linked lists",
+    "difficulty": "Easy",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "Compare arrays and linked lists. When would you choose each structure?",
+    "expectedAnswerSummary": "Arrays offer contiguous storage and constant-time indexed access; linked lists favor node insertion but require traversal.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Array layout",
+        "description": "Evaluates whether the answer covers array layout for this specific question.",
+        "expectedEvidence": "Array layout: contiguous memory and indexed access",
+        "acceptableAlternatives": "",
+        "keywords": "array,layout,contiguous,memory,indexed,access",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Linked-list layout",
+        "description": "Evaluates whether the answer covers linked-list layout for this specific question.",
+        "expectedEvidence": "Linked-list layout: nodes connected by references",
+        "acceptableAlternatives": "",
+        "keywords": "linked,layout,nodes,connected,references",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Complexity",
+        "description": "Evaluates whether the answer covers complexity for this specific question.",
+        "expectedEvidence": "Complexity: compare access insertion and deletion costs",
+        "acceptableAlternatives": "",
+        "keywords": "complexity,compare,access,insertion,deletion,costs",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Memory trade-off",
+        "description": "Evaluates whether the answer covers memory trade-off for this specific question.",
+        "expectedEvidence": "Memory trade-off: capacity versus pointer overhead",
+        "acceptableAlternatives": "",
+        "keywords": "memory,trade,capacity,versus,pointer,overhead",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Selection examples",
+        "description": "Evaluates whether the answer covers selection examples for this specific question.",
+        "expectedEvidence": "Selection examples: match each structure to a real workload",
+        "acceptableAlternatives": "",
+        "keywords": "selection,examples,match,structure,workload",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Technical",
+    "topic": "Hash maps",
+    "difficulty": "Medium",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "How does a hash map handle collisions, and what affects its performance?",
+    "expectedAnswerSummary": "Explain collision resolution with chaining or open addressing, plus load factor, resizing, hash quality, and complexity.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Collision definition",
+        "description": "Evaluates whether the answer covers collision definition for this specific question.",
+        "expectedEvidence": "Collision definition: multiple keys map to one bucket",
+        "acceptableAlternatives": "",
+        "keywords": "collision,definition,multiple,bucket",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Chaining",
+        "description": "Evaluates whether the answer covers chaining for this specific question.",
+        "expectedEvidence": "Chaining: bucket collections resolve collisions",
+        "acceptableAlternatives": "",
+        "keywords": "chaining,bucket,collections,resolve,collisions",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Open addressing",
+        "description": "Evaluates whether the answer covers open addressing for this specific question.",
+        "expectedEvidence": "Open addressing: probing finds another slot",
+        "acceptableAlternatives": "",
+        "keywords": "addressing,probing,finds,another",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Load factor",
+        "description": "Evaluates whether the answer covers load factor for this specific question.",
+        "expectedEvidence": "Load factor: resizing limits collision growth",
+        "acceptableAlternatives": "",
+        "keywords": "factor,resizing,limits,collision,growth",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Complexity",
+        "description": "Evaluates whether the answer covers complexity for this specific question.",
+        "expectedEvidence": "Complexity: average constant time and possible linear worst case",
+        "acceptableAlternatives": "",
+        "keywords": "complexity,average,constant,possible,linear,worst",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Technical",
+    "topic": "Sliding window",
+    "difficulty": "Medium",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "Explain how you would find the longest substring without repeating characters.",
+    "expectedAnswerSummary": "Use a sliding window with a set or last-seen map, moving the left boundary when a duplicate appears.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Window invariant",
+        "description": "Evaluates whether the answer covers window invariant for this specific question.",
+        "expectedEvidence": "Window invariant: current range contains unique characters",
+        "acceptableAlternatives": "",
+        "keywords": "window,invariant,current,range,contains,unique,characters",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Duplicate handling",
+        "description": "Evaluates whether the answer covers duplicate handling for this specific question.",
+        "expectedEvidence": "Duplicate handling: advance the left boundary correctly",
+        "acceptableAlternatives": "",
+        "keywords": "duplicate,handling,advance,boundary,correctly",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "State tracking",
+        "description": "Evaluates whether the answer covers state tracking for this specific question.",
+        "expectedEvidence": "State tracking: set or last-seen index map",
+        "acceptableAlternatives": "",
+        "keywords": "state,tracking,index",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Complexity",
+        "description": "Evaluates whether the answer covers complexity for this specific question.",
+        "expectedEvidence": "Complexity: linear time with bounded auxiliary space",
+        "acceptableAlternatives": "",
+        "keywords": "complexity,linear,bounded,auxiliary,space",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Edge cases",
+        "description": "Evaluates whether the answer covers edge cases for this specific question.",
+        "expectedEvidence": "Edge cases: empty input repeated characters and Unicode assumptions",
+        "acceptableAlternatives": "",
+        "keywords": "cases,empty,input,repeated,characters,unicode,assumptions",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Technical",
+    "topic": "Linked lists",
+    "difficulty": "Easy",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "How would you detect whether a singly linked list contains a cycle?",
+    "expectedAnswerSummary": "Use Floyd’s slow-and-fast-pointer algorithm, which detects a meeting point in linear time and constant space.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Pointer strategy",
+        "description": "Evaluates whether the answer covers pointer strategy for this specific question.",
+        "expectedEvidence": "Pointer strategy: slow moves once and fast moves twice",
+        "acceptableAlternatives": "",
+        "keywords": "pointer,strategy,moves,moves,twice",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Cycle proof",
+        "description": "Evaluates whether the answer covers cycle proof for this specific question.",
+        "expectedEvidence": "Cycle proof: pointers meet only when a cycle is reachable",
+        "acceptableAlternatives": "",
+        "keywords": "cycle,proof,pointers,cycle,reachable",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Termination",
+        "description": "Evaluates whether the answer covers termination for this specific question.",
+        "expectedEvidence": "Termination: fast pointer reaching null means no cycle",
+        "acceptableAlternatives": "",
+        "keywords": "termination,pointer,reaching,means,cycle",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Complexity",
+        "description": "Evaluates whether the answer covers complexity for this specific question.",
+        "expectedEvidence": "Complexity: O(n) time and O(1) space",
+        "acceptableAlternatives": "",
+        "keywords": "complexity,space",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Edge cases",
+        "description": "Evaluates whether the answer covers edge cases for this specific question.",
+        "expectedEvidence": "Edge cases: empty one-node and self-referencing lists",
+        "acceptableAlternatives": "",
+        "keywords": "cases,empty,referencing,lists",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Technical",
+    "topic": "Stacks",
+    "difficulty": "Easy",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "How would you validate that brackets in a string are correctly balanced?",
+    "expectedAnswerSummary": "Push opening brackets onto a stack and require every closing bracket to match the most recent opener.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Stack choice",
+        "description": "Evaluates whether the answer covers stack choice for this specific question.",
+        "expectedEvidence": "Stack choice: last-opened bracket must close first",
+        "acceptableAlternatives": "",
+        "keywords": "stack,choice,opened,bracket,close,first",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Opening handling",
+        "description": "Evaluates whether the answer covers opening handling for this specific question.",
+        "expectedEvidence": "Opening handling: push recognized opening symbols",
+        "acceptableAlternatives": "",
+        "keywords": "opening,handling,recognized,opening,symbols",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Closing handling",
+        "description": "Evaluates whether the answer covers closing handling for this specific question.",
+        "expectedEvidence": "Closing handling: reject empty stack or mismatched pair",
+        "acceptableAlternatives": "",
+        "keywords": "closing,handling,reject,empty,stack,mismatched",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Completion rule",
+        "description": "Evaluates whether the answer covers completion rule for this specific question.",
+        "expectedEvidence": "Completion rule: stack must be empty after scanning",
+        "acceptableAlternatives": "",
+        "keywords": "completion,stack,empty,after,scanning",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Complexity and cases",
+        "description": "Evaluates whether the answer covers complexity and cases for this specific question.",
+        "expectedEvidence": "Complexity and cases: linear time plus malformed and empty inputs",
+        "acceptableAlternatives": "",
+        "keywords": "complexity,cases,linear,malformed,empty,inputs",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Technical",
+    "topic": "Binary trees",
+    "difficulty": "Medium",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "How would you determine whether a binary tree is height-balanced?",
+    "expectedAnswerSummary": "Use a postorder traversal that returns subtree height or an imbalance sentinel, stopping early when possible.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Balance rule",
+        "description": "Evaluates whether the answer covers balance rule for this specific question.",
+        "expectedEvidence": "Balance rule: subtree heights differ by at most one",
+        "acceptableAlternatives": "",
+        "keywords": "balance,subtree,heights,differ",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Traversal",
+        "description": "Evaluates whether the answer covers traversal for this specific question.",
+        "expectedEvidence": "Traversal: calculate child heights bottom-up",
+        "acceptableAlternatives": "",
+        "keywords": "traversal,calculate,child,heights,bottom",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Early exit",
+        "description": "Evaluates whether the answer covers early exit for this specific question.",
+        "expectedEvidence": "Early exit: propagate an imbalance sentinel",
+        "acceptableAlternatives": "",
+        "keywords": "early,propagate,imbalance,sentinel",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Complexity",
+        "description": "Evaluates whether the answer covers complexity for this specific question.",
+        "expectedEvidence": "Complexity: O(n) time and O(h) recursion space",
+        "acceptableAlternatives": "",
+        "keywords": "complexity,recursion,space",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Edge cases",
+        "description": "Evaluates whether the answer covers edge cases for this specific question.",
+        "expectedEvidence": "Edge cases: empty skewed and single-node trees",
+        "acceptableAlternatives": "",
+        "keywords": "cases,empty,skewed,single,trees",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Technical",
+    "topic": "Graphs",
+    "difficulty": "Medium",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "How would you find the shortest path between two nodes in an unweighted graph?",
+    "expectedAnswerSummary": "Use breadth-first search with a visited set and predecessor map to reconstruct the minimum-edge path.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Algorithm choice",
+        "description": "Evaluates whether the answer covers algorithm choice for this specific question.",
+        "expectedEvidence": "Algorithm choice: BFS gives minimum-edge distance",
+        "acceptableAlternatives": "",
+        "keywords": "algorithm,choice,gives,minimum,distance",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Visited tracking",
+        "description": "Evaluates whether the answer covers visited tracking for this specific question.",
+        "expectedEvidence": "Visited tracking: prevent cycles and repeated work",
+        "acceptableAlternatives": "",
+        "keywords": "visited,tracking,prevent,cycles,repeated",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Parent tracking",
+        "description": "Evaluates whether the answer covers parent tracking for this specific question.",
+        "expectedEvidence": "Parent tracking: reconstruct the actual path",
+        "acceptableAlternatives": "",
+        "keywords": "parent,tracking,reconstruct,actual",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Complexity",
+        "description": "Evaluates whether the answer covers complexity for this specific question.",
+        "expectedEvidence": "Complexity: O(V plus E) time and O(V) space",
+        "acceptableAlternatives": "",
+        "keywords": "complexity,space",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Edge cases",
+        "description": "Evaluates whether the answer covers edge cases for this specific question.",
+        "expectedEvidence": "Edge cases: unreachable target source equals target and disconnected graph",
+        "acceptableAlternatives": "",
+        "keywords": "cases,unreachable,target,source,equals,target,disconnected,graph",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Technical",
+    "topic": "Binary search",
+    "difficulty": "Easy",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "Explain binary search and the conditions required for it to work correctly.",
+    "expectedAnswerSummary": "Repeatedly halve a sorted search space while maintaining correct inclusive or half-open boundaries.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Precondition",
+        "description": "Evaluates whether the answer covers precondition for this specific question.",
+        "expectedEvidence": "Precondition: data or predicate must be monotonic",
+        "acceptableAlternatives": "",
+        "keywords": "precondition,predicate,monotonic",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Invariant",
+        "description": "Evaluates whether the answer covers invariant for this specific question.",
+        "expectedEvidence": "Invariant: target remains inside the maintained range",
+        "acceptableAlternatives": "",
+        "keywords": "invariant,target,remains,inside,maintained,range",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Midpoint update",
+        "description": "Evaluates whether the answer covers midpoint update for this specific question.",
+        "expectedEvidence": "Midpoint update: discard the correct half without stalling",
+        "acceptableAlternatives": "",
+        "keywords": "midpoint,update,discard,correct,without,stalling",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Complexity",
+        "description": "Evaluates whether the answer covers complexity for this specific question.",
+        "expectedEvidence": "Complexity: logarithmic time and constant iterative space",
+        "acceptableAlternatives": "",
+        "keywords": "complexity,logarithmic,constant,iterative,space",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Edge cases",
+        "description": "Evaluates whether the answer covers edge cases for this specific question.",
+        "expectedEvidence": "Edge cases: empty input duplicates and boundary values",
+        "acceptableAlternatives": "",
+        "keywords": "cases,empty,input,duplicates,boundary,values",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Technical",
+    "topic": "Sorting",
+    "difficulty": "Medium",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "Compare merge sort and quicksort, including their time and space trade-offs.",
+    "expectedAnswerSummary": "Merge sort guarantees O(n log n) and stability with extra space; quicksort is often in-place and fast on average but needs careful pivoting.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Merge-sort behavior",
+        "description": "Evaluates whether the answer covers merge-sort behavior for this specific question.",
+        "expectedEvidence": "Merge-sort behavior: guaranteed n log n and auxiliary storage",
+        "acceptableAlternatives": "",
+        "keywords": "merge,behavior,guaranteed,auxiliary,storage",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Quicksort behavior",
+        "description": "Evaluates whether the answer covers quicksort behavior for this specific question.",
+        "expectedEvidence": "Quicksort behavior: partitioning and average n log n",
+        "acceptableAlternatives": "",
+        "keywords": "quicksort,behavior,partitioning,average",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Worst case",
+        "description": "Evaluates whether the answer covers worst case for this specific question.",
+        "expectedEvidence": "Worst case: poor pivots can make quicksort quadratic",
+        "acceptableAlternatives": "",
+        "keywords": "worst,pivots,quicksort,quadratic",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Stability and locality",
+        "description": "Evaluates whether the answer covers stability and locality for this specific question.",
+        "expectedEvidence": "Stability and locality: explain practical differences",
+        "acceptableAlternatives": "",
+        "keywords": "stability,locality,explain,practical,differences",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Selection",
+        "description": "Evaluates whether the answer covers selection for this specific question.",
+        "expectedEvidence": "Selection: justify choice for arrays linked data or constrained memory",
+        "acceptableAlternatives": "",
+        "keywords": "selection,justify,choice,arrays,linked,constrained,memory",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Technical",
+    "topic": "Dynamic programming",
+    "difficulty": "Medium",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "How would you find the minimum number of coins needed to make a target amount?",
+    "expectedAnswerSummary": "Define a DP state for each amount, transition from smaller reachable amounts, and return impossible when the target stays infinite.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "State definition",
+        "description": "Evaluates whether the answer covers state definition for this specific question.",
+        "expectedEvidence": "State definition: dp amount stores the minimum coin count",
+        "acceptableAlternatives": "",
+        "keywords": "state,definition,amount,stores,minimum,count",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Base case",
+        "description": "Evaluates whether the answer covers base case for this specific question.",
+        "expectedEvidence": "Base case: zero amount requires zero coins",
+        "acceptableAlternatives": "",
+        "keywords": "amount,requires,coins",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Transition",
+        "description": "Evaluates whether the answer covers transition for this specific question.",
+        "expectedEvidence": "Transition: take one coin plus a smaller solved amount",
+        "acceptableAlternatives": "",
+        "keywords": "transition,smaller,solved,amount",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Complexity",
+        "description": "Evaluates whether the answer covers complexity for this specific question.",
+        "expectedEvidence": "Complexity: amount times number of denominations",
+        "acceptableAlternatives": "",
+        "keywords": "complexity,amount,times,number,denominations",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Edge cases",
+        "description": "Evaluates whether the answer covers edge cases for this specific question.",
+        "expectedEvidence": "Edge cases: unreachable target zero target and invalid denominations",
+        "acceptableAlternatives": "",
+        "keywords": "cases,unreachable,target,target,invalid,denominations",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Technical",
+    "topic": "Operating systems",
+    "difficulty": "Easy",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "What is the difference between a process and a thread?",
+    "expectedAnswerSummary": "Processes have isolated address spaces; threads share process resources and are lighter but require synchronization.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Isolation",
+        "description": "Evaluates whether the answer covers isolation for this specific question.",
+        "expectedEvidence": "Isolation: processes own separate address spaces",
+        "acceptableAlternatives": "",
+        "keywords": "isolation,processes,separate,address,spaces",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Sharing",
+        "description": "Evaluates whether the answer covers sharing for this specific question.",
+        "expectedEvidence": "Sharing: threads share memory and process resources",
+        "acceptableAlternatives": "",
+        "keywords": "sharing,threads,share,memory,process,resources",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Overhead",
+        "description": "Evaluates whether the answer covers overhead for this specific question.",
+        "expectedEvidence": "Overhead: compare creation and context switching",
+        "acceptableAlternatives": "",
+        "keywords": "overhead,compare,creation,context,switching",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Communication",
+        "description": "Evaluates whether the answer covers communication for this specific question.",
+        "expectedEvidence": "Communication: IPC versus direct shared-memory access",
+        "acceptableAlternatives": "",
+        "keywords": "communication,versus,direct,shared,memory,access",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Concurrency risk",
+        "description": "Evaluates whether the answer covers concurrency risk for this specific question.",
+        "expectedEvidence": "Concurrency risk: races deadlocks and synchronization",
+        "acceptableAlternatives": "",
+        "keywords": "concurrency,races,deadlocks,synchronization",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Technical",
+    "topic": "Concurrency",
+    "difficulty": "Medium",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "What is a race condition, and how can synchronization prevent it?",
+    "expectedAnswerSummary": "A race occurs when timing-dependent concurrent access corrupts shared state; locks or atomic operations protect the critical section.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Race definition",
+        "description": "Evaluates whether the answer covers race definition for this specific question.",
+        "expectedEvidence": "Race definition: outcome depends on unsafe interleaving",
+        "acceptableAlternatives": "",
+        "keywords": "definition,outcome,depends,unsafe,interleaving",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Critical section",
+        "description": "Evaluates whether the answer covers critical section for this specific question.",
+        "expectedEvidence": "Critical section: identify shared mutable state",
+        "acceptableAlternatives": "",
+        "keywords": "critical,section,identify,shared,mutable,state",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Mutual exclusion",
+        "description": "Evaluates whether the answer covers mutual exclusion for this specific question.",
+        "expectedEvidence": "Mutual exclusion: lock only the required operation",
+        "acceptableAlternatives": "",
+        "keywords": "mutual,exclusion,required,operation",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Alternatives",
+        "description": "Evaluates whether the answer covers alternatives for this specific question.",
+        "expectedEvidence": "Alternatives: atomic operations immutability or confinement",
+        "acceptableAlternatives": "",
+        "keywords": "alternatives,atomic,operations,immutability,confinement",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Safety concerns",
+        "description": "Evaluates whether the answer covers safety concerns for this specific question.",
+        "expectedEvidence": "Safety concerns: deadlock contention and testing limits",
+        "acceptableAlternatives": "",
+        "keywords": "safety,concerns,deadlock,contention,testing,limits",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Technical",
+    "topic": "Database indexes",
+    "difficulty": "Medium",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "How do database indexes improve reads, and when can they reduce performance?",
+    "expectedAnswerSummary": "Indexes reduce scans through lookup structures but consume storage and add maintenance cost to writes.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Lookup structure",
+        "description": "Evaluates whether the answer covers lookup structure for this specific question.",
+        "expectedEvidence": "Lookup structure: B-tree or suitable alternative",
+        "acceptableAlternatives": "",
+        "keywords": "lookup,structure,suitable,alternative",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Read benefit",
+        "description": "Evaluates whether the answer covers read benefit for this specific question.",
+        "expectedEvidence": "Read benefit: reduce rows scanned for selective predicates",
+        "acceptableAlternatives": "",
+        "keywords": "benefit,reduce,scanned,selective,predicates",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Write cost",
+        "description": "Evaluates whether the answer covers write cost for this specific question.",
+        "expectedEvidence": "Write cost: maintain indexes on insert update and delete",
+        "acceptableAlternatives": "",
+        "keywords": "write,maintain,indexes,insert,update,delete",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Design choice",
+        "description": "Evaluates whether the answer covers design choice for this specific question.",
+        "expectedEvidence": "Design choice: selectivity order and composite indexes",
+        "acceptableAlternatives": "",
+        "keywords": "design,choice,selectivity,order,composite,indexes",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Verification",
+        "description": "Evaluates whether the answer covers verification for this specific question.",
+        "expectedEvidence": "Verification: inspect the query plan and production workload",
+        "acceptableAlternatives": "",
+        "keywords": "verification,inspect,query,production,workload",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Technical",
+    "topic": "Production debugging",
+    "difficulty": "Hard",
+    "sourceType": "COMPANY_SPECIFIC",
+    "company": "Google",
+    "prompt": "At Google scale, a previously healthy API suddenly has high tail latency. How would you investigate it?",
+    "expectedAnswerSummary": "Confirm the regression with percentiles, correlate traces and recent changes, isolate dependencies or saturation, mitigate safely, and verify recovery.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Tail-latency evidence",
+        "description": "Evaluates whether the answer covers tail-latency evidence for this specific question.",
+        "expectedEvidence": "Tail-latency evidence: compare p95 and p99 with a baseline",
+        "acceptableAlternatives": "",
+        "keywords": "latency,evidence,compare,baseline",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Request tracing",
+        "description": "Evaluates whether the answer covers request tracing for this specific question.",
+        "expectedEvidence": "Request tracing: isolate the slow hop or dependency",
+        "acceptableAlternatives": "",
+        "keywords": "request,tracing,isolate,dependency",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Change correlation",
+        "description": "Evaluates whether the answer covers change correlation for this specific question.",
+        "expectedEvidence": "Change correlation: inspect deployments traffic and configuration",
+        "acceptableAlternatives": "",
+        "keywords": "change,correlation,inspect,deployments,traffic,configuration",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Safe mitigation",
+        "description": "Evaluates whether the answer covers safe mitigation for this specific question.",
+        "expectedEvidence": "Safe mitigation: rollback shed load cache or scale",
+        "acceptableAlternatives": "",
+        "keywords": "mitigation,rollback,cache,scale",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Verification",
+        "description": "Evaluates whether the answer covers verification for this specific question.",
+        "expectedEvidence": "Verification: monitor recovery and document the root cause",
+        "acceptableAlternatives": "",
+        "keywords": "verification,monitor,recovery,document,cause",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Technical",
+    "topic": "Caching",
+    "difficulty": "Hard",
+    "sourceType": "COMPANY_SPECIFIC",
+    "company": "Google",
+    "prompt": "How would you prevent stale cached data from causing correctness problems in a Google-scale service?",
+    "expectedAnswerSummary": "Choose explicit freshness requirements, invalidation or versioning, bounded TTLs, safe write patterns, and observability.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Freshness contract",
+        "description": "Evaluates whether the answer covers freshness contract for this specific question.",
+        "expectedEvidence": "Freshness contract: define tolerated staleness per operation",
+        "acceptableAlternatives": "",
+        "keywords": "freshness,contract,define,tolerated,staleness,operation",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Invalidation strategy",
+        "description": "Evaluates whether the answer covers invalidation strategy for this specific question.",
+        "expectedEvidence": "Invalidation strategy: update delete or version cache entries",
+        "acceptableAlternatives": "",
+        "keywords": "invalidation,strategy,update,delete,version,cache,entries",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Write coordination",
+        "description": "Evaluates whether the answer covers write coordination for this specific question.",
+        "expectedEvidence": "Write coordination: avoid lost updates and race windows",
+        "acceptableAlternatives": "",
+        "keywords": "write,coordination,avoid,updates,windows",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Failure behavior",
+        "description": "Evaluates whether the answer covers failure behavior for this specific question.",
+        "expectedEvidence": "Failure behavior: handle cache outage stampede and partial invalidation",
+        "acceptableAlternatives": "",
+        "keywords": "failure,behavior,handle,cache,outage,stampede,partial,invalidation",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Observability",
+        "description": "Evaluates whether the answer covers observability for this specific question.",
+        "expectedEvidence": "Observability: measure hit rate age errors and correctness signals",
+        "acceptableAlternatives": "",
+        "keywords": "observability,measure,errors,correctness,signals",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Technical",
+    "topic": "Distributed systems",
+    "difficulty": "Hard",
+    "sourceType": "COMPANY_SPECIFIC",
+    "company": "Google",
+    "prompt": "A distributed Google service processes the same event more than once. How would you make its effects idempotent?",
+    "expectedAnswerSummary": "Use stable idempotency keys, atomic deduplication or naturally idempotent state transitions, and retention aligned to retry windows.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Stable identity",
+        "description": "Evaluates whether the answer covers stable identity for this specific question.",
+        "expectedEvidence": "Stable identity: derive an idempotency key from the logical event",
+        "acceptableAlternatives": "",
+        "keywords": "stable,identity,derive,idempotency,logical,event",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Atomic guard",
+        "description": "Evaluates whether the answer covers atomic guard for this specific question.",
+        "expectedEvidence": "Atomic guard: combine deduplication check and state change",
+        "acceptableAlternatives": "",
+        "keywords": "atomic,guard,combine,deduplication,check,state,change",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "State design",
+        "description": "Evaluates whether the answer covers state design for this specific question.",
+        "expectedEvidence": "State design: prefer set-to-value over increment when possible",
+        "acceptableAlternatives": "",
+        "keywords": "state,design,prefer,value,increment,possible",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Retention",
+        "description": "Evaluates whether the answer covers retention for this specific question.",
+        "expectedEvidence": "Retention: keep deduplication records through the retry horizon",
+        "acceptableAlternatives": "",
+        "keywords": "retention,deduplication,records,through,retry,horizon",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Failure analysis",
+        "description": "Evaluates whether the answer covers failure analysis for this specific question.",
+        "expectedEvidence": "Failure analysis: cover crash timing concurrency and replay",
+        "acceptableAlternatives": "",
+        "keywords": "failure,analysis,cover,crash,timing,concurrency,replay",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Technical",
+    "topic": "Testing",
+    "difficulty": "Medium",
+    "sourceType": "COMPANY_SPECIFIC",
+    "company": "Google",
+    "prompt": "How would you test a Google service whose behavior depends on several unreliable downstream systems?",
+    "expectedAnswerSummary": "Combine unit contracts, controlled fakes, integration tests, failure injection, and production monitoring without relying on flaky external behavior.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Contract boundaries",
+        "description": "Evaluates whether the answer covers contract boundaries for this specific question.",
+        "expectedEvidence": "Contract boundaries: verify requests responses and compatibility",
+        "acceptableAlternatives": "",
+        "keywords": "contract,boundaries,verify,requests,responses,compatibility",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Deterministic doubles",
+        "description": "Evaluates whether the answer covers deterministic doubles for this specific question.",
+        "expectedEvidence": "Deterministic doubles: model downstream success and failure",
+        "acceptableAlternatives": "",
+        "keywords": "deterministic,doubles,model,downstream,success,failure",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Integration coverage",
+        "description": "Evaluates whether the answer covers integration coverage for this specific question.",
+        "expectedEvidence": "Integration coverage: exercise real serialization networking and storage",
+        "acceptableAlternatives": "",
+        "keywords": "integration,coverage,exercise,serialization,networking,storage",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Resilience cases",
+        "description": "Evaluates whether the answer covers resilience cases for this specific question.",
+        "expectedEvidence": "Resilience cases: timeout retry partial failure and fallback",
+        "acceptableAlternatives": "",
+        "keywords": "resilience,cases,timeout,retry,partial,failure,fallback",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Production confidence",
+        "description": "Evaluates whether the answer covers production confidence for this specific question.",
+        "expectedEvidence": "Production confidence: canaries metrics traces and rollback signals",
+        "acceptableAlternatives": "",
+        "keywords": "production,confidence,canaries,metrics,traces,rollback,signals",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Behavioral",
+    "topic": "Ambiguity",
+    "difficulty": "Medium",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "Tell me about a technically ambiguous problem you solved.",
+    "expectedAnswerSummary": "A strong STAR response clarifies uncertainty, gathers evidence, selects an approach, and demonstrates measurable impact and learning.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Ambiguous context",
+        "description": "Evaluates whether the answer covers ambiguous context for this specific question.",
+        "expectedEvidence": "Ambiguous context: identify what was unknown and why it mattered",
+        "acceptableAlternatives": "",
+        "keywords": "ambiguous,context,identify,unknown,mattered",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Personal responsibility",
+        "description": "Evaluates whether the answer covers personal responsibility for this specific question.",
+        "expectedEvidence": "Personal responsibility: state the decision you owned",
+        "acceptableAlternatives": "",
+        "keywords": "personal,responsibility,state,decision,owned",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Evidence gathering",
+        "description": "Evaluates whether the answer covers evidence gathering for this specific question.",
+        "expectedEvidence": "Evidence gathering: describe experiments data or stakeholder discovery",
+        "acceptableAlternatives": "",
+        "keywords": "evidence,gathering,describe,experiments,stakeholder,discovery",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Outcome",
+        "description": "Evaluates whether the answer covers outcome for this specific question.",
+        "expectedEvidence": "Outcome: quantify the effect of the chosen approach",
+        "acceptableAlternatives": "",
+        "keywords": "outcome,quantify,effect,chosen,approach",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Learning",
+        "description": "Evaluates whether the answer covers learning for this specific question.",
+        "expectedEvidence": "Learning: explain how you now handle similar ambiguity",
+        "acceptableAlternatives": "",
+        "keywords": "learning,explain,handle,similar,ambiguity",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Behavioral",
+    "topic": "Conflict",
+    "difficulty": "Medium",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "Describe a disagreement you had with another engineer.",
+    "expectedAnswerSummary": "Show respectful listening, evidence-based discussion, a clear decision mechanism, shared execution, and reflection.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Disagreement context",
+        "description": "Evaluates whether the answer covers disagreement context for this specific question.",
+        "expectedEvidence": "Disagreement context: explain the competing technical positions",
+        "acceptableAlternatives": "",
+        "keywords": "disagreement,context,explain,competing,technical,positions",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Listening",
+        "description": "Evaluates whether the answer covers listening for this specific question.",
+        "expectedEvidence": "Listening: accurately represent the other engineer’s concerns",
+        "acceptableAlternatives": "",
+        "keywords": "listening,accurately,represent,other,engineer,concerns",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Resolution action",
+        "description": "Evaluates whether the answer covers resolution action for this specific question.",
+        "expectedEvidence": "Resolution action: use evidence prototype or decision framework",
+        "acceptableAlternatives": "",
+        "keywords": "resolution,action,evidence,prototype,decision,framework",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Team result",
+        "description": "Evaluates whether the answer covers team result for this specific question.",
+        "expectedEvidence": "Team result: show commitment after the decision",
+        "acceptableAlternatives": "",
+        "keywords": "result,commitment,after,decision",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Reflection",
+        "description": "Evaluates whether the answer covers reflection for this specific question.",
+        "expectedEvidence": "Reflection: identify what improved in later disagreements",
+        "acceptableAlternatives": "",
+        "keywords": "reflection,identify,improved,later,disagreements",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Behavioral",
+    "topic": "Failure",
+    "difficulty": "Hard",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "Tell me about a project that did not go as planned.",
+    "expectedAnswerSummary": "Own the relevant decisions, explain recovery actions and communication, and show a lasting process improvement.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Original goal",
+        "description": "Evaluates whether the answer covers original goal for this specific question.",
+        "expectedEvidence": "Original goal: establish expected result and stakes",
+        "acceptableAlternatives": "",
+        "keywords": "original,establish,expected,result,stakes",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Ownership",
+        "description": "Evaluates whether the answer covers ownership for this specific question.",
+        "expectedEvidence": "Ownership: identify your contribution without deflection",
+        "acceptableAlternatives": "",
+        "keywords": "ownership,identify,contribution,without,deflection",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Recovery",
+        "description": "Evaluates whether the answer covers recovery for this specific question.",
+        "expectedEvidence": "Recovery: describe concrete corrective actions",
+        "acceptableAlternatives": "",
+        "keywords": "recovery,describe,concrete,corrective,actions",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Communication",
+        "description": "Evaluates whether the answer covers communication for this specific question.",
+        "expectedEvidence": "Communication: show timely transparency with affected people",
+        "acceptableAlternatives": "",
+        "keywords": "communication,timely,transparency,affected,people",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Lasting change",
+        "description": "Evaluates whether the answer covers lasting change for this specific question.",
+        "expectedEvidence": "Lasting change: explain the prevention or process improvement",
+        "acceptableAlternatives": "",
+        "keywords": "lasting,change,explain,prevention,process,improvement",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Behavioral",
+    "topic": "Data-driven decisions",
+    "difficulty": "Medium",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "Describe a difficult technical decision you made using data.",
+    "expectedAnswerSummary": "Explain the decision, evidence quality, alternatives, trade-offs, result, and what happened when evidence was incomplete.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Decision stakes",
+        "description": "Evaluates whether the answer covers decision stakes for this specific question.",
+        "expectedEvidence": "Decision stakes: identify alternatives and consequences",
+        "acceptableAlternatives": "",
+        "keywords": "decision,stakes,identify,alternatives,consequences",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Data quality",
+        "description": "Evaluates whether the answer covers data quality for this specific question.",
+        "expectedEvidence": "Data quality: explain source reliability and limitations",
+        "acceptableAlternatives": "",
+        "keywords": "quality,explain,source,reliability,limitations",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Reasoning",
+        "description": "Evaluates whether the answer covers reasoning for this specific question.",
+        "expectedEvidence": "Reasoning: connect evidence to the selected option",
+        "acceptableAlternatives": "",
+        "keywords": "reasoning,connect,evidence,selected,option",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Result",
+        "description": "Evaluates whether the answer covers result for this specific question.",
+        "expectedEvidence": "Result: measure whether the decision worked",
+        "acceptableAlternatives": "",
+        "keywords": "result,measure,whether,decision,worked",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Calibration",
+        "description": "Evaluates whether the answer covers calibration for this specific question.",
+        "expectedEvidence": "Calibration: explain what you would reconsider with new evidence",
+        "acceptableAlternatives": "",
+        "keywords": "calibration,explain,would,reconsider,evidence",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Behavioral",
+    "topic": "Feedback",
+    "difficulty": "Easy",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "Tell me about critical feedback you received and applied.",
+    "expectedAnswerSummary": "State specific feedback, demonstrate non-defensive ownership, actions, follow-up, and evidence of improvement.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Specific feedback",
+        "description": "Evaluates whether the answer covers specific feedback for this specific question.",
+        "expectedEvidence": "Specific feedback: state the behavior rather than a vague judgment",
+        "acceptableAlternatives": "",
+        "keywords": "specific,feedback,state,behavior,rather,vague,judgment",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Ownership",
+        "description": "Evaluates whether the answer covers ownership for this specific question.",
+        "expectedEvidence": "Ownership: acknowledge your part without excuses",
+        "acceptableAlternatives": "",
+        "keywords": "ownership,acknowledge,without,excuses",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Change plan",
+        "description": "Evaluates whether the answer covers change plan for this specific question.",
+        "expectedEvidence": "Change plan: describe concrete new habits or practice",
+        "acceptableAlternatives": "",
+        "keywords": "change,describe,concrete,habits,practice",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Follow-up",
+        "description": "Evaluates whether the answer covers follow-up for this specific question.",
+        "expectedEvidence": "Follow-up: seek confirmation from the feedback giver",
+        "acceptableAlternatives": "",
+        "keywords": "follow,confirmation,feedback,giver",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Improvement evidence",
+        "description": "Evaluates whether the answer covers improvement evidence for this specific question.",
+        "expectedEvidence": "Improvement evidence: show an observable later result",
+        "acceptableAlternatives": "",
+        "keywords": "improvement,evidence,observable,later,result",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Behavioral",
+    "topic": "Process improvement",
+    "difficulty": "Medium",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "Describe a time you improved an inefficient engineering process.",
+    "expectedAnswerSummary": "Identify the bottleneck with evidence, build support, implement a practical change, and measure sustained improvement.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Baseline problem",
+        "description": "Evaluates whether the answer covers baseline problem for this specific question.",
+        "expectedEvidence": "Baseline problem: quantify wasted time errors or delay",
+        "acceptableAlternatives": "",
+        "keywords": "baseline,problem,quantify,wasted,errors,delay",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Root cause",
+        "description": "Evaluates whether the answer covers root cause for this specific question.",
+        "expectedEvidence": "Root cause: distinguish symptom from underlying process issue",
+        "acceptableAlternatives": "",
+        "keywords": "cause,distinguish,symptom,underlying,process,issue",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Influence",
+        "description": "Evaluates whether the answer covers influence for this specific question.",
+        "expectedEvidence": "Influence: gain adoption from affected collaborators",
+        "acceptableAlternatives": "",
+        "keywords": "influence,adoption,affected,collaborators",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Implementation",
+        "description": "Evaluates whether the answer covers implementation for this specific question.",
+        "expectedEvidence": "Implementation: explain the change and rollout",
+        "acceptableAlternatives": "",
+        "keywords": "implementation,explain,change,rollout",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Measured impact",
+        "description": "Evaluates whether the answer covers measured impact for this specific question.",
+        "expectedEvidence": "Measured impact: compare before and after results",
+        "acceptableAlternatives": "",
+        "keywords": "measured,impact,compare,before,after,results",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Behavioral",
+    "topic": "Problem solving",
+    "difficulty": "Medium",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "Tell me about a serious bug you diagnosed and resolved.",
+    "expectedAnswerSummary": "Explain impact, reproducibility, systematic isolation, safe correction, validation, and prevention.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Impact",
+        "description": "Evaluates whether the answer covers impact for this specific question.",
+        "expectedEvidence": "Impact: describe affected users or system behavior",
+        "acceptableAlternatives": "",
+        "keywords": "impact,describe,affected,users,system,behavior",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Reproduction",
+        "description": "Evaluates whether the answer covers reproduction for this specific question.",
+        "expectedEvidence": "Reproduction: create a reliable signal or minimal case",
+        "acceptableAlternatives": "",
+        "keywords": "reproduction,create,reliable,signal,minimal",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Diagnosis",
+        "description": "Evaluates whether the answer covers diagnosis for this specific question.",
+        "expectedEvidence": "Diagnosis: narrow hypotheses using logs traces or experiments",
+        "acceptableAlternatives": "",
+        "keywords": "diagnosis,narrow,hypotheses,using,traces,experiments",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Correction",
+        "description": "Evaluates whether the answer covers correction for this specific question.",
+        "expectedEvidence": "Correction: implement and validate a safe fix",
+        "acceptableAlternatives": "",
+        "keywords": "correction,implement,validate",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Prevention",
+        "description": "Evaluates whether the answer covers prevention for this specific question.",
+        "expectedEvidence": "Prevention: add a regression test monitor or design change",
+        "acceptableAlternatives": "",
+        "keywords": "prevention,regression,monitor,design,change",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Behavioral",
+    "topic": "Deadlines",
+    "difficulty": "Medium",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "Describe a time you delivered under a difficult deadline.",
+    "expectedAnswerSummary": "Clarify stakes, prioritize must-haves, manage risks, communicate changes, and report the quality and delivery outcome.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Constraint",
+        "description": "Evaluates whether the answer covers constraint for this specific question.",
+        "expectedEvidence": "Constraint: explain why the deadline was difficult",
+        "acceptableAlternatives": "",
+        "keywords": "constraint,explain,deadline,difficult",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Prioritization",
+        "description": "Evaluates whether the answer covers prioritization for this specific question.",
+        "expectedEvidence": "Prioritization: separate must-have scope from deferrable work",
+        "acceptableAlternatives": "",
+        "keywords": "prioritization,separate,scope,deferrable",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Risk management",
+        "description": "Evaluates whether the answer covers risk management for this specific question.",
+        "expectedEvidence": "Risk management: protect critical quality and reliability",
+        "acceptableAlternatives": "",
+        "keywords": "management,protect,critical,quality,reliability",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Communication",
+        "description": "Evaluates whether the answer covers communication for this specific question.",
+        "expectedEvidence": "Communication: keep stakeholders informed of trade-offs",
+        "acceptableAlternatives": "",
+        "keywords": "communication,stakeholders,informed,trade",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Outcome",
+        "description": "Evaluates whether the answer covers outcome for this specific question.",
+        "expectedEvidence": "Outcome: state delivery result and later follow-up",
+        "acceptableAlternatives": "",
+        "keywords": "outcome,state,delivery,result,later,follow",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Behavioral",
+    "topic": "Incomplete information",
+    "difficulty": "Hard",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "Tell me about a decision you made with incomplete information.",
+    "expectedAnswerSummary": "Show how you bounded risk, gathered the highest-value evidence, made a reversible decision, and adapted based on results.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Unknowns",
+        "description": "Evaluates whether the answer covers unknowns for this specific question.",
+        "expectedEvidence": "Unknowns: identify missing information and decision urgency",
+        "acceptableAlternatives": "",
+        "keywords": "unknowns,identify,missing,information,decision,urgency",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Risk bounds",
+        "description": "Evaluates whether the answer covers risk bounds for this specific question.",
+        "expectedEvidence": "Risk bounds: separate reversible from irreversible consequences",
+        "acceptableAlternatives": "",
+        "keywords": "bounds,separate,reversible,irreversible,consequences",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Evidence choice",
+        "description": "Evaluates whether the answer covers evidence choice for this specific question.",
+        "expectedEvidence": "Evidence choice: gather the most decision-relevant signal",
+        "acceptableAlternatives": "",
+        "keywords": "evidence,choice,gather,decision,relevant,signal",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Decision",
+        "description": "Evaluates whether the answer covers decision for this specific question.",
+        "expectedEvidence": "Decision: explain assumptions and contingency plan",
+        "acceptableAlternatives": "",
+        "keywords": "decision,explain,assumptions,contingency",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Adaptation",
+        "description": "Evaluates whether the answer covers adaptation for this specific question.",
+        "expectedEvidence": "Adaptation: update the approach when new facts arrived",
+        "acceptableAlternatives": "",
+        "keywords": "adaptation,update,approach,facts,arrived",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Behavioral",
+    "topic": "Technical debt",
+    "difficulty": "Medium",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "Describe a time you reduced technical debt while continuing product delivery.",
+    "expectedAnswerSummary": "Prioritize debt by impact, align it with product work, execute incrementally, and demonstrate improved delivery or reliability.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Debt impact",
+        "description": "Evaluates whether the answer covers debt impact for this specific question.",
+        "expectedEvidence": "Debt impact: connect the issue to speed quality or reliability",
+        "acceptableAlternatives": "",
+        "keywords": "impact,connect,issue,speed,quality,reliability",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Prioritization",
+        "description": "Evaluates whether the answer covers prioritization for this specific question.",
+        "expectedEvidence": "Prioritization: explain why this debt deserved attention",
+        "acceptableAlternatives": "",
+        "keywords": "prioritization,explain,deserved,attention",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Stakeholder alignment",
+        "description": "Evaluates whether the answer covers stakeholder alignment for this specific question.",
+        "expectedEvidence": "Stakeholder alignment: tie remediation to product goals",
+        "acceptableAlternatives": "",
+        "keywords": "stakeholder,alignment,remediation,product,goals",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Incremental execution",
+        "description": "Evaluates whether the answer covers incremental execution for this specific question.",
+        "expectedEvidence": "Incremental execution: reduce risk while continuing delivery",
+        "acceptableAlternatives": "",
+        "keywords": "incremental,execution,reduce,while,continuing,delivery",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Result",
+        "description": "Evaluates whether the answer covers result for this specific question.",
+        "expectedEvidence": "Result: quantify maintenance deployment or incident improvement",
+        "acceptableAlternatives": "",
+        "keywords": "result,quantify,maintenance,deployment,incident,improvement",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Behavioral",
+    "topic": "Influence",
+    "difficulty": "Hard",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "Tell me about a time you influenced a technical decision without formal authority.",
+    "expectedAnswerSummary": "Establish credibility, understand incentives, present evidence, invite collaboration, and show durable adoption.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Decision context",
+        "description": "Evaluates whether the answer covers decision context for this specific question.",
+        "expectedEvidence": "Decision context: identify stakeholders and lack of authority",
+        "acceptableAlternatives": "",
+        "keywords": "decision,context,identify,stakeholders,authority",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Perspective taking",
+        "description": "Evaluates whether the answer covers perspective taking for this specific question.",
+        "expectedEvidence": "Perspective taking: understand objections and incentives",
+        "acceptableAlternatives": "",
+        "keywords": "perspective,taking,understand,objections,incentives",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Influence method",
+        "description": "Evaluates whether the answer covers influence method for this specific question.",
+        "expectedEvidence": "Influence method: use evidence prototype or clear narrative",
+        "acceptableAlternatives": "",
+        "keywords": "influence,method,evidence,prototype,clear,narrative",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Adoption",
+        "description": "Evaluates whether the answer covers adoption for this specific question.",
+        "expectedEvidence": "Adoption: show how others participated in the decision",
+        "acceptableAlternatives": "",
+        "keywords": "adoption,others,participated,decision",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Durability",
+        "description": "Evaluates whether the answer covers durability for this specific question.",
+        "expectedEvidence": "Durability: demonstrate lasting use or later trust",
+        "acceptableAlternatives": "",
+        "keywords": "durability,demonstrate,lasting,later,trust",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Behavioral",
+    "topic": "Prioritization",
+    "difficulty": "Medium",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "Describe how you handled competing technical priorities.",
+    "expectedAnswerSummary": "Use explicit impact, urgency, dependencies, and risk criteria; communicate trade-offs and revisit priorities as facts change.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Priority conflict",
+        "description": "Evaluates whether the answer covers priority conflict for this specific question.",
+        "expectedEvidence": "Priority conflict: identify the competing commitments",
+        "acceptableAlternatives": "",
+        "keywords": "priority,conflict,identify,competing,commitments",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Decision criteria",
+        "description": "Evaluates whether the answer covers decision criteria for this specific question.",
+        "expectedEvidence": "Decision criteria: compare impact urgency dependency and risk",
+        "acceptableAlternatives": "",
+        "keywords": "decision,criteria,compare,impact,urgency,dependency",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Negotiation",
+        "description": "Evaluates whether the answer covers negotiation for this specific question.",
+        "expectedEvidence": "Negotiation: align owners on what changes or waits",
+        "acceptableAlternatives": "",
+        "keywords": "negotiation,align,owners,changes,waits",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Execution",
+        "description": "Evaluates whether the answer covers execution for this specific question.",
+        "expectedEvidence": "Execution: protect focus while monitoring new information",
+        "acceptableAlternatives": "",
+        "keywords": "execution,protect,focus,while,monitoring,information",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Outcome",
+        "description": "Evaluates whether the answer covers outcome for this specific question.",
+        "expectedEvidence": "Outcome: explain delivery results and lessons",
+        "acceptableAlternatives": "",
+        "keywords": "outcome,explain,delivery,results,lessons",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Behavioral",
+    "topic": "Mentoring",
+    "difficulty": "Easy",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "Tell me about a time you mentored or supported another engineer.",
+    "expectedAnswerSummary": "Diagnose the person’s needs, provide enabling guidance rather than taking over, follow up, and show their growth.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Need identification",
+        "description": "Evaluates whether the answer covers need identification for this specific question.",
+        "expectedEvidence": "Need identification: understand the engineer’s specific gap",
+        "acceptableAlternatives": "",
+        "keywords": "identification,understand,engineer,specific",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Support approach",
+        "description": "Evaluates whether the answer covers support approach for this specific question.",
+        "expectedEvidence": "Support approach: tailor explanation pairing or resources",
+        "acceptableAlternatives": "",
+        "keywords": "support,approach,tailor,explanation,pairing,resources",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Autonomy",
+        "description": "Evaluates whether the answer covers autonomy for this specific question.",
+        "expectedEvidence": "Autonomy: help without taking ownership away",
+        "acceptableAlternatives": "",
+        "keywords": "autonomy,without,taking,ownership",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Follow-up",
+        "description": "Evaluates whether the answer covers follow-up for this specific question.",
+        "expectedEvidence": "Follow-up: check progress and adjust support",
+        "acceptableAlternatives": "",
+        "keywords": "follow,check,progress,adjust,support",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Growth result",
+        "description": "Evaluates whether the answer covers growth result for this specific question.",
+        "expectedEvidence": "Growth result: show increased capability or confidence",
+        "acceptableAlternatives": "",
+        "keywords": "growth,result,increased,capability,confidence",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Behavioral",
+    "topic": "User impact",
+    "difficulty": "Hard",
+    "sourceType": "COMPANY_SPECIFIC",
+    "company": "Google",
+    "prompt": "Tell me about a Google-scale engineering choice where user impact changed your original technical plan.",
+    "expectedAnswerSummary": "Connect user evidence to a changed design, explain trade-offs and cross-functional alignment, then quantify impact.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Original plan",
+        "description": "Evaluates whether the answer covers original plan for this specific question.",
+        "expectedEvidence": "Original plan: explain the initial technical direction",
+        "acceptableAlternatives": "",
+        "keywords": "original,explain,initial,technical,direction",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "User evidence",
+        "description": "Evaluates whether the answer covers user evidence for this specific question.",
+        "expectedEvidence": "User evidence: identify research metrics or accessibility need",
+        "acceptableAlternatives": "",
+        "keywords": "evidence,identify,research,metrics,accessibility",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Plan change",
+        "description": "Evaluates whether the answer covers plan change for this specific question.",
+        "expectedEvidence": "Plan change: connect evidence to a concrete design revision",
+        "acceptableAlternatives": "",
+        "keywords": "change,connect,evidence,concrete,design,revision",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Cross-functional alignment",
+        "description": "Evaluates whether the answer covers cross-functional alignment for this specific question.",
+        "expectedEvidence": "Cross-functional alignment: coordinate product design and engineering",
+        "acceptableAlternatives": "",
+        "keywords": "cross,functional,alignment,coordinate,product,design,engineering",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Impact",
+        "description": "Evaluates whether the answer covers impact for this specific question.",
+        "expectedEvidence": "Impact: quantify user benefit and technical consequences",
+        "acceptableAlternatives": "",
+        "keywords": "impact,quantify,benefit,technical,consequences",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Behavioral",
+    "topic": "Engineering excellence",
+    "difficulty": "Hard",
+    "sourceType": "COMPANY_SPECIFIC",
+    "company": "Google",
+    "prompt": "Describe a time you raised an engineering-quality concern even though a launch was moving quickly.",
+    "expectedAnswerSummary": "Show calibrated risk assessment, constructive escalation, a practical safety plan, and an outcome balancing speed with quality.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Quality risk",
+        "description": "Evaluates whether the answer covers quality risk for this specific question.",
+        "expectedEvidence": "Quality risk: explain likelihood scope and user consequence",
+        "acceptableAlternatives": "",
+        "keywords": "quality,explain,likelihood,scope,consequence",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Evidence",
+        "description": "Evaluates whether the answer covers evidence for this specific question.",
+        "expectedEvidence": "Evidence: support concern with tests incidents or measurements",
+        "acceptableAlternatives": "",
+        "keywords": "evidence,support,concern,tests,incidents,measurements",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Constructive escalation",
+        "description": "Evaluates whether the answer covers constructive escalation for this specific question.",
+        "expectedEvidence": "Constructive escalation: involve the right people without blocking blindly",
+        "acceptableAlternatives": "",
+        "keywords": "constructive,escalation,involve,right,people,without,blocking,blindly",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Safety plan",
+        "description": "Evaluates whether the answer covers safety plan for this specific question.",
+        "expectedEvidence": "Safety plan: propose mitigation staged rollout or rollback",
+        "acceptableAlternatives": "",
+        "keywords": "safety,propose,mitigation,staged,rollout,rollback",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Outcome",
+        "description": "Evaluates whether the answer covers outcome for this specific question.",
+        "expectedEvidence": "Outcome: report launch and relationship effects",
+        "acceptableAlternatives": "",
+        "keywords": "outcome,report,launch,relationship,effects",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Behavioral",
+    "topic": "Cross-team collaboration",
+    "difficulty": "Medium",
+    "sourceType": "COMPANY_SPECIFIC",
+    "company": "Google",
+    "prompt": "Tell me about a time you coordinated a change across several teams with different goals.",
+    "expectedAnswerSummary": "Map dependencies, establish shared success criteria, communicate decisions, resolve blockers, and measure the collective result.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Dependency map",
+        "description": "Evaluates whether the answer covers dependency map for this specific question.",
+        "expectedEvidence": "Dependency map: identify teams ownership and coupling",
+        "acceptableAlternatives": "",
+        "keywords": "dependency,identify,teams,ownership,coupling",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Shared goal",
+        "description": "Evaluates whether the answer covers shared goal for this specific question.",
+        "expectedEvidence": "Shared goal: define success across differing incentives",
+        "acceptableAlternatives": "",
+        "keywords": "shared,define,success,across,differing,incentives",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Coordination",
+        "description": "Evaluates whether the answer covers coordination for this specific question.",
+        "expectedEvidence": "Coordination: establish decisions milestones and communication",
+        "acceptableAlternatives": "",
+        "keywords": "coordination,establish,decisions,milestones,communication",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Blocker resolution",
+        "description": "Evaluates whether the answer covers blocker resolution for this specific question.",
+        "expectedEvidence": "Blocker resolution: address conflict or slipping dependency",
+        "acceptableAlternatives": "",
+        "keywords": "blocker,resolution,address,conflict,slipping,dependency",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Collective result",
+        "description": "Evaluates whether the answer covers collective result for this specific question.",
+        "expectedEvidence": "Collective result: quantify outcome and coordination learning",
+        "acceptableAlternatives": "",
+        "keywords": "collective,result,quantify,outcome,coordination,learning",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "Behavioral",
+    "topic": "Learning",
+    "difficulty": "Medium",
+    "sourceType": "COMPANY_SPECIFIC",
+    "company": "Google",
+    "prompt": "Describe a time you learned an unfamiliar technology quickly to solve an important problem.",
+    "expectedAnswerSummary": "Explain the knowledge gap, focused learning plan, expert feedback, applied result, and reusable learning.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Knowledge gap",
+        "description": "Evaluates whether the answer covers knowledge gap for this specific question.",
+        "expectedEvidence": "Knowledge gap: explain why unfamiliar technology was necessary",
+        "acceptableAlternatives": "",
+        "keywords": "knowledge,explain,unfamiliar,technology,necessary",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Learning strategy",
+        "description": "Evaluates whether the answer covers learning strategy for this specific question.",
+        "expectedEvidence": "Learning strategy: prioritize authoritative and hands-on sources",
+        "acceptableAlternatives": "",
+        "keywords": "learning,strategy,prioritize,authoritative,hands,sources",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Feedback loop",
+        "description": "Evaluates whether the answer covers feedback loop for this specific question.",
+        "expectedEvidence": "Feedback loop: validate understanding with experts or experiments",
+        "acceptableAlternatives": "",
+        "keywords": "feedback,validate,understanding,experts,experiments",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Application",
+        "description": "Evaluates whether the answer covers application for this specific question.",
+        "expectedEvidence": "Application: use learning to deliver the required outcome",
+        "acceptableAlternatives": "",
+        "keywords": "application,learning,deliver,required,outcome",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Reuse",
+        "description": "Evaluates whether the answer covers reuse for this specific question.",
+        "expectedEvidence": "Reuse: share knowledge or improve future learning speed",
+        "acceptableAlternatives": "",
+        "keywords": "reuse,share,knowledge,improve,future,learning,speed",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "System Design",
+    "topic": "URL shortener",
+    "difficulty": "Medium",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "Design a URL-shortening service. Describe the design entirely in text.",
+    "expectedAnswerSummary": "Define create and redirect APIs, collision-safe codes, durable mappings, caching, abuse controls, and availability trade-offs.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Requirements and scale",
+        "description": "Evaluates whether the answer covers requirements and scale for this specific question.",
+        "expectedEvidence": "Requirements and scale: define redirects writes latency and retention",
+        "acceptableAlternatives": "",
+        "keywords": "requirements,scale,define,redirects,writes,latency,retention",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "API and code generation",
+        "description": "Evaluates whether the answer covers api and code generation for this specific question.",
+        "expectedEvidence": "API and code generation: create resolve and collision handling",
+        "acceptableAlternatives": "",
+        "keywords": "generation,create,resolve,collision,handling",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Storage model",
+        "description": "Evaluates whether the answer covers storage model for this specific question.",
+        "expectedEvidence": "Storage model: map short codes to URLs with partitioning",
+        "acceptableAlternatives": "",
+        "keywords": "storage,model,short,codes,partitioning",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Read path",
+        "description": "Evaluates whether the answer covers read path for this specific question.",
+        "expectedEvidence": "Read path: cache popular redirects and handle misses",
+        "acceptableAlternatives": "",
+        "keywords": "cache,popular,redirects,handle,misses",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Reliability and abuse",
+        "description": "Evaluates whether the answer covers reliability and abuse for this specific question.",
+        "expectedEvidence": "Reliability and abuse: replication rate limits and malicious links",
+        "acceptableAlternatives": "",
+        "keywords": "reliability,abuse,replication,limits,malicious,links",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "System Design",
+    "topic": "Chat service",
+    "difficulty": "Hard",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "Design a real-time direct and group chat service using a written architecture.",
+    "expectedAnswerSummary": "Use persistent gateways, durable routing, partitioned message storage, ordering, presence, and offline delivery.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Communication contract",
+        "description": "Evaluates whether the answer covers communication contract for this specific question.",
+        "expectedEvidence": "Communication contract: direct groups history and delivery expectations",
+        "acceptableAlternatives": "",
+        "keywords": "communication,contract,direct,groups,history,delivery,expectations",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Realtime gateways",
+        "description": "Evaluates whether the answer covers realtime gateways for this specific question.",
+        "expectedEvidence": "Realtime gateways: manage authenticated persistent connections",
+        "acceptableAlternatives": "",
+        "keywords": "realtime,gateways,manage,authenticated,persistent,connections",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Routing and storage",
+        "description": "Evaluates whether the answer covers routing and storage for this specific question.",
+        "expectedEvidence": "Routing and storage: partition conversations and persist messages",
+        "acceptableAlternatives": "",
+        "keywords": "routing,storage,partition,conversations,persist,messages",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Ordering and delivery",
+        "description": "Evaluates whether the answer covers ordering and delivery for this specific question.",
+        "expectedEvidence": "Ordering and delivery: sequence acknowledgements retries and deduplication",
+        "acceptableAlternatives": "",
+        "keywords": "ordering,delivery,sequence,acknowledgements,retries,deduplication",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Presence and offline flow",
+        "description": "Evaluates whether the answer covers presence and offline flow for this specific question.",
+        "expectedEvidence": "Presence and offline flow: ephemeral state plus notification fallback",
+        "acceptableAlternatives": "",
+        "keywords": "presence,offline,ephemeral,state,notification,fallback",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "System Design",
+    "topic": "Notification platform",
+    "difficulty": "Hard",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "Design a notification service for email, SMS, and push delivery.",
+    "expectedAnswerSummary": "Accept templated requests, use durable queues and channel workers, and manage preferences, idempotency, retries, and tracking.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Request model",
+        "description": "Evaluates whether the answer covers request model for this specific question.",
+        "expectedEvidence": "Request model: recipient template channel and scheduling",
+        "acceptableAlternatives": "",
+        "keywords": "request,model,recipient,template,channel,scheduling",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Queue architecture",
+        "description": "Evaluates whether the answer covers queue architecture for this specific question.",
+        "expectedEvidence": "Queue architecture: durable fan-out and backpressure",
+        "acceptableAlternatives": "",
+        "keywords": "queue,architecture,durable,backpressure",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Channel workers",
+        "description": "Evaluates whether the answer covers channel workers for this specific question.",
+        "expectedEvidence": "Channel workers: isolate providers and rate limits",
+        "acceptableAlternatives": "",
+        "keywords": "channel,workers,isolate,providers,limits",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Delivery correctness",
+        "description": "Evaluates whether the answer covers delivery correctness for this specific question.",
+        "expectedEvidence": "Delivery correctness: idempotency retries and dead-letter handling",
+        "acceptableAlternatives": "",
+        "keywords": "delivery,correctness,idempotency,retries,letter,handling",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "User controls and observability",
+        "description": "Evaluates whether the answer covers user controls and observability for this specific question.",
+        "expectedEvidence": "User controls and observability: preferences status metrics and audits",
+        "acceptableAlternatives": "",
+        "keywords": "controls,observability,preferences,status,metrics,audits",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "System Design",
+    "topic": "File synchronization",
+    "difficulty": "Hard",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "Design a cloud file-storage and synchronization service.",
+    "expectedAnswerSummary": "Separate object content from metadata, support resumable chunks, versions, change notifications, conflict handling, and durable replication.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Functional contract",
+        "description": "Evaluates whether the answer covers functional contract for this specific question.",
+        "expectedEvidence": "Functional contract: upload download sync share and version",
+        "acceptableAlternatives": "",
+        "keywords": "functional,contract,upload,download,share,version",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Storage separation",
+        "description": "Evaluates whether the answer covers storage separation for this specific question.",
+        "expectedEvidence": "Storage separation: object bytes versus transactional metadata",
+        "acceptableAlternatives": "",
+        "keywords": "storage,separation,object,bytes,versus,transactional,metadata",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Transfer protocol",
+        "description": "Evaluates whether the answer covers transfer protocol for this specific question.",
+        "expectedEvidence": "Transfer protocol: chunks hashes resume and deduplication",
+        "acceptableAlternatives": "",
+        "keywords": "transfer,protocol,chunks,hashes,resume,deduplication",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Synchronization",
+        "description": "Evaluates whether the answer covers synchronization for this specific question.",
+        "expectedEvidence": "Synchronization: change log cursors notifications and conflicts",
+        "acceptableAlternatives": "",
+        "keywords": "synchronization,change,cursors,notifications,conflicts",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Durability and security",
+        "description": "Evaluates whether the answer covers durability and security for this specific question.",
+        "expectedEvidence": "Durability and security: replication encryption access and recovery",
+        "acceptableAlternatives": "",
+        "keywords": "durability,security,replication,encryption,access,recovery",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "System Design",
+    "topic": "Rate limiter",
+    "difficulty": "Medium",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "Design a distributed rate limiter for a public API.",
+    "expectedAnswerSummary": "Choose a limiting algorithm, store atomic shared state, partition by identity, define failure policy, and expose rate-limit signals.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Limit contract",
+        "description": "Evaluates whether the answer covers limit contract for this specific question.",
+        "expectedEvidence": "Limit contract: identity windows quotas bursts and response headers",
+        "acceptableAlternatives": "",
+        "keywords": "limit,contract,identity,windows,quotas,bursts,response,headers",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Algorithm",
+        "description": "Evaluates whether the answer covers algorithm for this specific question.",
+        "expectedEvidence": "Algorithm: justify token bucket sliding window or alternative",
+        "acceptableAlternatives": "",
+        "keywords": "algorithm,justify,token,bucket,sliding,window,alternative",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Atomic state",
+        "description": "Evaluates whether the answer covers atomic state for this specific question.",
+        "expectedEvidence": "Atomic state: counters scripts and expiration in shared storage",
+        "acceptableAlternatives": "",
+        "keywords": "atomic,state,counters,scripts,expiration,shared,storage",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Distribution",
+        "description": "Evaluates whether the answer covers distribution for this specific question.",
+        "expectedEvidence": "Distribution: sharding multi-region consistency and hot keys",
+        "acceptableAlternatives": "",
+        "keywords": "distribution,sharding,multi,region,consistency",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Failure and operations",
+        "description": "Evaluates whether the answer covers failure and operations for this specific question.",
+        "expectedEvidence": "Failure and operations: fail policy monitoring and configuration rollout",
+        "acceptableAlternatives": "",
+        "keywords": "failure,operations,policy,monitoring,configuration,rollout",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "System Design",
+    "topic": "Job scheduler",
+    "difficulty": "Hard",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "Design a distributed job-scheduling platform.",
+    "expectedAnswerSummary": "Persist schedules, elect or partition dispatchers, lease work to executors, handle retries and idempotency, and monitor job lifecycle.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Job contract",
+        "description": "Evaluates whether the answer covers job contract for this specific question.",
+        "expectedEvidence": "Job contract: schedules dependencies priority and cancellation",
+        "acceptableAlternatives": "",
+        "keywords": "contract,schedules,dependencies,priority,cancellation",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Durable state",
+        "description": "Evaluates whether the answer covers durable state for this specific question.",
+        "expectedEvidence": "Durable state: persist definitions next-run time and status",
+        "acceptableAlternatives": "",
+        "keywords": "durable,state,persist,definitions,status",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Dispatch ownership",
+        "description": "Evaluates whether the answer covers dispatch ownership for this specific question.",
+        "expectedEvidence": "Dispatch ownership: partitioning election and duplicate prevention",
+        "acceptableAlternatives": "",
+        "keywords": "dispatch,ownership,partitioning,election,duplicate,prevention",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Execution semantics",
+        "description": "Evaluates whether the answer covers execution semantics for this specific question.",
+        "expectedEvidence": "Execution semantics: leases heartbeats retries and idempotency",
+        "acceptableAlternatives": "",
+        "keywords": "execution,semantics,leases,heartbeats,retries,idempotency",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Operations",
+        "description": "Evaluates whether the answer covers operations for this specific question.",
+        "expectedEvidence": "Operations: history metrics dead letters and capacity controls",
+        "acceptableAlternatives": "",
+        "keywords": "operations,history,metrics,letters,capacity,controls",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "System Design",
+    "topic": "Feature flags",
+    "difficulty": "Medium",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "Design a feature-flag service used by many applications.",
+    "expectedAnswerSummary": "Provide a control plane and highly available evaluation path with versioned rules, caching, targeting, auditability, and safe rollout.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Flag model",
+        "description": "Evaluates whether the answer covers flag model for this specific question.",
+        "expectedEvidence": "Flag model: defaults targeting percentages and environments",
+        "acceptableAlternatives": "",
+        "keywords": "model,defaults,targeting,percentages,environments",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Control plane",
+        "description": "Evaluates whether the answer covers control plane for this specific question.",
+        "expectedEvidence": "Control plane: validated changes authorization and audit log",
+        "acceptableAlternatives": "",
+        "keywords": "control,plane,validated,changes,authorization,audit",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Evaluation path",
+        "description": "Evaluates whether the answer covers evaluation path for this specific question.",
+        "expectedEvidence": "Evaluation path: local or edge caching for low latency",
+        "acceptableAlternatives": "",
+        "keywords": "evaluation,local,caching,latency",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Consistency",
+        "description": "Evaluates whether the answer covers consistency for this specific question.",
+        "expectedEvidence": "Consistency: versioning propagation and stale-rule behavior",
+        "acceptableAlternatives": "",
+        "keywords": "consistency,versioning,propagation,stale,behavior",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Safety",
+        "description": "Evaluates whether the answer covers safety for this specific question.",
+        "expectedEvidence": "Safety: kill switches staged rollout metrics and rollback",
+        "acceptableAlternatives": "",
+        "keywords": "safety,switches,staged,rollout,metrics,rollback",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "System Design",
+    "topic": "Metrics platform",
+    "difficulty": "Hard",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "Design a metrics and alerting platform for thousands of services.",
+    "expectedAnswerSummary": "Ingest high-volume time series, aggregate and retain them efficiently, support queries and alert evaluation, and control cardinality.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Telemetry contract",
+        "description": "Evaluates whether the answer covers telemetry contract for this specific question.",
+        "expectedEvidence": "Telemetry contract: metric identity labels timestamps and volume",
+        "acceptableAlternatives": "",
+        "keywords": "telemetry,contract,metric,identity,labels,timestamps,volume",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Ingestion",
+        "description": "Evaluates whether the answer covers ingestion for this specific question.",
+        "expectedEvidence": "Ingestion: batching validation partitioning and backpressure",
+        "acceptableAlternatives": "",
+        "keywords": "ingestion,batching,validation,partitioning,backpressure",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Storage",
+        "description": "Evaluates whether the answer covers storage for this specific question.",
+        "expectedEvidence": "Storage: time-series compression retention and aggregation",
+        "acceptableAlternatives": "",
+        "keywords": "storage,series,compression,retention,aggregation",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Queries and alerts",
+        "description": "Evaluates whether the answer covers queries and alerts for this specific question.",
+        "expectedEvidence": "Queries and alerts: indexing evaluation windows and notification",
+        "acceptableAlternatives": "",
+        "keywords": "queries,alerts,indexing,evaluation,windows,notification",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Operations",
+        "description": "Evaluates whether the answer covers operations for this specific question.",
+        "expectedEvidence": "Operations: cardinality limits availability and self-monitoring",
+        "acceptableAlternatives": "",
+        "keywords": "operations,cardinality,limits,availability,monitoring",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "System Design",
+    "topic": "Identity platform",
+    "difficulty": "Hard",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "Design an authentication and authorization platform for internal services.",
+    "expectedAnswerSummary": "Issue short-lived identities, centralize policy while enabling resilient enforcement, rotate keys, audit decisions, and support revocation.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Identity lifecycle",
+        "description": "Evaluates whether the answer covers identity lifecycle for this specific question.",
+        "expectedEvidence": "Identity lifecycle: enrollment authentication tokens and expiry",
+        "acceptableAlternatives": "",
+        "keywords": "identity,lifecycle,enrollment,authentication,tokens,expiry",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Authorization model",
+        "description": "Evaluates whether the answer covers authorization model for this specific question.",
+        "expectedEvidence": "Authorization model: roles attributes resources and policy decisions",
+        "acceptableAlternatives": "",
+        "keywords": "authorization,model,roles,attributes,resources,policy,decisions",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Enforcement architecture",
+        "description": "Evaluates whether the answer covers enforcement architecture for this specific question.",
+        "expectedEvidence": "Enforcement architecture: gateways sidecars or libraries with caching",
+        "acceptableAlternatives": "",
+        "keywords": "enforcement,architecture,gateways,sidecars,libraries,caching",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Key and revocation management",
+        "description": "Evaluates whether the answer covers key and revocation management for this specific question.",
+        "expectedEvidence": "Key and revocation management: rotation compromise and propagation",
+        "acceptableAlternatives": "",
+        "keywords": "revocation,management,rotation,compromise,propagation",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Audit and resilience",
+        "description": "Evaluates whether the answer covers audit and resilience for this specific question.",
+        "expectedEvidence": "Audit and resilience: decision logs fail behavior and availability",
+        "acceptableAlternatives": "",
+        "keywords": "audit,resilience,decision,behavior,availability",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "System Design",
+    "topic": "Audit log",
+    "difficulty": "Hard",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "Design a tamper-evident audit-log service.",
+    "expectedAnswerSummary": "Accept authenticated events, use append-only durable storage and integrity chaining, restrict access, support queries, retention, and verification.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Event contract",
+        "description": "Evaluates whether the answer covers event contract for this specific question.",
+        "expectedEvidence": "Event contract: actor action target time and provenance",
+        "acceptableAlternatives": "",
+        "keywords": "event,contract,actor,action,target,provenance",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Ingestion integrity",
+        "description": "Evaluates whether the answer covers ingestion integrity for this specific question.",
+        "expectedEvidence": "Ingestion integrity: authentication ordering and duplicate control",
+        "acceptableAlternatives": "",
+        "keywords": "ingestion,integrity,authentication,ordering,duplicate,control",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Tamper evidence",
+        "description": "Evaluates whether the answer covers tamper evidence for this specific question.",
+        "expectedEvidence": "Tamper evidence: append-only storage hashes or signed checkpoints",
+        "acceptableAlternatives": "",
+        "keywords": "tamper,evidence,append,storage,hashes,signed,checkpoints",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Access and queries",
+        "description": "Evaluates whether the answer covers access and queries for this specific question.",
+        "expectedEvidence": "Access and queries: least privilege indexing and sensitive fields",
+        "acceptableAlternatives": "",
+        "keywords": "access,queries,least,privilege,indexing,sensitive,fields",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Retention and verification",
+        "description": "Evaluates whether the answer covers retention and verification for this specific question.",
+        "expectedEvidence": "Retention and verification: archival legal policy and integrity audits",
+        "acceptableAlternatives": "",
+        "keywords": "retention,verification,archival,legal,policy,integrity,audits",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "System Design",
+    "topic": "Webhook delivery",
+    "difficulty": "Hard",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "Design a high-volume webhook-delivery system.",
+    "expectedAnswerSummary": "Store subscriptions and events, queue deliveries, sign payloads, isolate tenants, retry with backoff, and provide replay and observability.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Subscription model",
+        "description": "Evaluates whether the answer covers subscription model for this specific question.",
+        "expectedEvidence": "Subscription model: endpoints event filters secrets and status",
+        "acceptableAlternatives": "",
+        "keywords": "subscription,model,endpoints,event,filters,secrets,status",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Event pipeline",
+        "description": "Evaluates whether the answer covers event pipeline for this specific question.",
+        "expectedEvidence": "Event pipeline: durable fan-out ordering and tenant isolation",
+        "acceptableAlternatives": "",
+        "keywords": "event,pipeline,durable,ordering,tenant,isolation",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Secure delivery",
+        "description": "Evaluates whether the answer covers secure delivery for this specific question.",
+        "expectedEvidence": "Secure delivery: signatures timestamps TLS and secret rotation",
+        "acceptableAlternatives": "",
+        "keywords": "secure,delivery,signatures,timestamps,secret,rotation",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Retry semantics",
+        "description": "Evaluates whether the answer covers retry semantics for this specific question.",
+        "expectedEvidence": "Retry semantics: idempotency backoff dead letters and replay",
+        "acceptableAlternatives": "",
+        "keywords": "retry,semantics,idempotency,backoff,letters,replay",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Operations",
+        "description": "Evaluates whether the answer covers operations for this specific question.",
+        "expectedEvidence": "Operations: delivery logs rate limits metrics and customer controls",
+        "acceptableAlternatives": "",
+        "keywords": "operations,delivery,limits,metrics,customer,controls",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "System Design",
+    "topic": "Collaborative editor",
+    "difficulty": "Hard",
+    "sourceType": "SHARED",
+    "company": null,
+    "prompt": "Design a collaborative text editor with concurrent editing.",
+    "expectedAnswerSummary": "Use persistent sessions, an operation model such as OT or CRDT, durable snapshots and logs, presence, offline reconciliation, and permissions.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Collaboration contract",
+        "description": "Evaluates whether the answer covers collaboration contract for this specific question.",
+        "expectedEvidence": "Collaboration contract: simultaneous edits presence and offline work",
+        "acceptableAlternatives": "",
+        "keywords": "collaboration,contract,simultaneous,edits,presence,offline",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Concurrency model",
+        "description": "Evaluates whether the answer covers concurrency model for this specific question.",
+        "expectedEvidence": "Concurrency model: justify OT CRDT or serialized operations",
+        "acceptableAlternatives": "",
+        "keywords": "concurrency,model,justify,serialized,operations",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Realtime transport",
+        "description": "Evaluates whether the answer covers realtime transport for this specific question.",
+        "expectedEvidence": "Realtime transport: sessions broadcast acknowledgements and recovery",
+        "acceptableAlternatives": "",
+        "keywords": "realtime,transport,sessions,broadcast,acknowledgements,recovery",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Persistence",
+        "description": "Evaluates whether the answer covers persistence for this specific question.",
+        "expectedEvidence": "Persistence: operation log snapshots versions and compaction",
+        "acceptableAlternatives": "",
+        "keywords": "persistence,operation,snapshots,versions,compaction",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Correctness and access",
+        "description": "Evaluates whether the answer covers correctness and access for this specific question.",
+        "expectedEvidence": "Correctness and access: convergence conflicts permissions and testing",
+        "acceptableAlternatives": "",
+        "keywords": "correctness,access,convergence,conflicts,permissions,testing",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "System Design",
+    "topic": "Search autocomplete",
+    "difficulty": "Hard",
+    "sourceType": "COMPANY_SPECIFIC",
+    "company": "Google",
+    "prompt": "Design Google-scale search autocomplete and explain it entirely in text.",
+    "expectedAnswerSummary": "Serve low-latency prefix suggestions using aggregated query data, ranked prefix structures, caching, regional serving, and privacy controls.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Product requirements",
+        "description": "Evaluates whether the answer covers product requirements for this specific question.",
+        "expectedEvidence": "Product requirements: prefix latency freshness locale and safety",
+        "acceptableAlternatives": "",
+        "keywords": "product,requirements,prefix,latency,freshness,locale,safety",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Data pipeline",
+        "description": "Evaluates whether the answer covers data pipeline for this specific question.",
+        "expectedEvidence": "Data pipeline: aggregate queries remove abuse and build candidates",
+        "acceptableAlternatives": "",
+        "keywords": "pipeline,aggregate,queries,remove,abuse,build,candidates",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Retrieval index",
+        "description": "Evaluates whether the answer covers retrieval index for this specific question.",
+        "expectedEvidence": "Retrieval index: trie finite-state or prefix-partitioned structure",
+        "acceptableAlternatives": "",
+        "keywords": "retrieval,index,finite,state,prefix,partitioned,structure",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Ranking and serving",
+        "description": "Evaluates whether the answer covers ranking and serving for this specific question.",
+        "expectedEvidence": "Ranking and serving: relevance personalization caching and regions",
+        "acceptableAlternatives": "",
+        "keywords": "ranking,serving,relevance,personalization,caching,regions",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Privacy and operations",
+        "description": "Evaluates whether the answer covers privacy and operations for this specific question.",
+        "expectedEvidence": "Privacy and operations: retention filtering experiments and monitoring",
+        "acceptableAlternatives": "",
+        "keywords": "privacy,operations,retention,filtering,experiments,monitoring",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "System Design",
+    "topic": "Distributed cache",
+    "difficulty": "Hard",
+    "sourceType": "COMPANY_SPECIFIC",
+    "company": "Google",
+    "prompt": "Design a globally distributed cache for a Google service.",
+    "expectedAnswerSummary": "Partition and replicate entries, define consistency and eviction, prevent stampedes, handle regional failure, and measure effectiveness.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Cache contract",
+        "description": "Evaluates whether the answer covers cache contract for this specific question.",
+        "expectedEvidence": "Cache contract: objects freshness size latency and write pattern",
+        "acceptableAlternatives": "",
+        "keywords": "cache,contract,objects,freshness,latency,write,pattern",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Placement",
+        "description": "Evaluates whether the answer covers placement for this specific question.",
+        "expectedEvidence": "Placement: consistent hashing replication and hot-key strategy",
+        "acceptableAlternatives": "",
+        "keywords": "placement,consistent,hashing,replication,strategy",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Coherence",
+        "description": "Evaluates whether the answer covers coherence for this specific question.",
+        "expectedEvidence": "Coherence: invalidation versioning and consistency choice",
+        "acceptableAlternatives": "",
+        "keywords": "coherence,invalidation,versioning,consistency,choice",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Failure protection",
+        "description": "Evaluates whether the answer covers failure protection for this specific question.",
+        "expectedEvidence": "Failure protection: stampede control regional failover and overload",
+        "acceptableAlternatives": "",
+        "keywords": "failure,protection,stampede,control,regional,failover,overload",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Efficiency",
+        "description": "Evaluates whether the answer covers efficiency for this specific question.",
+        "expectedEvidence": "Efficiency: eviction admission hit rate cost and observability",
+        "acceptableAlternatives": "",
+        "keywords": "efficiency,eviction,admission,observability",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "System Design",
+    "topic": "Data processing",
+    "difficulty": "Hard",
+    "sourceType": "COMPANY_SPECIFIC",
+    "company": "Google",
+    "prompt": "Design a Google-scale data-processing platform for batch and streaming jobs.",
+    "expectedAnswerSummary": "Separate submission and scheduling from execution, provide durable logs and checkpoints, isolate tenants, recover work, and expose observability.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Workload contract",
+        "description": "Evaluates whether the answer covers workload contract for this specific question.",
+        "expectedEvidence": "Workload contract: batch stream latency volume and APIs",
+        "acceptableAlternatives": "",
+        "keywords": "workload,contract,batch,stream,latency,volume",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Control plane",
+        "description": "Evaluates whether the answer covers control plane for this specific question.",
+        "expectedEvidence": "Control plane: validate jobs schedule resources and track state",
+        "acceptableAlternatives": "",
+        "keywords": "control,plane,validate,schedule,resources,track,state",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Execution plane",
+        "description": "Evaluates whether the answer covers execution plane for this specific question.",
+        "expectedEvidence": "Execution plane: partition work shuffle and isolate tenants",
+        "acceptableAlternatives": "",
+        "keywords": "execution,plane,partition,shuffle,isolate,tenants",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Correctness",
+        "description": "Evaluates whether the answer covers correctness for this specific question.",
+        "expectedEvidence": "Correctness: checkpoints retries deduplication and processing guarantees",
+        "acceptableAlternatives": "",
+        "keywords": "correctness,checkpoints,retries,deduplication,processing,guarantees",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Operations",
+        "description": "Evaluates whether the answer covers operations for this specific question.",
+        "expectedEvidence": "Operations: autoscaling lineage metrics debugging and cost",
+        "acceptableAlternatives": "",
+        "keywords": "operations,autoscaling,lineage,metrics,debugging",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "type": "System Design",
+    "topic": "Configuration service",
+    "difficulty": "Medium",
+    "sourceType": "COMPANY_SPECIFIC",
+    "company": "Google",
+    "prompt": "Design a global configuration-distribution service for Google-scale applications.",
+    "expectedAnswerSummary": "Use a strongly controlled source of truth, versioned changes, validated rollout, cached regional delivery, watches, rollback, and audit logs.",
+    "rubrics": [
+      {
+        "order": 1,
+        "name": "Configuration model",
+        "description": "Evaluates whether the answer covers configuration model for this specific question.",
+        "expectedEvidence": "Configuration model: namespaces versions schemas and environments",
+        "acceptableAlternatives": "",
+        "keywords": "configuration,model,namespaces,versions,schemas,environments",
+        "weight": 20
+      },
+      {
+        "order": 2,
+        "name": "Write path",
+        "description": "Evaluates whether the answer covers write path for this specific question.",
+        "expectedEvidence": "Write path: authorization validation review and durable commit",
+        "acceptableAlternatives": "",
+        "keywords": "write,authorization,validation,review,durable,commit",
+        "weight": 20
+      },
+      {
+        "order": 3,
+        "name": "Distribution",
+        "description": "Evaluates whether the answer covers distribution for this specific question.",
+        "expectedEvidence": "Distribution: regional replicas watches caching and convergence",
+        "acceptableAlternatives": "",
+        "keywords": "distribution,regional,replicas,watches,caching,convergence",
+        "weight": 20
+      },
+      {
+        "order": 4,
+        "name": "Safety",
+        "description": "Evaluates whether the answer covers safety for this specific question.",
+        "expectedEvidence": "Safety: staged rollout compatibility rollback and stale clients",
+        "acceptableAlternatives": "",
+        "keywords": "safety,staged,rollout,compatibility,rollback,stale,clients",
+        "weight": 20
+      },
+      {
+        "order": 5,
+        "name": "Operations",
+        "description": "Evaluates whether the answer covers operations for this specific question.",
+        "expectedEvidence": "Operations: audit history propagation metrics and disaster recovery",
+        "acceptableAlternatives": "",
+        "keywords": "operations,audit,history,propagation,metrics,disaster,recovery",
+        "weight": 20
+      }
+    ]
+  }
+]

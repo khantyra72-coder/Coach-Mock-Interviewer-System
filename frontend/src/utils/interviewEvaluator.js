@@ -2,9 +2,32 @@ function normalize(value = '') {
   return value
     .toLowerCase()
     .replace(/[’']/g, "'")
-    .replace(/[^a-z0-9+#().\s-]/g, ' ')
+    .replace(/[^a-z0-9+#().%\s-]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
+}
+
+function hasBehavioralEvidence(label, normalized) {
+  const rubricLabel = normalize(label)
+  if (!normalized || !rubricLabel) return false
+
+  const situationEvidence = /\b(during|when|while|after|before|migration|project|production|cutover|incident|outage|failure|problem|challenge|unexpected|degradation|contention|risk|impact|stakes|critical)\b/.test(normalized)
+  const ownershipEvidence = /\b(my responsibility|my role|my task|i (?:owned|led|managed|drove|coordinated|executed|was responsible|was tasked|needed to|had to|took ownership|took responsibility))\b/.test(normalized)
+  const actionMatches = normalized.match(/\bi (?:executed|analyzed|redesigned|updated|implemented|created|built|fixed|investigated|identified|introduced|changed|spoke|met|prioritized|planned|tested|deployed|redeployed|rolled back|used|decided|proposed|coordinated|communicated|resolved|reproduced|isolated|verified|monitored|mitigated)\b/g) || []
+  const actionEvidence = new Set(actionMatches).size >= 1
+  const outcomeLanguage = /\b(result|outcome|delivered|restored|resolved|improved|reduced|increased|saved|processed|achieved|seamlessly|successfully)\b/.test(normalized)
+  const measurableEvidence = /\b\d+(?:\.\d+)?\s*(?:%|percent|ms|milliseconds?|seconds?|minutes?|hours?|days?|weeks?|months?|x)(?=\s|-|$)/.test(normalized)
+  const learningEvidence = /\b(i learned|lesson|taught me|i realized|experience (?:showed|taught)|since then|going forward|next time|i now)\b/.test(normalized)
+
+  if (/situation|context|stakes|goal and failure|problem context|incident context|symptoms/.test(rubricLabel)) return situationEvidence
+  if (/personal responsibility|ownership/.test(rubricLabel)) return ownershipEvidence
+  if (/specific actions|constructive action|recovery action|action plan|diagnosis|triage|fix and verification|reproduction/.test(rubricLabel)) return actionEvidence
+  if (/measurable result|result|outcome|improvement|impact/.test(rubricLabel)) {
+    return outcomeLanguage && (measurableEvidence || /\b(result|outcome|delivered|resolved|achieved)\b/.test(normalized))
+  }
+  if (/learning|lesson|prevention/.test(rubricLabel)) return learningEvidence
+
+  return false
 }
 
 export function evaluateAnswer(question, answerText) {
@@ -39,7 +62,7 @@ export function evaluateAnswer(question, answerText) {
   rubrics.forEach((rubric) => {
     const found = rubric.keywords.some((keyword) =>
       normalized.includes(normalize(keyword))
-    )
+    ) || (question.type === 'Behavioral' && hasBehavioralEvidence(rubric.label, normalized))
     ;(found ? matched : missing).push(rubric)
   })
 
@@ -92,7 +115,7 @@ export function evaluateSession(session) {
     : 0
   const averageFor = (filter) => {
     const matches = questionResults.filter(filter)
-    return matches.length ? Math.round(matches.reduce((sum, item) => sum + item.score, 0) / matches.length) : overallScore
+    return matches.length ? Math.round(matches.reduce((sum, item) => sum + item.score, 0) / matches.length) : null
   }
   const conceptCoverage = questionResults.flatMap((result) => result.matchedConcepts).length
   const conceptTotal = questionResults.reduce((sum, result) => sum + result.matchedConcepts.length + result.missingConcepts.length, 0)
@@ -119,7 +142,13 @@ export function evaluateSession(session) {
       { label: 'Technical depth', value: averageFor((item) => item.type !== 'Behavioral') },
       { label: 'Behavioral structure', value: averageFor((item) => item.type === 'Behavioral') },
       { label: 'Concept completion', value: conceptTotal ? Math.round((conceptCoverage / conceptTotal) * 100) : 0 },
-    ],
+    ].filter((item) => item.value !== null),
+    skillScores: {
+      algorithm: averageFor((item) => /algorithm|data structure|complexity/i.test(`${item.topic} ${item.text}`)),
+      communication: averageFor((item) => item.type === 'Behavioral'),
+      problemSolving: averageFor((item) => item.type === 'Technical'),
+      systemDesign: averageFor((item) => item.type === 'System Design' || /system design|scalab|architecture/i.test(`${item.topic} ${item.text}`)),
+    },
     topStrengths: [...new Set(allStrengths)].slice(0, 3),
     topImprovements: [...new Set(allWeaknesses)].slice(0, 3),
     questions: questionResults,

@@ -88,3 +88,7 @@ export function apiGet(path) {
 export function apiPut(path, body) {
   return apiRequest('PUT', path, body)
 }
+
+export function apiDelete(path) {
+  return apiRequest('DELETE', path)
+}

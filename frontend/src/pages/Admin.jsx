@@ -1,16 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import TopBar from '../components/TopBar.jsx'
-import {
-  deleteQuestion as deleteQuestionFromBank,
-  getCustomQuestions,
-  getQuestionBank,
-  saveCustomQuestions,
-  saveQuestionOverride,
-} from '../data/questionBank.js'
 import { getCompanies, saveCompanies } from '../data/companyCatalog.js'
 import { getSessionHistory } from '../data/sessionCatalog.js'
-import { apiGet } from '../api/client.js'
+import { apiDelete, apiGet, apiPost, apiPut } from '../api/client.js'
+import { INTERVIEW_TYPES, TECH_ROLES } from '../data/interviewTaxonomy.js'
+import EvidenceRubricEditor from '../components/admin/EvidenceRubricEditor.jsx'
 
 const ADMIN_NAV = [
   { label: 'Users', to: '/admin?section=users' },
@@ -18,12 +13,68 @@ const ADMIN_NAV = [
   { label: 'Questions', to: '/admin?section=questions' },
 ]
 
-const ROLES = ['Software Engineer', 'Frontend Developer', 'Backend Developer', 'Full-Stack Developer', 'Data Scientist', 'ML / AI Engineer', 'Cloud / DevOps Engineer', 'Mobile Developer', 'Cybersecurity Analyst', 'QA / Test Engineer', 'Any']
+const ROLES = [...TECH_ROLES]
 const QUESTION_PAGE_SIZE = 25
 const NON_TEXT_REQUEST = /\b(draw|sketch|whiteboard|upload|record (a |your )?(voice|video)|speak aloud|execute code|run code|write (a )?(function|program|code)|live coding)\b/i
 
 function isTextAnswerable(prompt) {
   return !NON_TEXT_REQUEST.test(prompt)
+}
+
+function fromDatabaseQuestion(question) {
+  return {
+    id: question.id,
+    prompt: question.questionText,
+    role: question.role,
+    company: question.company || 'All',
+    type: question.interviewType,
+    topic: question.topic,
+    difficulty: question.difficulty,
+    sourceType: question.sourceType,
+    expectedAnswerSummary: question.expectedAnswerSummary,
+    reviewStatus: question.reviewStatus,
+    active: question.active,
+    concepts: question.rubrics.map((rubric) => ({
+      id: rubric.id,
+      label: rubric.name,
+      description: rubric.description,
+      expectedEvidence: rubric.expectedEvidence,
+      acceptableAlternatives: rubric.acceptableAlternatives,
+      keywords: rubric.keywords,
+      weight: rubric.weight,
+      importance: rubric.importance,
+      rubricVersion: rubric.rubricVersion,
+      evidenceStatus: rubric.evidenceStatus,
+      semanticDescription: rubric.semanticDescription,
+      evidenceGroups: rubric.evidenceGroups || [],
+    })),
+  }
+}
+
+function toDatabaseQuestion(question) {
+  return {
+    questionText: question.prompt.trim(),
+    role: question.role,
+    interviewType: question.type,
+    company: question.company === 'All' ? null : question.company,
+    topic: question.topic.trim(),
+    difficulty: question.difficulty,
+    expectedAnswerSummary: question.expectedAnswerSummary.trim(),
+    reviewStatus: question.reviewStatus || 'Approved',
+    rubrics: question.concepts.map((criterion) => ({
+      name: criterion.label,
+      description: criterion.description || `Evaluates ${criterion.label.toLowerCase()}.`,
+      expectedEvidence: criterion.expectedEvidence || `The answer clearly demonstrates ${criterion.label.toLowerCase()}.`,
+      acceptableAlternatives: criterion.acceptableAlternatives || 'Accept equivalent evidence that satisfies the same criterion.',
+      keywords: Array.isArray(criterion.keywords) ? criterion.keywords.join(',') : criterion.keywords || criterion.label,
+      weight: criterion.weight,
+      importance: criterion.importance,
+      rubricVersion: criterion.rubricVersion || 2,
+      evidenceStatus: criterion.evidenceStatus,
+      semanticDescription: criterion.semanticDescription || criterion.expectedEvidence,
+      evidenceGroups: criterion.evidenceGroups || [],
+    })),
+  }
 }
 
 function AdminHeader({ eyebrow, title, action, onAction }) {
@@ -114,45 +165,25 @@ function UsersPage() {
   )
 }
 
-function CompaniesPage({ companies, onAdd, onUpdate }) {
-  const [showForm, setShowForm] = useState(false)
-  const [name, setName] = useState('')
-  const [style, setStyle] = useState('')
+function CompaniesPage({ companies, questions, onUpdate }) {
   const [filter, setFilter] = useState('all')
   const [selected, setSelected] = useState(null)
   const [editing, setEditing] = useState(null)
-  const questionCount = (company) => getQuestionBank().filter((question) => question.company === company.name).length
+  const questionCount = (company) => questions.filter((question) => question.company === company.name).length
   const sessionCount = (company) => getSessionHistory().filter((session) => session.company === company.name).length
   const visibleCompanies = companies.filter((company) => filter === 'questions' ? questionCount(company) > 0 : filter === 'sessions' ? sessionCount(company) > 0 : true)
 
-  const submit = (event) => {
-    event.preventDefault()
-    if (!name.trim() || !style.trim()) return
-    onAdd({ id: `#C${String(companies.length + 1).padStart(2, '0')}`, name: name.trim(), style: style.trim(), sessions: 0, status: 'Active', custom: true })
-    setName(''); setStyle(''); setShowForm(false)
-  }
-
   return (
     <>
-      <AdminHeader eyebrow="Question targeting" title="Companies" action="Add company" onAction={() => setShowForm((value) => !value)} />
-      {showForm && (
-        <form className="card admin-form" onSubmit={submit}>
-          <div><span className="eyebrow">New company</span><h3>Add a target company</h3></div>
-          <div className="g2">
-            <div className="field"><label>Company name</label><input className="inp" value={name} onChange={(event) => setName(event.target.value)} placeholder="e.g. Stripe" required /></div>
-            <div className="field"><label>Interview style</label><input className="inp" value={style} onChange={(event) => setStyle(event.target.value)} placeholder="What this company emphasizes" required /></div>
-          </div>
-          <div className="admin-form-actions"><button className="btn" type="submit">Save company</button><button className="btn ghost" type="button" onClick={() => setShowForm(false)}>Cancel</button></div>
-        </form>
-      )}
+      <AdminHeader eyebrow="Question targeting" title="Companies" />
       <div className="admin-summary">
         <button className={`card${filter === 'all' ? ' selected' : ''}`} onClick={() => setFilter('all')}><b>{companies.length}</b><span>Companies</span></button>
-        <button className={`card${filter === 'questions' ? ' selected' : ''}`} onClick={() => setFilter('questions')}><b>{getQuestionBank().filter((question) => question.company !== 'All').length}</b><span>Company-specific questions</span></button>
+        <button className={`card${filter === 'questions' ? ' selected' : ''}`} onClick={() => setFilter('questions')}><b>{questions.filter((question) => question.company !== 'All').length}</b><span>Company-specific questions</span></button>
         <button className={`card${filter === 'sessions' ? ' selected' : ''}`} onClick={() => setFilter('sessions')}><b>{getSessionHistory().length}</b><span>Practice sessions</span></button>
       </div>
       {(selected || editing) && <div className="card admin-action-panel">
         {editing ? <form onSubmit={(event) => { event.preventDefault(); onUpdate(editing); setSelected(editing); setEditing(null) }}><h3>Edit company</h3><div className="g3">
-          <div className="field"><label>Name</label><input className="inp" value={editing.name} onChange={(e) => setEditing({ ...editing, name: e.target.value })} /></div>
+          <div className="field"><label>Name</label><input className="inp" value={editing.name} readOnly /></div>
           <div className="field"><label>Interview style</label><input className="inp" value={editing.style} onChange={(e) => setEditing({ ...editing, style: e.target.value })} /></div>
           <div className="field"><label>Status</label><select value={editing.status} onChange={(e) => setEditing({ ...editing, status: e.target.value })}><option>Active</option><option>Disabled</option></select></div>
         </div><div className="admin-form-actions"><button className="btn">Save changes</button><button type="button" className="btn ghost" onClick={() => setEditing(null)}>Cancel</button></div></form>
@@ -162,7 +193,7 @@ function CompaniesPage({ companies, onAdd, onUpdate }) {
         <thead><tr><th>ID</th><th>Company</th><th>Interview style</th><th>Questions</th><th>Sessions</th><th>Status</th><th>Actions</th></tr></thead>
         <tbody>{visibleCompanies.map((company) => (
           <tr key={company.id}><td>{company.id}</td><td><b>{company.name}</b></td><td>{company.style}</td>
-            <td>{getQuestionBank().filter((question) => question.company === company.name).length}</td><td>{sessionCount(company)}</td>
+            <td>{questionCount(company)}</td><td>{sessionCount(company)}</td>
             <td><span className={`pill ${company.status === 'Active' ? 'g' : 'c'}`}>{company.status}</span></td><td><button type="button" className="act" onClick={() => { setSelected(company); setEditing(null) }}>View</button><button type="button" className="act" onClick={() => { setEditing({ ...company }); setSelected(null) }}>Edit</button><button type="button" className="act del" onClick={() => onUpdate({ ...company, status: company.status === 'Active' ? 'Disabled' : 'Active' })}>{company.status === 'Active' ? 'Disable' : 'Enable'}</button></td></tr>
         ))}</tbody>
       </table></div>
@@ -170,7 +201,7 @@ function CompaniesPage({ companies, onAdd, onUpdate }) {
   )
 }
 
-function QuestionsPage({ questions, companies, onAdd, onUpdate, onDelete }) {
+function QuestionsPage({ questions, companies, loading, loadError, onAdd, onUpdate, onDelete, onLoad }) {
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ prompt: '', role: 'Software Engineer', company: 'All', type: 'Technical', topic: '', difficulty: 'Medium', rubrics: '', model: '' })
   const [filter, setFilter] = useState('all')
@@ -195,10 +226,13 @@ function QuestionsPage({ questions, companies, onAdd, onUpdate, onDelete }) {
   const pageQuestions = visibleQuestions.slice((currentPage - 1) * QUESTION_PAGE_SIZE, currentPage * QUESTION_PAGE_SIZE)
   const changeFilter = (setter) => (event) => { setter(event.target.value); setPage(1) }
 
-  const submit = (event) => {
+  const submit = async (event) => {
     event.preventDefault()
     const rubricLines = form.rubrics.split('\n').map((line) => line.trim()).filter(Boolean)
-    if (!form.prompt.trim() || !form.topic.trim() || rubricLines.length < 3) return
+    if (!form.prompt.trim() || !form.topic.trim() || !form.model.trim() || rubricLines.length !== 5) {
+      setFormError('Question, topic, model answer, and exactly five rubric criteria are required.')
+      return
+    }
     if (!isTextAnswerable(form.prompt)) {
       setFormError('This question requests a non-text task. Rewrite it so the candidate can answer entirely in writing.')
       return
@@ -206,17 +240,43 @@ function QuestionsPage({ questions, companies, onAdd, onUpdate, onDelete }) {
     const baseWeight = Math.floor(100 / rubricLines.length)
     const concepts = rubricLines.map((line, index) => {
       const parts = line.split('|').map((part) => part.trim()).filter(Boolean)
-      return { label: parts[0], keywords: parts, guidance: `Cover ${parts[0].toLowerCase()} clearly.`, weight: index === rubricLines.length - 1 ? 100 - baseWeight * (rubricLines.length - 1) : baseWeight }
+      const label = parts[0]
+      const alternatives = parts.slice(1)
+      return {
+        label,
+        description: `Evaluates whether the answer clearly covers ${label.toLowerCase()}.`,
+        expectedEvidence: `The answer demonstrates ${label.toLowerCase()} with a relevant explanation or example.`,
+        acceptableAlternatives: alternatives.join(', '),
+        keywords: parts.join(','),
+        semanticDescription: `Evidence that demonstrates ${label.toLowerCase()}, including equivalent terminology.`,
+        importance: index < 3 ? 'CORE' : 'SUPPORTING',
+        rubricVersion: 2,
+        evidenceStatus: 'DRAFT',
+        weight: index === rubricLines.length - 1 ? 100 - baseWeight * (rubricLines.length - 1) : baseWeight,
+        evidenceGroups: [
+          { concept: label, description: `Direct evidence for ${label}.`, terms: [{ type: 'TERM', value: label }] },
+          { concept: `Accepted alternatives for ${label}`, description: `Equivalent evidence for ${label}.`, terms: (alternatives.length ? alternatives : [`valid alternative for ${label}`]).map((value) => ({ type: 'ALTERNATIVE', value })) },
+        ],
+      }
     })
-    onAdd({
-      id: `custom-${Date.now()}`, ...form, prompt: form.prompt.trim(), topic: form.topic.trim(),
-      tips: ['Explain your assumptions.', 'Cover the expected concepts.', 'Include trade-offs or a concrete example.'],
-      model: form.model.split('\n').map((line) => line.trim()).filter(Boolean).length ? form.model.split('\n').map((line) => line.trim()).filter(Boolean) : concepts.map((item) => item.label),
-      concepts, responseMode: 'Written response', textAnswerable: true, custom: true,
-    })
-    setForm({ prompt: '', role: 'Software Engineer', company: 'All', type: 'Technical', topic: '', difficulty: 'Medium', rubrics: '', model: '' })
-    setFormError('')
-    setShowForm(false)
+    try {
+      await onAdd({ ...form, prompt: form.prompt.trim(), topic: form.topic.trim(), expectedAnswerSummary: form.model.trim(), reviewStatus: 'Review', concepts })
+      setForm({ prompt: '', role: 'Software Engineer', company: 'All', type: 'Technical', topic: '', difficulty: 'Medium', rubrics: '', model: '' })
+      setFormError('')
+      setShowForm(false)
+    } catch (error) {
+      setFormError(error.message || 'Could not save the question.')
+    }
+  }
+
+  const openQuestion = async (question, mode) => {
+    try {
+      const detailed = await onLoad(question.id)
+      if (mode === 'edit') { setEditing(detailed); setSelected(null) } else { setSelected(detailed); setEditing(null) }
+      setFormError('')
+    } catch (error) {
+      setFormError(error.message || 'Could not load question details.')
+    }
   }
 
   return (
@@ -231,18 +291,19 @@ function QuestionsPage({ questions, companies, onAdd, onUpdate, onDelete }) {
           <div className="g3">
             <div className="field"><label>Role</label><select value={form.role} onChange={(event) => update('role', event.target.value)}>{ROLES.map((role) => <option key={role}>{role}</option>)}</select></div>
             <div className="field"><label>Company</label><select value={form.company} onChange={(event) => update('company', event.target.value)}><option>All</option>{companies.map((company) => <option key={company.id}>{company.name}</option>)}</select></div>
-            <div className="field"><label>Interview type</label><select value={form.type} onChange={(event) => update('type', event.target.value)}><option>Technical</option><option>Behavioral</option><option>System Design</option></select></div>
+            <div className="field"><label>Interview type</label><select value={form.type} onChange={(event) => update('type', event.target.value)}>{INTERVIEW_TYPES.map((type) => <option key={type}>{type}</option>)}</select></div>
             <div className="field"><label>Topic</label><input className="inp" value={form.topic} onChange={(event) => update('topic', event.target.value)} placeholder="e.g. Databases" required /></div>
             <div className="field"><label>Difficulty</label><select value={form.difficulty} onChange={(event) => update('difficulty', event.target.value)}><option>Easy</option><option>Medium</option><option>Hard</option></select></div>
           </div>
           <div className="g2">
-            <div className="field"><label>Expected rubric concepts</label><textarea value={form.rubrics} onChange={(event) => update('rubrics', event.target.value)} placeholder={'One concept per line (minimum 3)\nCaching | Redis | cache\nInvalidation | TTL | expiry'} required /></div>
+            <div className="field"><label>Expected rubric concepts</label><textarea value={form.rubrics} onChange={(event) => update('rubrics', event.target.value)} placeholder={'Exactly five criteria, one per line\nCaching | Redis | cache\nInvalidation | TTL | expiry'} required /></div>
             <div className="field"><label>Model answer outline</label><textarea value={form.model} onChange={(event) => update('model', event.target.value)} placeholder={'One outline point per line\nClarify requirements\nExplain the approach'} /></div>
           </div>
           <p className="muted admin-help">Answer format: Written response. Use | to add accepted synonyms. Rubric weights are distributed equally and total 100%.</p>
           <div className="admin-form-actions"><button className="btn" type="submit">Save question</button><button className="btn ghost" type="button" onClick={() => setShowForm(false)}>Cancel</button></div>
         </form>
       )}
+      {loadError && <div className="card admin-action-panel"><p>{loadError}</p></div>}
       <div className="admin-summary">
         <button className={`card${filter === 'all' ? ' selected' : ''}`} onClick={() => setFilter('all')}><b>{questions.length}</b><span>Total questions</span></button>
         <button className={`card${filter === 'roles' ? ' selected' : ''}`} onClick={() => setFilter('roles')}><b>{new Set(questions.map((question) => question.role)).size}</b><span>Roles covered</span></button>
@@ -254,24 +315,47 @@ function QuestionsPage({ questions, companies, onAdd, onUpdate, onDelete }) {
           <option>All companies</option>{companies.map((company) => <option key={company.id}>{company.name}</option>)}
         </select>
         <select value={typeFilter} onChange={changeFilter(setTypeFilter)} aria-label="Filter questions by type">
-          <option>All types</option><option>Technical</option><option>System Design</option><option>Behavioral</option>
+          <option>All types</option>{INTERVIEW_TYPES.map((type) => <option key={type}>{type}</option>)}
         </select>
       </div>
       {(selected || editing) && <div className="card admin-action-panel">
-        {editing ? <form onSubmit={(event) => { event.preventDefault(); if (!isTextAnswerable(editing.prompt)) return; const updated = { ...editing, responseMode: 'Written response', textAnswerable: true }; onUpdate(updated); setSelected(updated); setEditing(null) }}><h3>Edit question</h3>
-          <div className="field"><label>Question</label><textarea value={editing.prompt} onChange={(e) => setEditing({ ...editing, prompt: e.target.value })} /></div>
-          <div className="g3"><div className="field"><label>Role</label><select value={editing.role} onChange={(e) => setEditing({ ...editing, role: e.target.value })}>{ROLES.map((role) => <option key={role}>{role}</option>)}</select></div>
-          <div className="field"><label>Company</label><select value={editing.company} onChange={(e) => setEditing({ ...editing, company: e.target.value })}><option>All</option>{companies.map((company) => <option key={company.id}>{company.name}</option>)}</select></div>
-          <div className="field"><label>Difficulty</label><select value={editing.difficulty} onChange={(e) => setEditing({ ...editing, difficulty: e.target.value })}><option>Easy</option><option>Medium</option><option>Hard</option></select></div></div>
-          <div className="admin-form-actions"><button className="btn">Save changes</button><button type="button" className="btn ghost" onClick={() => setEditing(null)}>Cancel</button></div></form>
-          : <><h3>{selected.prompt}</h3><p className="muted">{selected.role} · {selected.company} · {selected.type} · {selected.difficulty} · Written response</p><h5 style={{ marginTop: 12 }}>Rubric concepts</h5><ul>{selected.concepts.map((item) => <li key={item.label}>{item.label} ({item.weight}%)</li>)}</ul><button className="btn ghost sm" style={{ marginTop: 12 }} onClick={() => setSelected(null)}>Close</button></>}
+        {editing ? <form onSubmit={async (event) => {
+          event.preventDefault()
+          if (!isTextAnswerable(editing.prompt)) { setFormError('Question must be answerable using text only.'); return }
+          if (editing.concepts.reduce((sum, item) => sum + Number(item.weight), 0) !== 100) { setFormError('Rubric weights must total 100%.'); return }
+          try { const updated = await onUpdate(editing); setSelected(updated); setEditing(null); setFormError('') } catch (error) { setFormError(error.message || 'Could not update the question.') }
+        }}><h3>Edit question, rubric, and evidence</h3>
+          <div className="field"><label>Question</label><textarea value={editing.prompt} onChange={(event) => setEditing({ ...editing, prompt: event.target.value })} /></div>
+          <div className="g3">
+            <div className="field"><label>Role</label><select value={editing.role} onChange={(event) => setEditing({ ...editing, role: event.target.value })}>{ROLES.map((role) => <option key={role}>{role}</option>)}</select></div>
+            <div className="field"><label>Company</label><select value={editing.company} onChange={(event) => setEditing({ ...editing, company: event.target.value })}><option>All</option>{companies.map((company) => <option key={company.id}>{company.name}</option>)}</select></div>
+            <div className="field"><label>Interview type</label><select value={editing.type} onChange={(event) => setEditing({ ...editing, type: event.target.value })}>{INTERVIEW_TYPES.map((type) => <option key={type}>{type}</option>)}</select></div>
+            <div className="field"><label>Topic</label><input className="inp" value={editing.topic} onChange={(event) => setEditing({ ...editing, topic: event.target.value })} /></div>
+            <div className="field"><label>Difficulty</label><select value={editing.difficulty} onChange={(event) => setEditing({ ...editing, difficulty: event.target.value })}><option>Easy</option><option>Medium</option><option>Hard</option></select></div>
+            <div className="field"><label>Review status</label><select value={editing.reviewStatus} onChange={(event) => setEditing({ ...editing, reviewStatus: event.target.value })}><option>Draft</option><option>Review</option><option>Approved</option></select></div>
+          </div>
+          <div className="field"><label>Expected answer summary</label><textarea value={editing.expectedAnswerSummary} onChange={(event) => setEditing({ ...editing, expectedAnswerSummary: event.target.value })} /></div>
+          <EvidenceRubricEditor rubrics={editing.concepts} onChange={(concepts) => setEditing({ ...editing, concepts })} />
+          {formError && <p className="admin-form-error" role="alert">{formError}</p>}
+          <div className="admin-form-actions"><button className="btn">Save and validate</button><button type="button" className="btn ghost" onClick={() => setEditing(null)}>Cancel</button></div>
+        </form> : <>
+          <div className="admin-detail-heading"><div><h3>{selected.prompt}</h3><p className="muted">{selected.role} · {selected.company} · {selected.type} · {selected.difficulty}</p></div><span className={`pill ${selected.reviewStatus === 'Approved' ? 'g' : 'a'}`}>{selected.reviewStatus}</span></div>
+          <p><b>Expected answer:</b> {selected.expectedAnswerSummary}</p>
+          <h4 className="evidence-section-title">Rubric and evidence</h4>
+          {selected.concepts.map((item, index) => <details className="evidence-criterion evidence-readonly" key={item.id || index}>
+            <summary><b>{index + 1}. {item.label}</b><span>{item.importance} · {item.weight}% · {item.evidenceStatus}</span></summary>
+            <div className="evidence-criterion-body"><p>{item.expectedEvidence}</p>{item.evidenceGroups.map((group, groupIndex) => <div className="evidence-group" key={group.id || groupIndex}><b>{group.concept}</b><p>{group.description}</p><ul>{group.terms.map((term) => <li key={term.id || `${term.type}-${term.value}`}><span className={`evidence-term-type ${term.type.toLowerCase()}`}>{term.type}</span> {term.value}</li>)}</ul></div>)}</div>
+          </details>)}
+          {formError && <p className="admin-form-error" role="alert">{formError}</p>}
+          <div className="admin-form-actions"><button className="btn ghost sm" onClick={() => setSelected(null)}>Close</button><button className="btn ghost sm" onClick={() => { setEditing(selected); setSelected(null) }}>Edit evidence</button>{selected.reviewStatus !== 'Approved' && <button className="btn sm" onClick={async () => { try { const approved = await onUpdate({ ...selected, reviewStatus: 'Approved' }); setSelected(approved); setFormError('') } catch (error) { setFormError(error.message || 'Could not approve this question.') } }}>Approve</button>}</div>
+        </>}
       </div>}
       <div className="admin-table-wrap"><table className="adm">
-        <thead><tr><th>ID</th><th>Question</th><th>Role</th><th>Company</th><th>Type</th><th>Answer format</th><th>Difficulty</th><th>Rubrics</th><th>Actions</th></tr></thead>
-        <tbody>{pageQuestions.map((question, index) => (
-          <tr key={question.id}><td>#{String((currentPage - 1) * QUESTION_PAGE_SIZE + index + 1).padStart(4, '0')}</td><td className="admin-question-cell">{question.prompt}<div className="admin-subtext">{question.topic}</div></td>
-            <td>{question.role}</td><td>{question.company}</td><td>{question.type}</td><td><span className="admin-text-badge">Text</span></td><td><span className={`pill ${question.difficulty === 'Hard' ? 'c' : question.difficulty === 'Easy' ? 'g' : 'a'}`}>{question.difficulty}</span></td>
-            <td>{question.concepts.length}</td><td><button type="button" className="act" onClick={() => { setSelected(question); setEditing(null) }}>View</button><button type="button" className="act" onClick={() => { setEditing({ ...question }); setSelected(null) }}>Edit</button><button type="button" className="act del" onClick={() => onDelete(question.id)}>Delete</button></td></tr>
+        <thead><tr><th>ID</th><th>Question</th><th>Role</th><th>Company</th><th>Type</th><th>Status</th><th>Difficulty</th><th>Rubrics</th><th>Actions</th></tr></thead>
+        <tbody>{loading ? <tr><td colSpan="9">Loading database questions…</td></tr> : pageQuestions.length === 0 ? <tr><td colSpan="9">No database questions found.</td></tr> : pageQuestions.map((question) => (
+          <tr key={question.id}><td>#{String(question.id).padStart(4, '0')}</td><td className="admin-question-cell">{question.prompt}<div className="admin-subtext">{question.topic}</div></td>
+            <td>{question.role}</td><td>{question.company}</td><td>{question.type}</td><td><span className={`pill ${question.reviewStatus === 'Approved' ? 'g' : 'a'}`}>{question.reviewStatus}</span></td><td><span className={`pill ${question.difficulty === 'Hard' ? 'c' : question.difficulty === 'Easy' ? 'g' : 'a'}`}>{question.difficulty}</span></td>
+            <td>{question.concepts.length}</td><td><button type="button" className="act" onClick={() => openQuestion(question, 'view')}>View</button><button type="button" className="act" onClick={() => openQuestion(question, 'edit')}>Edit</button><button type="button" className="act del" onClick={() => onDelete(question.id)}>Retire</button></td></tr>
         ))}</tbody>
       </table></div>
       <div className="admin-pagination">
@@ -286,34 +370,43 @@ export default function Admin() {
   const [searchParams] = useSearchParams()
   const section = searchParams.get('section') || 'users'
   const [companies, setCompanies] = useState(getCompanies)
-  const [questions, setQuestions] = useState(getQuestionBank)
+  const [questions, setQuestions] = useState([])
+  const [questionsLoading, setQuestionsLoading] = useState(true)
+  const [questionsError, setQuestionsError] = useState('')
   const title = section === 'companies' ? 'Manage companies' : section === 'questions' ? 'Manage questions' : 'Manage users'
 
-  const addCompany = (company) => {
-    const next = [...companies, company]
-    saveCompanies(next)
-    setCompanies(next)
-  }
   const updateCompany = (company) => {
     const next = companies.map((item) => item.id === company.id ? company : item)
     saveCompanies(next)
     setCompanies(next)
   }
-  const addQuestion = (question) => {
-    saveCustomQuestions([...getCustomQuestions(), question])
-    setQuestions(getQuestionBank())
+  useEffect(() => {
+    let active = true
+    apiGet('/admin/questions')
+      .then((data) => {
+        if (!active) return
+        setQuestions((Array.isArray(data) ? data : []).map(fromDatabaseQuestion))
+        setQuestionsError('')
+      })
+      .catch((error) => { if (active) setQuestionsError(error.message || 'Could not load database questions.') })
+      .finally(() => { if (active) setQuestionsLoading(false) })
+    return () => { active = false }
+  }, [])
+
+  const addQuestion = async (question) => {
+    const saved = fromDatabaseQuestion(await apiPost('/admin/questions', toDatabaseQuestion(question)))
+    setQuestions((current) => [...current, saved])
+    return saved
   }
-  const updateQuestion = (question) => {
-    if (question.custom) {
-      saveCustomQuestions(getCustomQuestions().map((item) => item.id === question.id ? question : item))
-    } else {
-      saveQuestionOverride(question)
-    }
-    setQuestions(getQuestionBank())
+  const updateQuestion = async (question) => {
+    const saved = fromDatabaseQuestion(await apiPut(`/admin/questions/${question.id}`, toDatabaseQuestion(question)))
+    setQuestions((current) => current.map((item) => item.id === saved.id ? saved : item))
+    return saved
   }
-  const removeQuestion = (id) => {
-    deleteQuestionFromBank(id)
-    setQuestions(getQuestionBank())
+  const loadQuestion = async (id) => fromDatabaseQuestion(await apiGet(`/admin/questions/${id}`))
+  const removeQuestion = async (id) => {
+    await apiDelete(`/admin/questions/${id}`)
+    setQuestions((current) => current.filter((question) => question.id !== id))
   }
 
   return (
@@ -321,9 +414,9 @@ export default function Admin() {
       <TopBar subtitle={title} nav={ADMIN_NAV} showUser avatarStyle={{ background: 'linear-gradient(140deg,#C77E24,#e0a758)' }} />
       <div className="wrap pagepad">
         {section === 'companies'
-          ? <CompaniesPage companies={companies} onAdd={addCompany} onUpdate={updateCompany} />
+          ? <CompaniesPage companies={companies} questions={questions} onUpdate={updateCompany} />
           : section === 'questions'
-            ? <QuestionsPage questions={questions} companies={companies} onAdd={addQuestion} onUpdate={updateQuestion} onDelete={removeQuestion} />
+            ? <QuestionsPage questions={questions} companies={companies} loading={questionsLoading} loadError={questionsError} onAdd={addQuestion} onUpdate={updateQuestion} onDelete={removeQuestion} onLoad={loadQuestion} />
             : <UsersPage />}
       </div>
     </section>

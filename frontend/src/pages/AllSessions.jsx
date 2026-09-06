@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { BarChart3, Code2, Database, Monitor, Search } from 'lucide-react'
+import { BarChart3, Code2, Database, Monitor, Search, Trash2 } from 'lucide-react'
 import { FaAmazon, FaApple, FaMeta, FaMicrosoft } from 'react-icons/fa6'
 import TopBar from '../components/TopBar.jsx'
 import googleLogo from '../assets/logos/google.svg'
@@ -9,8 +10,10 @@ import { INTERVIEW_TYPES, TECH_ROLES } from '../data/interviewTaxonomy.js'
 import {
   getInterviewDetails,
   getInterviewHistory,
+  deleteInterviewSession,
 } from '../api/interviews.js'
 import { getUnsyncedLocalSessions, syncLocalCompletedSessions } from '../utils/syncLocalInterviewHistory.js'
+import { deleteLocalCompletedSession } from '../utils/localInterviewStore.js'
 
 const APP_NAV = [
   { label: 'Interview Setup', to: '/role' },
@@ -58,6 +61,34 @@ function CompanyCell({ company }) {
           : <span className="ass-company-fallback">{company.slice(0, 1)}</span>}
       <span>{company}</span>
     </span>
+  )
+}
+
+function DeleteSessionDialog({ session, deleting, error, onCancel, onConfirm }) {
+  const cancelRef = useRef(null)
+
+  useEffect(() => {
+    cancelRef.current?.focus()
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape' && !deleting) onCancel()
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [deleting, onCancel])
+
+  return createPortal(
+    <div className="modal-overlay" onClick={deleting ? undefined : onCancel}>
+      <div className="modal-card" role="dialog" aria-modal="true" aria-labelledby="delete-session-title" aria-describedby="delete-session-description" onClick={(event) => event.stopPropagation()}>
+        <h3 id="delete-session-title">Delete this interview?</h3>
+        <p id="delete-session-description">{session.role} · {session.date}. Its answers, score, and feedback will be permanently removed.</p>
+        {error && <p className="field-error">{error}</p>}
+        <div className="modal-actions">
+          <button type="button" className="btn ghost" ref={cancelRef} onClick={onCancel} disabled={deleting}>Cancel</button>
+          <button type="button" className="btn danger" onClick={onConfirm} disabled={deleting}>{deleting ? 'Deleting…' : 'Delete interview'}</button>
+        </div>
+      </div>
+    </div>,
+    document.body
   )
 }
 
@@ -165,9 +196,12 @@ export default function AllSessions() {
   const showingRoles = searchParams.get('view') === 'roles'
   const selectedRole = searchParams.get('role')
   const [sessions, setSessions] = useState([])
-const [loading, setLoading] = useState(true)
-const [loadError, setLoadError] = useState('')
-useEffect(() => {
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
+  const [sessionToDelete, setSessionToDelete] = useState(null)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
+  useEffect(() => {
   let cancelled = false
 
   async function loadSessions() {
@@ -209,7 +243,7 @@ useEffect(() => {
   return () => {
     cancelled = true
   }
-}, [])
+  }, [])
   const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState('All roles')
   const [typeFilter, setTypeFilter] = useState('All interview types')
@@ -257,6 +291,34 @@ useEffect(() => {
   const updateFilter = (setter) => (event) => {
     setter(event.target.value)
     setPage(1)
+  }
+
+  const requestDelete = (session) => {
+    setDeleteError('')
+    setSessionToDelete(session)
+  }
+
+  const cancelDelete = () => {
+    if (deleting) return
+    setSessionToDelete(null)
+    setDeleteError('')
+  }
+
+  const confirmDelete = async () => {
+    if (!sessionToDelete || deleting) return
+    setDeleting(true)
+    setDeleteError('')
+    try {
+      const localId = String(sessionToDelete.id).startsWith('local-') || String(sessionToDelete.id).startsWith('session-')
+      if (!localId) await deleteInterviewSession(sessionToDelete.id)
+      deleteLocalCompletedSession(sessionToDelete.id)
+      setSessions((current) => current.filter((session) => String(session.id) !== String(sessionToDelete.id)))
+      setSessionToDelete(null)
+    } catch (error) {
+      setDeleteError(error.message || 'Could not delete this interview. Please try again.')
+    } finally {
+      setDeleting(false)
+    }
   }
 
   return (
@@ -355,7 +417,7 @@ useEffect(() => {
                         <td>{session.type}</td>
                         <td><CompanyCell company={session.company} /></td>
                         <td><span className={`ass-score${session.score < 75 ? ' amber' : ''}`}>{session.score}%</span></td>
-                        <td>
+                        <td><div className="ass-actions">
                           <button
   className="ass-results"
   type="button"
@@ -365,7 +427,8 @@ useEffect(() => {
 >
   View results <span aria-hidden="true">→</span>
 </button>
-                        </td>
+                          <button className="ass-delete" type="button" aria-label={`Delete ${session.role} interview from ${session.date}`} onClick={() => requestDelete(session)}><Trash2 size={16} strokeWidth={1.8} /><span>Delete</span></button>
+                        </div></td>
                       </tr>
                     ))}
                   </tbody>
@@ -395,6 +458,7 @@ useEffect(() => {
           </>
         )}
       </div>
+      {sessionToDelete && <DeleteSessionDialog session={sessionToDelete} deleting={deleting} error={deleteError} onCancel={cancelDelete} onConfirm={confirmDelete} />}
     </section>
   )
 }

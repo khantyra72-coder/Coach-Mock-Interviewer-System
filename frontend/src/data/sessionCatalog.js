@@ -30,4 +30,12 @@ export function addSessionResult(result) {
   localStorage.setItem(accountStorageKey(SESSION_HISTORY_KEY), JSON.stringify([summary, ...history]))
 }
 
+export function removeSessionResult(sessionId) {
+  if (typeof localStorage === 'undefined') return
+  const history = getSessionHistory().filter((item) =>
+    !String(item.id).startsWith('seed-') && String(item.id) !== String(sessionId)
+  )
+  localStorage.setItem(accountStorageKey(SESSION_HISTORY_KEY), JSON.stringify(history))
+}
+
 export { SESSION_HISTORY_KEY }

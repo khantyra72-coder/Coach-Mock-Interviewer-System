@@ -1,4 +1,4 @@
-import { apiGet, apiPost } from './client.js'
+import { apiDelete, apiGet, apiPost } from './client.js'
 
 export function startInterview(data) {
   return apiPost('/interviews', data)
@@ -22,4 +22,8 @@ export function getInterviewHistory() {
 
 export function getInterviewDetails(sessionId) {
   return apiGet(`/interviews/${sessionId}`)
+}
+
+export function deleteInterviewSession(sessionId) {
+  return apiDelete(`/interviews/${sessionId}`)
 }

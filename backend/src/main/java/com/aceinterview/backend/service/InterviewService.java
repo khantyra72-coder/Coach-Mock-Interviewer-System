@@ -131,6 +131,7 @@ public class InterviewService {
         answer.setAnswerText(request.answerText().trim());
         List<RubricCriterion> criteria = rubricRepository.findByQuestionIdOrderByCriterionOrderAsc(question.getId());
         String normalized = request.answerText().toLowerCase(Locale.ROOT);
+        boolean criticalUnsafe=!"Behavioral".equals(question.getCategory())&&evidenceAwareScoringService.isCriticalUnsafeRecommendation(normalized);
         List<String> covered=new ArrayList<>(), partial=new ArrayList<>(), missing=new ArrayList<>(), depthGaps=new ArrayList<>(); int score=0;
         List<CriterionEvaluation> evaluations=new ArrayList<>();
         if(evidenceAwareScoringService.supports(criteria)){
@@ -141,7 +142,8 @@ public class InterviewService {
                 evaluations.add(new CriterionEvaluation(item.criterion(),item.status(),item.awarded(),evidence));
             }
             if(!result.relevant())depthGaps.add("a direct connection to the question topic");
-            if(result.incorrect())depthGaps.add("correction of a contradictory or technically unsafe claim");
+            if(result.criticalUnsafe())depthGaps.add("removal of the critically unsafe recommendation before any rubric credit can be awarded");
+            else if(result.incorrect())depthGaps.add("correction of a contradictory or technically unsafe claim");
         }else for (RubricCriterion criterion:criteria) {
             RubricEvidenceEvaluator.Evaluation evidence=rubricEvidenceEvaluator.evaluate(criterion,criteria,normalized);
             List<String> matched=evidence.matched(); String status;
@@ -151,14 +153,17 @@ public class InterviewService {
                     ?levelEvaluator.evaluateBehavioral(session.getExperienceLevel(),criterion.getCriterionName(),normalized)
                     :levelEvaluator.evaluate(session.getExperienceLevel(),criterion.getCriterionName()+" "+criterion.getDescription(),normalized);
             if("FULL".equals(status)&&!depth.full())status="PARTIAL";
+            if(criticalUnsafe&&criterion.getCriterionName().toLowerCase(Locale.ROOT).matches(".*(correction|solution|implement|fix|safety|security|failure|rollback|recovery|contain|proof|correct|verif|validation).*"))status="MISSING";
             if(!"MISSING".equals(status))depthGaps.addAll(depth.missing());
             int awarded="FULL".equals(status)?criterion.getWeight():"PARTIAL".equals(status)?(int)Math.round(criterion.getWeight()*0.5):0;
             if("FULL".equals(status))covered.add(criterion.getCriterionName());else if("PARTIAL".equals(status))partial.add(criterion.getCriterionName());else missing.add(criterion.getCriterionName());
             score+=awarded;evaluations.add(new CriterionEvaluation(criterion,status,awarded,String.join(", ",concat(matched,depth.found()))));
         }
+        if(criticalUnsafe){score=Math.min(score,39);if(depthGaps.stream().noneMatch(gap->gap.contains("critically unsafe")))depthGaps.add("removal of the critically unsafe recommendation before any rubric credit can be awarded");}
         answer.setScore(score);
-        answer.setFeedback(buildFeedback(session.getExperienceLevel(),covered,partial,missing,depthGaps));
-        answer.setCoveredConcepts(String.join("; ", covered)+(partial.isEmpty()?"":"; Partial: "+String.join(", ",partial))); answer.setMissingConcepts(String.join("; ", missing));
+        answer.setFeedback(buildFeedback(session.getExperienceLevel(),evaluations,depthGaps));
+        List<String> improvements=new ArrayList<>();partial.forEach(item->improvements.add("Partially covered: "+item));improvements.addAll(missing);
+        answer.setCoveredConcepts(String.join("; ",covered));answer.setMissingConcepts(String.join("; ",improvements));
         QuestionHistory history=historyRepository.findByUserIdAndQuestionId(userId,question.getId()).orElseThrow(); history.setAnsweredCount(history.getAnsweredCount()+1); history.setLastAnsweredAt(LocalDateTime.now()); historyRepository.save(history);
         answer=answerRepository.save(answer);
         for(CriterionEvaluation evaluation:evaluations){AnswerRubricScore detail=new AnswerRubricScore();detail.setAnswer(answer);detail.setRubricCriterion(evaluation.criterion());detail.setStatus(evaluation.status());detail.setAwardedPoints(evaluation.awarded());detail.setMaximumPoints(evaluation.criterion().getWeight());detail.setMatchedEvidence(evaluation.matchedEvidence());answerRubricScoreRepository.save(detail);}
@@ -247,12 +252,47 @@ public class InterviewService {
         return value.trim();
     }
 
-    private InterviewDtos.AnswerResponse answerResponse(Answer answer){
-        List<InterviewDtos.RubricScoreResponse> scores=answerRubricScoreRepository.findByAnswerIdOrderByRubricCriterionCriterionOrderAsc(answer.getId()).stream().map(s->new InterviewDtos.RubricScoreResponse(s.getRubricCriterion().getCriterionName(),s.getStatus(),s.getAwardedPoints(),s.getMaximumPoints())).toList();
-        return new InterviewDtos.AnswerResponse(answer.getId(),answer.getQuestion().getId(),answer.getQuestion().getQuestionText(),answer.getAnswerText(),answer.getScore(),answer.getFeedback(),answer.getCoveredConcepts(),answer.getMissingConcepts(),answer.getAnsweredAt(),scores);
+    public void deleteCompletedInterview(Long userId, Long sessionId) {
+        InterviewSession session = findOwnedSession(userId, sessionId);
+        if (!"COMPLETED".equals(session.getStatus())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Only completed interview sessions can be deleted");
+        }
+
+        answerRubricScoreRepository.deleteByAnswerInterviewSessionId(sessionId);
+        resultRepository.deleteByInterviewSessionId(sessionId);
+        answerRepository.deleteByInterviewSessionId(sessionId);
+        sessionQuestionRepository.deleteByInterviewSessionId(sessionId);
+        sessionRepository.delete(session);
     }
-    private String buildFeedback(String level,List<String> full,List<String> partial,List<String> missing,List<String> depthGaps){
-        List<String> parts=new ArrayList<>();if(!full.isEmpty())parts.add("Covered: "+String.join(", ",full)+".");if(!partial.isEmpty())parts.add("Partially covered: "+String.join(", ",partial)+"; add mechanism, consequence, or verification.");if(!missing.isEmpty())parts.add("Missing: "+String.join(", ",missing)+".");List<String> uniqueGaps=depthGaps.stream().distinct().toList();if(!uniqueGaps.isEmpty())parts.add("For "+level+"-level full credit, add: "+String.join(", ",uniqueGaps)+".");return String.join(" ",parts);
+
+    private InterviewDtos.AnswerResponse answerResponse(Answer answer){
+        List<AnswerRubricScore> savedScores=answerRubricScoreRepository.findByAnswerIdOrderByRubricCriterionCriterionOrderAsc(answer.getId());
+        List<InterviewDtos.RubricScoreResponse> scores=savedScores.stream().map(s->new InterviewDtos.RubricScoreResponse(s.getRubricCriterion().getCriterionName(),s.getStatus(),s.getAwardedPoints(),s.getMaximumPoints())).toList();
+        String covered=answer.getCoveredConcepts(),improvements=answer.getMissingConcepts(),feedback=answer.getFeedback();
+        if(!savedScores.isEmpty()){
+            covered=scores.stream().filter(score->"FULL".equals(score.status())).map(InterviewDtos.RubricScoreResponse::criterion).collect(java.util.stream.Collectors.joining("; "));
+            improvements=scores.stream().filter(score->!"FULL".equals(score.status())).map(score->"PARTIAL".equals(score.status())?"Partially covered: "+score.criterion():score.criterion()).collect(java.util.stream.Collectors.joining("; "));
+            List<CriterionEvaluation> evaluations=savedScores.stream().map(score->new CriterionEvaluation(score.getRubricCriterion(),score.getStatus(),score.getAwardedPoints(),score.getMatchedEvidence())).toList();
+            feedback=buildFeedback(answer.getInterviewSession().getExperienceLevel(),evaluations,List.of());
+        }
+        return new InterviewDtos.AnswerResponse(answer.getId(),answer.getQuestion().getId(),answer.getQuestion().getQuestionText(),answer.getAnswerText(),answer.getScore(),feedback,covered,improvements,answer.getAnsweredAt(),scores);
+    }
+    private String buildFeedback(String level,List<CriterionEvaluation> evaluations,List<String> depthGaps){
+        List<String> suggestions=evaluations.stream().filter(item->!"FULL".equals(item.status())).limit(2).map(item->{
+            String action="PARTIAL".equals(item.status())?"Strengthen ":"Add ";
+            return action+item.criterion().getCriterionName()+": "+expectedGuidance(item.criterion());
+        }).toList();
+        if(suggestions.isEmpty())return "Strong rubric coverage. Keep the answer concise and preserve the specific evidence and measurements you provided.";
+        List<String> parts=new ArrayList<>(suggestions);List<String> uniqueGaps=depthGaps.stream().filter(gap->gap!=null&&!gap.isBlank()).distinct().limit(2).toList();
+        if(!uniqueGaps.isEmpty())parts.add("For "+level+"-level depth, also include "+String.join(" and ",uniqueGaps)+".");
+        return String.join(" ",parts);
+    }
+    private String expectedGuidance(RubricCriterion criterion){
+        String guidance=criterion.getExpectedEvidence();if(guidance==null||guidance.isBlank())guidance=criterion.getDescription();
+        if(guidance==null||guidance.isBlank())return "Provide concrete evidence tied to this question.";
+        guidance=guidance.trim().replaceFirst("(?i)^full credit:\\s*","");
+        int end=guidance.length();for(String marker:List.of(" The response must"," Partial credit:"," No credit:")){int index=guidance.indexOf(marker);if(index>=0)end=Math.min(end,index);}
+        guidance=guidance.substring(0,end).trim();if(!guidance.endsWith("."))guidance+=".";return guidance;
     }
     private List<String> concat(List<String> left,List<String> right){List<String> result=new ArrayList<>(left);result.addAll(right);return result;}
     private Integer categoryAverage(List<Answer> answers,String category){List<Answer> matching=answers.stream().filter(answer->category.equals(answer.getQuestion().getCategory())).toList();return matching.isEmpty()?null:(int)Math.round(matching.stream().mapToInt(answer->answer.getScore()==null?0:answer.getScore()).average().orElse(0));}

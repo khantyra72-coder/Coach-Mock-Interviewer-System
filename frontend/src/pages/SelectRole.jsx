@@ -28,61 +28,51 @@ const APP_NAV = [
 const ROLE_DETAILS = {
   'Software Engineer': {
     icon: Code2,
-    count: 12,
     blurb: 'Data structures, algorithms, and core CS fundamentals.',
     skills: ['DSA', 'Algorithms', 'System Design'],
   },
   'Frontend Developer': {
     icon: Palette,
-    count: 10,
     blurb: 'JavaScript, React, CSS, and building fast, accessible UIs.',
     skills: ['React', 'CSS', 'Accessibility'],
   },
   'Backend Developer': {
     icon: Server,
-    count: 11,
     blurb: 'APIs, databases, and scalable server-side systems.',
     skills: ['APIs', 'Databases', 'Scalability'],
   },
   'Full-Stack Developer': {
     icon: Layers,
-    count: 14,
     blurb: 'End-to-end product development across the whole stack.',
     skills: ['Frontend', 'Backend', 'Databases'],
   },
   'Data Scientist': {
     icon: BarChart3,
-    count: 9,
     blurb: 'Statistics, machine learning, and data-driven insights.',
     skills: ['Statistics', 'ML', 'SQL'],
   },
   'ML / AI Engineer': {
     icon: BrainCircuit,
-    count: 13,
     blurb: 'Model architecture, training pipelines, and deployment.',
     skills: ['ML Models', 'Python', 'MLOps'],
   },
   'Cloud / DevOps Engineer': {
     icon: Cloud,
-    count: 8,
     blurb: 'CI/CD, containers, and infrastructure at scale.',
     skills: ['CI/CD', 'Containers', 'Infra'],
   },
   'Mobile Developer': {
     icon: Smartphone,
-    count: 10,
     blurb: 'Native and cross-platform mobile app development.',
     skills: ['iOS', 'Android', 'React Native'],
   },
   'Cybersecurity Analyst': {
     icon: ShieldCheck,
-    count: 8,
     blurb: 'Threat detection, risk assessment, and security best practices.',
     skills: ['Security', 'Risk', 'Compliance'],
   },
   'QA / Test Engineer': {
     icon: FlaskConical,
-    count: 7,
     blurb: 'Test strategy, automation, and quality assurance.',
     skills: ['Testing', 'Automation', 'QA'],
   },
@@ -148,7 +138,6 @@ export default function SelectRole() {
                     <span className="role-chip" key={s}>{s}</span>
                   ))}
                 </div>
-                <div className="rq">{r.count} questions available</div>
               </Reveal>
             )
           })}

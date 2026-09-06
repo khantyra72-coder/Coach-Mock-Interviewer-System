@@ -1,4 +1,4 @@
-import { addSessionResult } from '../data/sessionCatalog.js'
+import { addSessionResult, removeSessionResult } from '../data/sessionCatalog.js'
 import { accountStorageKey } from './accountStorage.js'
 
 const ACTIVE_SESSION_KEY = 'aceinterview_active_session'
@@ -30,5 +30,13 @@ export function getLastResult() {
     return JSON.parse(localStorage.getItem(accountStorageKey(LAST_RESULT_KEY)))
   } catch {
     return null
+  }
+}
+
+export function deleteLocalCompletedSession(sessionId) {
+  removeSessionResult(sessionId)
+  const lastResult = getLastResult()
+  if (lastResult && String(lastResult.id) === String(sessionId)) {
+    localStorage.removeItem(accountStorageKey(LAST_RESULT_KEY))
   }
 }

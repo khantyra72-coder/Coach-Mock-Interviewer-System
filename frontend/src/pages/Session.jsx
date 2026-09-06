@@ -63,16 +63,24 @@ backendSessionId: config.backendSessionId || null,
   }
 }
 
+function restoreSession(session) {
+  return {
+    ...session,
+    reviewFlags: session.questions.map((_, index) => Boolean(session.reviewFlags?.[index])),
+  }
+}
+
 export default function Session() {
   const navigate = useNavigate()
   const location = useLocation()
   const hasNewConfig = Boolean(location.state && Object.keys(location.state).length)
-  const [session, setSession] = useState(() => (
+  const [session, setSession] = useState(() => restoreSession(
     hasNewConfig ? createSession(location.state) : getActiveSession() || createSession({})
   ))
   const [currentIndex, setCurrentIndex] = useState(0)
   const [finishing, setFinishing] = useState(false)
-const [finishError, setFinishError] = useState('')
+  const [finishError, setFinishError] = useState('')
+  const [showReviewReminder, setShowReviewReminder] = useState(false)
   const [secondsLeft, setSecondsLeft] = useState(() => {
     const elapsed = Math.floor((Date.now() - new Date(session.startedAt).getTime()) / 1000)
     const sessionDuration = session.questions.length * MINUTES_PER_QUESTION * 60
@@ -113,6 +121,7 @@ const [finishError, setFinishError] = useState('')
       ...previous,
       reviewFlags: previous.reviewFlags.map((flag, index) => index === currentIndex ? !flag : flag),
     }))
+    setShowReviewReminder(false)
   }
 
   const finishSession = async () => {
@@ -165,6 +174,13 @@ const [finishError, setFinishError] = useState('')
         overallScore: backendResult.overallScore,
         message: backendResult.summaryFeedback,
         scoringSource: 'SERVER_RUBRIC',
+        breakdown: [
+          { label: 'Overall rubric coverage', value: backendResult.overallScore },
+          { label: 'Technical depth', value: backendResult.technicalScore },
+          { label: 'Behavioral structure', value: backendResult.behavioralScore },
+          { label: 'System design', value: backendResult.systemDesignScore },
+          { label: 'Concept completion', value: backendResult.conceptScore },
+        ].filter((item) => Number.isFinite(item.value)),
         topStrengths: backendResult.strengths?.split(';').map((item) => item.trim()).filter(Boolean) || [],
         topImprovements: backendResult.improvements?.split(';').map((item) => item.trim()).filter(Boolean) || [],
         questions: result.questions.map((question) => {
@@ -192,8 +208,27 @@ const [finishError, setFinishError] = useState('')
   }
 }
 
+  const goToNextMarked = () => {
+    const markedIndexes = session.reviewFlags
+      .map((marked, index) => marked ? index : -1)
+      .filter((index) => index >= 0)
+    if (!markedIndexes.length) return
+    const nextIndex = markedIndexes.find((index) => index > currentIndex) ?? markedIndexes[0]
+    setCurrentIndex(nextIndex)
+    setShowReviewReminder(false)
+  }
+
+  const requestFinish = () => {
+    if (!session.reviewFlags.some(Boolean)) {
+      finishSession()
+      return
+    }
+    goToNextMarked()
+    setShowReviewReminder(true)
+  }
+
   const goNext = () => {
-    if (currentIndex === session.questions.length - 1) finishSession()
+    if (currentIndex === session.questions.length - 1) requestFinish()
     else setCurrentIndex((index) => index + 1)
   }
 
@@ -246,8 +281,8 @@ const [finishError, setFinishError] = useState('')
             >
               ← Previous
             </button>
-            <button type="button" className="btn ghost sm" onClick={toggleReview}>
-              {session.reviewFlags[currentIndex] ? '✓ Marked for review' : '🔖 Mark for review'}
+            <button type="button" className="btn ghost sm" aria-pressed={session.reviewFlags[currentIndex]} onClick={toggleReview}>
+              {session.reviewFlags[currentIndex] ? '✓ Marked — click to remove' : '🔖 Mark for review'}
             </button>
             <button
   type="button"
@@ -270,15 +305,32 @@ const [finishError, setFinishError] = useState('')
   </p>
 )}
 
-        <div className="card" style={{ marginTop: 16, padding: '15px 20px', display: 'flex', alignItems: 'center', gap: 12 }}>
+        {showReviewReminder && <div className="card" style={{ marginTop: 16, padding: '15px 20px', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 13, flex: 1 }}>
+            You still have {session.reviewFlags.filter(Boolean).length} question{session.reviewFlags.filter(Boolean).length === 1 ? '' : 's'} marked for review.
+          </span>
+          <button type="button" className="btn ghost sm" onClick={goToNextMarked}>Review next marked</button>
+          <button type="button" className="btn sm" onClick={finishSession} disabled={finishing}>Finish anyway</button>
+        </div>}
+
+        <div className="card" style={{ marginTop: 16, padding: '15px 20px', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           <span className="muted" style={{ fontSize: 13 }}>
             You have answered {answeredCount} of {session.questions.length} questions
             {session.reviewFlags.some(Boolean) ? ` · ${session.reviewFlags.filter(Boolean).length} marked for review` : ''}.
           </span>
           <button
+  type="button"
+  className="btn ghost sm"
+  onClick={goToNextMarked}
+  disabled={!session.reviewFlags.some(Boolean)}
+>
+  Review marked ({session.reviewFlags.filter(Boolean).length})
+</button>
+          <button
+  type="button"
   className="btn sm"
   style={{ marginLeft: 'auto' }}
-  onClick={finishSession}
+  onClick={requestFinish}
   disabled={finishing}
 >
   {finishing ? 'Saving…' : 'End & calculate score'}

@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface SessionQuestionRepository extends JpaRepository<SessionQuestion, Long> {
     List<SessionQuestion> findByInterviewSessionIdOrderByQuestionOrderAsc(Long sessionId);
     Optional<SessionQuestion> findByInterviewSessionIdAndQuestionId(Long sessionId, Long questionId);
+    void deleteByInterviewSessionId(Long sessionId);
 }

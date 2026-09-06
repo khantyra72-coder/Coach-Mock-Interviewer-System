@@ -450,7 +450,6 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .role-blurb{max-width:72%;font-size:13px;color:var(--slate);margin-top:5px;line-height:1.5}
 .role-skills{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
 .role-chip{font-size:11px;font-weight:600;color:var(--forest);background:var(--mist);padding:4px 9px;border-radius:999px}
-.role .rq{font-size:12px;color:var(--slatel);margin-top:14px}
 .role-check{position:absolute;top:14px;right:14px;width:22px;height:22px;border-radius:50%;background:var(--emerald);color:#fff;display:grid;place-items:center;box-shadow:0 2px 6px rgba(14,158,102,.4)}
 
 /* Deliberately emerald->teal, distinct from the rest of the app's pure
@@ -590,9 +589,6 @@ textarea:focus{outline:none;border-color:var(--emerald)}
 .sw li::before{content:'';position:absolute;left:0;top:7px;width:5px;height:5px;border-radius:50%;background:var(--slatel)}
 .sug{background:var(--mist2);border:1px solid #dceee5;border-radius:11px;padding:13px 16px;margin-top:16px;font-size:13.5px;color:#2f5546}
 .sug b{color:var(--forest)}
-.model{margin-top:16px}.model h5{font-size:13.5px;font-weight:700;margin-bottom:9px}
-.model li{list-style:none;font-size:13px;margin-bottom:7px;padding-left:15px;position:relative;color:#41514a}
-.model li::before{content:'';position:absolute;left:0;top:7px;width:5px;height:5px;border-radius:50%;background:var(--emerald)}
 
 /* ===== PROGRESS REPORT ===== */
 .pr-title{font-size:30px;font-weight:800;margin-bottom:6px}
@@ -635,6 +631,11 @@ textarea:focus{outline:none;border-color:var(--emerald)}
 .ass-score.amber{background:var(--amber-bg);color:var(--amber)}
 .ass-results{border:0;background:transparent;color:var(--forest);font:inherit;font-weight:700;cursor:pointer;padding:8px 0;transition:color .15s ease}
 .ass-results:hover,.ass-results:focus-visible{color:var(--emerald);outline:none;text-decoration:underline;text-underline-offset:3px}
+.ass-actions{display:flex;align-items:center;gap:14px;white-space:nowrap}
+.ass-delete{border:0;background:transparent;color:#b42318;font:inherit;font-weight:700;cursor:pointer;padding:8px 0;display:inline-flex;align-items:center;gap:5px}
+.ass-delete:hover,.ass-delete:focus-visible{color:#8f1d14;outline:none;text-decoration:underline;text-underline-offset:3px}
+.btn.danger{background:#b42318;border-color:#b42318;color:#fff}
+.btn.danger:hover:not(:disabled){background:#8f1d14;border-color:#8f1d14}
 .ass-empty{text-align:center;color:var(--slate);padding:44px 20px;border-top:1px solid var(--line)}
 .ass-pagination{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:13px 16px;border-top:1px solid var(--line);font-size:12px;color:var(--slate)}
 .ass-pagination>div{display:flex;gap:8px}
@@ -721,7 +722,8 @@ table.adm .act.del{color:var(--coral)}
 .progress-bars{display:flex;flex-direction:column}
 .type-bars{gap:22px;margin-top:28px}
 .skill-bars{gap:12px;margin-top:14px}
-.progress-bar-row{display:grid;grid-template-columns:44px minmax(105px,auto) minmax(90px,1fr) 42px;align-items:center;gap:12px;font-size:13px}
+.progress-bar-row{display:grid;grid-template-columns:44px minmax(105px,auto) minmax(90px,1fr) minmax(42px,auto);align-items:center;gap:12px;font-size:13px}
+.progress-row-label small{display:block;margin-top:2px;color:var(--muted);font-size:11px;font-weight:500}
 .progress-row-icon{width:38px;height:38px;border-radius:12px}
 .progress-bar-track{height:7px;border-radius:999px;background:#edf0ef;overflow:hidden}
 .progress-bar-track i{display:block;height:100%;border-radius:inherit;background:var(--emerald-d)}
@@ -787,7 +789,7 @@ select{width:100%;padding:12px 13px;border:1.5px solid var(--line);border-radius
   .progress-heading h1{font-size:31px}
   .progress-filters,.progress-filters select{width:100%}
   .progress-metrics{grid-template-columns:1fr}
-  .progress-bar-row{grid-template-columns:38px 1fr 42px}
+  .progress-bar-row{grid-template-columns:38px 1fr minmax(78px,auto)}
   .progress-bar-track{grid-column:2/4}
   .progress-recommendation{align-items:flex-start;flex-direction:column}
   .roles{grid-template-columns:1fr}

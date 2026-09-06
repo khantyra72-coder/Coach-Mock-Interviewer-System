@@ -12,15 +12,19 @@ function hasBehavioralEvidence(label, normalized) {
   if (!normalized || !rubricLabel) return false
 
   const situationEvidence = /\b(during|when|while|after|before|migration|project|production|cutover|incident|outage|failure|problem|challenge|unexpected|degradation|contention|risk|impact|stakes|critical)\b/.test(normalized)
+  const personalEvidence = /\b(i personally|i|my)\b/.test(normalized)
   const ownershipEvidence = /\b(my responsibility|my role|my task|i (?:owned|led|managed|drove|coordinated|executed|was responsible|was tasked|needed to|had to|took ownership|took responsibility))\b/.test(normalized)
-  const actionMatches = normalized.match(/\bi (?:executed|analyzed|redesigned|updated|implemented|created|built|fixed|investigated|identified|introduced|changed|spoke|met|prioritized|planned|tested|deployed|redeployed|rolled back|used|decided|proposed|coordinated|communicated|resolved|reproduced|isolated|verified|monitored|mitigated)\b/g) || []
+  const actionMatches = normalized.match(/\bi (?:personally )?(?:executed|analyzed|redesigned|updated|implemented|created|built|fixed|refactored|investigated|identified|introduced|changed|spoke|met|prioritized|planned|tested|deployed|redeployed|rolled back|used|decided|proposed|coordinated|communicated|resolved|reproduced|isolated|verified|monitored|mitigated)\b/g) || []
   const actionEvidence = new Set(actionMatches).size >= 1
   const outcomeLanguage = /\b(result|outcome|delivered|restored|resolved|improved|reduced|increased|saved|processed|achieved|seamlessly|successfully)\b/.test(normalized)
   const measurableEvidence = /\b\d+(?:\.\d+)?\s*(?:%|percent|ms|milliseconds?|seconds?|minutes?|hours?|days?|weeks?|months?|x)(?=\s|-|$)/.test(normalized)
   const learningEvidence = /\b(i learned|lesson|taught me|i realized|experience (?:showed|taught)|since then|going forward|next time|i now)\b/.test(normalized)
+  const judgmentEvidence = /\b(priorit\w*|because|recognizing|trade-offs?|alternatives?|competing|instead|decision|rationale)\b/.test(normalized)
+  const collaborationEvidence = /\b(team|stakeholders?|product manager|aligned|agreed|discussed|reviewed|consensus|partnered|coordinated|communicated)\b/.test(normalized)
 
   if (/situation|context|stakes|goal and failure|problem context|incident context|symptoms/.test(rubricLabel)) return situationEvidence
-  if (/personal responsibility|ownership/.test(rubricLabel)) return ownershipEvidence
+  if (/personal responsibility|ownership/.test(rubricLabel)) return ownershipEvidence || (personalEvidence && actionEvidence)
+  if (/judgment|decision|collaboration|alternative/.test(rubricLabel)) return judgmentEvidence || collaborationEvidence
   if (/specific actions|constructive action|recovery action|action plan|diagnosis|triage|fix and verification|reproduction/.test(rubricLabel)) return actionEvidence
   if (/measurable result|result|outcome|improvement|impact/.test(rubricLabel)) {
     return outcomeLanguage && (measurableEvidence || /\b(result|outcome|delivered|resolved|achieved)\b/.test(normalized))
@@ -30,15 +34,49 @@ function hasBehavioralEvidence(label, normalized) {
   return false
 }
 
+function hasTechnicalEvidence(label, answer) {
+  const name = normalize(label)
+  const measured = /(?:\$\s*\d|\d+(?:\.\d+)?\s*(?:%|ms|seconds?|minutes?|hours?|days?|x)\b|\bp(?:95|99)\b|\bzero\b)/.test(answer)
+  if (/reproduc|baseline|impact|scope|evidence/.test(name)) return /reproduc|replicat|simulat|trigger|fault injection|load test|stress test|experiment|inspect|crash log|thread dump/.test(answer) && (measured || /baseline|failure rate|error rate|metric|monitor|affected/.test(answer))
+  if (/root cause|causal|diagnos|isolation|mechanism/.test(name)) return /diagnos|isolat|trace|log|thread dump|profil|inspect|investigat|debug/.test(answer) && /because|cause|saturat|stuck|blocked|timeout|contention|bottleneck|race/.test(answer)
+  if (/correction|solution|implement|fix|alternative|comparison|design choice/.test(name)) return /fix|configur|implement|bounded|circuit breaker|retry|replace|refactor|patch|select|choose|compar|versus|option/.test(answer) && /trade-off|tradeoff|because|safe|minimal|resource|complexity|operational|overhead|benefit|drawback/.test(answer)
+  if (/proof|correct|verif|validation|measur|result|outcome|prevention|confidence|observability/.test(name)) return /verif|validat|test|regression|monitor|grafana|assert|benchmark|restart/.test(answer) && (measured || /threshold|error rate|capacity|below|under|confirmed/.test(answer))
+  if (/failure|rollback|recovery|contain|resilien|rollout|safe/.test(name)) return /failure|fault|crash|termination|timeout|error|risk|degrad|unavailable/.test(answer) && /rollback|contain|fallback|circuit breaker|failover|restore|recovery|revert|gracefully|locally|background worker|next launch|canary|staged/.test(answer)
+  return false
+}
+
+function hasSystemDesignEvidence(label, answer) {
+  const name = normalize(label)
+  const measured = /\d+(?:\.\d+)?\s*(?:%|ms|seconds?|minutes?|hours?|rps|qps|million|billion)\b/.test(answer)
+  if (/requirement|workload|slo|scale|product/.test(name)) return /requirement|user|request|traffic|latency|availability|throughput|rps|qps|slo|use case/.test(answer) && (measured || /peak|capacity|target|constraint|assume/.test(answer))
+  if (/interface|component|boundar|ownership|contract|architecture|control plane|execution plane/.test(name)) return /api|endpoint|service|component|gateway|worker|queue|topic|client|control plane|data plane/.test(answer) && /own|responsib|boundary|contract|call|publish|consume|route|separate|between/.test(answer)
+  if (/data model|request flow|state|correctness|storage|persistence|ingestion|pipeline|routing/.test(name)) return /database|table|schema|record|event|state|store|storage|cache|request|message|flow|pipeline|partition/.test(answer) && /idempot|consistent|atomic|transaction|version|sequence|dedup|unique|ordering|read path|write path|persist/.test(answer)
+  if (/reliab|security|recovery|failure|safety|integrity|authorization|audit|secure/.test(name)) return /failure|retry|replica|backup|failover|timeout|circuit breaker|dead letter|rollback|recovery|authentication|authorization|encrypt|security|audit/.test(answer) && /idempot|multi-zone|region|restore|contain|fallback|least privilege|token|key|tls|monitor|alert|rto|rpo/.test(answer)
+  if (/capacity|trade-off|tradeoff|operation|evolution|efficiency|observability|telemetry/.test(name)) return /scale|capacity|shard|partition|cache|batch|queue|replica|autoscal|monitor|metric|log|trace|deploy|migration/.test(answer) && /trade-off|tradeoff|cost|complexity|latency|throughput|availability|consistency|bottleneck|alert|dashboard|canary|evolve/.test(answer)
+  return false
+}
+
+function hasCriticalUnsafeRecommendation(answer) {
+  const unsafePattern = /(?:disable|turn\s+off|remove|bypass).{0,35}(?:firewalls?|authentication|authorization|encryption|security\s+controls?|monitoring|audit(?:ing)?|backups?|antivirus)|grant.{0,80}(?:global|full|admin(?:istrator)?|root|read\s*\/?\s*write|wildcard|\*\s*[:.]\s*\*)|(?:make|set|expose).{0,35}(?:buckets?|databases?|services?|endpoints?|ports?).{0,25}public|(?:open|allow).{0,25}(?:all|every|any).{0,20}(?:ports?|traffic|users?|addresses?)|(?:store|log|send).{0,35}(?:passwords?|secrets?|credentials?|tokens?).{0,25}(?:plain|unencrypt)|(?:delete|drop|truncate).{0,35}(?:production|databases?|tables?|backups?)/g
+  const negationPattern = /(?:do\s+not|don't|never|avoid|must\s+not|should\s+not|instead\s+of|prevent)\s*.{0,28}$/
+  return [...answer.matchAll(unsafePattern)].some((match) => {
+    const prefix = answer.slice(Math.max(0, match.index - 40), match.index)
+    return !negationPattern.test(prefix)
+  })
+}
+
 export function evaluateAnswer(question, answerText) {
   const normalized = normalize(answerText)
   const rubrics = question.concepts || []
+  const unsafeBypass = question.type !== 'Behavioral' && /(?:bypass(?:es|ing)?|skip(?:s|ping)?|disable[sd]?|suppress(?:es|ing)?).{0,45}(?:validat|compiler|security|authentication|authorization|type.?check|warning|error|test|release.?gate)|(?:raw|unparsed|unchecked).{0,35}(?:css|json|string|input|payload)|hardcod(?:e|ed|ing).{0,30}(?:credential|secret|token|fallback|value)/.test(normalized)
+  const criticalUnsafe = question.type !== 'Behavioral' && hasCriticalUnsafeRecommendation(normalized)
 
   if (!rubrics.length) {
     const wordCount = normalized ? normalized.split(' ').length : 0
-    const score = normalized
+    let score = normalized
       ? Math.min(100, 25 + (wordCount * 3))
       : 0
+    if (criticalUnsafe) score = Math.min(score, 39)
 
     return {
       score,
@@ -48,7 +86,9 @@ export function evaluateAnswer(question, answerText) {
       weaknesses: wordCount < 20
         ? ['Answer needs more explanation and detail']
         : ['No major structural weakness detected'],
-      suggestion: wordCount < 20
+      suggestion: criticalUnsafe
+        ? 'The proposed solution contains a critically unsafe action. Preserve security controls, use least privilege, and replace the unsafe action before continuing.'
+        : wordCount < 20
         ? 'Explain your reasoning in more detail and include a concrete example.'
         : 'Add a concise conclusion and mention important trade-offs.',
       matchedConcepts: [],
@@ -60,17 +100,26 @@ export function evaluateAnswer(question, answerText) {
   const missing = []
 
   rubrics.forEach((rubric) => {
-    const found = rubric.keywords.some((keyword) =>
+    let found = rubric.keywords.some((keyword) =>
       normalized.includes(normalize(keyword))
     ) || (question.type === 'Behavioral' && hasBehavioralEvidence(rubric.label, normalized))
+      || (question.type === 'Technical' && hasTechnicalEvidence(rubric.label, normalized))
+      || (question.type === 'System Design' && hasSystemDesignEvidence(rubric.label, normalized))
+    const label = normalize(rubric.label)
+    if (unsafeBypass && /correction|solution|implement|fix|safety|security/.test(label)) found = false
+    if (criticalUnsafe && /correction|solution|implement|fix|safety|security|failure|rollback|recovery|contain|proof|correct|verif|validation/.test(label)) found = false
     ;(found ? matched : missing).push(rubric)
   })
 
   let score = matched.reduce((total, rubric) => total + rubric.weight, 0)
+  const wordCount = normalized ? normalized.split(' ').length : 0
+  const relevant = matched.length > 0 && wordCount >= 8
 
   if (normalized.length === 0) score = 0
-  else if (normalized.length < 25) score = Math.min(score, 20)
-  else if (normalized.length < 60) score = Math.min(score, 45)
+  else if (relevant) score = Math.max(score, 65)
+  else score = Math.min(score, 39)
+  if (unsafeBypass) score = Math.min(score, 69)
+  if (criticalUnsafe) score = Math.min(score, 39)
 
   const strengths = matched.map(
     (rubric) => `Covered ${rubric.label.toLowerCase()}`
@@ -78,9 +127,12 @@ export function evaluateAnswer(question, answerText) {
   const weaknesses = missing.map(
     (rubric) => `Missing ${rubric.label.toLowerCase()}`
   )
-  const suggestion = missing.length
+  const rubricSuggestion = missing.length
     ? missing.slice(0, 2).map((rubric) => rubric.guidance).join(' ')
     : 'Strong coverage. Make the answer even clearer with a concise conclusion and a concrete example.'
+  const suggestion = criticalUnsafe
+    ? `The proposed solution contains a critically unsafe action. Preserve security and safety controls, use least privilege, and replace the unsafe action before applying the remaining rubric guidance. ${rubricSuggestion}`
+    : rubricSuggestion
 
   return {
     score: Math.round(score),

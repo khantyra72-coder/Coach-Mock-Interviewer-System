@@ -11,4 +11,5 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
     List<Answer> findByInterviewSessionIdOrderByAnsweredAtAsc(Long interviewSessionId);
     boolean existsByInterviewSessionIdAndQuestionId(Long interviewSessionId, Long questionId);
     Optional<Answer> findByInterviewSessionIdAndQuestionId(Long interviewSessionId, Long questionId);
+    void deleteByInterviewSessionId(Long interviewSessionId);
 }

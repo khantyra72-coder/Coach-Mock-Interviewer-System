@@ -37,6 +37,26 @@ const ROLE_ICONS = {
   'Data Scientist': BarChart3,
 }
 
+function getRoleStatus(roleSessions) {
+  const lastScore = roleSessions[0]?.score ?? 0
+  const previousScore = roleSessions[1]?.score ?? null
+
+  if (lastScore < 65) {
+    return { badge: 'b-dec', icon: TrendingDown, label: 'Needs work', title: `Latest score is ${lastScore}%, below the 65% target` }
+  }
+  if (roleSessions.length === 1) {
+    return { badge: 'b-new', icon: Sparkles, label: 'New', title: 'First completed interview for this role' }
+  }
+  const scoreChange = lastScore - previousScore
+  if (scoreChange > 0) {
+    return { badge: 'b-imp', icon: TrendingUp, label: 'Improving', title: `Latest score improved by ${scoreChange} point${scoreChange === 1 ? '' : 's'}` }
+  }
+  if (lastScore >= 80) {
+    return { badge: 'b-imp', icon: Award, label: 'Strong', title: `Latest score is a strong ${lastScore}%` }
+  }
+  return { badge: 'b-new', icon: Minus, label: 'Steady', title: previousScore === lastScore ? 'Latest score is unchanged' : `Latest score changed by ${scoreChange} point${scoreChange === -1 ? '' : 's'}` }
+}
+
 export default function Dashboard() {
   const navigate = useNavigate()
   const [user] = useState(getStoredUser)
@@ -140,15 +160,15 @@ const roleSummaries = roleNames.map((role) => {
     / roleSessions.length
   )
   const lastScore = roleSessions[0]?.score ?? 0
-  const isNew = roleSessions.length === 1
-  const improving = lastScore >= roleAverage
+  const status = getRoleStatus(roleSessions)
 
   return {
     icon: ROLE_ICONS[role] || Code,
     name: role,
-    badge: isNew ? 'b-new' : improving ? 'b-imp' : 'b-dec',
-    badgeIcon: isNew ? Sparkles : improving ? TrendingUp : TrendingDown,
-    badgeLabel: isNew ? 'New' : improving ? 'Improving' : 'Needs focus',
+    badge: status.badge,
+    badgeIcon: status.icon,
+    badgeLabel: status.label,
+    badgeTitle: status.title,
     interviews: roleSessions.length,
     average: `${roleAverage}%`,
     last: `${lastScore}%`,
@@ -208,7 +228,7 @@ const roleSummaries = roleNames.map((role) => {
               <div className="rc-top">
                 <div className="rc-icon"><r.icon size={19} strokeWidth={1.8} /></div>
                 <span className="rc-name">{r.name}</span>
-                <span className={`rc-badge ${r.badge}`}>
+                <span className={`rc-badge ${r.badge}`} title={r.badgeTitle}>
                   <r.badgeIcon size={12} strokeWidth={2} />
                   {r.badgeLabel}
                 </span>

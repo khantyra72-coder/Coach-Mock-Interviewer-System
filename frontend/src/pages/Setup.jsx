@@ -113,15 +113,7 @@ export default function Setup() {
     <section className="screen" id="setup">
       <TopBar nav={APP_NAV} showUser />
       <div className="wrap pagepad">
-        <button
-          type="button"
-          className="btn ghost sm"
-          style={{ marginBottom: 16 }}
-          onClick={() => navigate('/dashboard')}
-        >
-          ← Back to dashboard
-        </button>
-        <h1 className="h-title" style={{ marginTop: 8 }}>Set up your interview</h1>
+        <h1 className="h-title">Set up your interview</h1>
         <p className="sub">Pick the company and format you're targeting.</p>
         <div className="setup-text-mode"><Code2 size={17} strokeWidth={1.8} /><span><b>Written responses only.</b> No live coding, diagrams, voice recording, or file uploads are required.</span></div>
         {role && <span className="pill g" style={{ marginTop: 12 }}>Practicing for: {role}</span>}

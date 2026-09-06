@@ -18,6 +18,15 @@ function formatDate(value) {
   return new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(value))
 }
 
+function formatAnswer(value = '') {
+  return value
+    .replace(/\$([^$\r\n]+)\$/g, '$1')
+    .replace(/\\text\{--\}/g, '–')
+    .replace(/\\text\{([^}]*)\}/g, '$1')
+    .replace(/\\%/g, '%')
+    .replace(/\\\$/g, '$')
+}
+
 export default function Results() {
   const navigate = useNavigate()
   const location = useLocation()
@@ -38,11 +47,14 @@ export default function Results() {
     )
   }
 
+  const categoryBreakdown = (result.breakdown || []).filter((item) =>
+    ['Technical depth', 'Behavioral structure', 'System design'].includes(item.label)
+      && Number.isFinite(item.value))
+
   return (
     <section className="screen" id="results">
       <TopBar nav={APP_NAV} showUser />
       <div className="wrap pagepad">
-        <div className="toast"><span className="dot">✓</span> Session saved and analyzed</div>
         <div className="rhead">
           <h1>Interview results</h1>
           <div className="rmeta">
@@ -55,16 +67,16 @@ export default function Results() {
           <div className="msg">{result.message}</div>
         </div>
 
-        <div className="card break">
+        {categoryBreakdown.length > 1 && <div className="card break">
           <h3>Score breakdown</h3>
-          {result.breakdown.map((item) => (
+          {categoryBreakdown.map((item) => (
             <div className="brow" key={item.label}>
               <span className="bl">{item.label}</span>
               <span className="btr"><i style={{ width: `${item.value}%` }} /></span>
               <span className="bv">{item.value}%</span>
             </div>
           ))}
-        </div>
+        </div>}
 
         <div className="sw2">
           <div className="sbox good">
@@ -88,7 +100,7 @@ export default function Results() {
               </div>
               <div className="qib">
                 <div className="ans">
-                  {question.answer.trim() ? `“${question.answer}”` : 'No answer submitted.'}
+                  {question.answer.trim() ? `“${formatAnswer(question.answer)}”` : 'No answer submitted.'}
                 </div>
                 <div className="sw">
                   <div className="st">
@@ -96,19 +108,11 @@ export default function Results() {
                     <ul>{question.strengths.map((strength) => <li key={strength}>{strength}</li>)}</ul>
                   </div>
                   <div className="wk">
-                    <h5>❌ Rubric concepts missing</h5>
+                    <h5>🌱 Rubric concepts to improve</h5>
                     <ul>{question.weaknesses.map((weakness) => <li key={weakness}>{weakness}</li>)}</ul>
                   </div>
                 </div>
                 <div className="sug">💡 <b>Suggestion:</b> {question.suggestion}</div>
-<div className="model">
-  <h5>📝 Strong answer outline</h5>
-  {question.model?.length ? <ul>
-    {question.model.map((point) => (
-      <li key={point}>{point}</li>
-    ))}
-  </ul> : <p className="muted">No saved answer outline is available for this question.</p>}
-</div>
               </div>
             </div>
           ))}

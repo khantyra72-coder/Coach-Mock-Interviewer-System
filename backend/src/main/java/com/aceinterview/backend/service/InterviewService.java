@@ -1,9 +1,6 @@
 package com.aceinterview.backend.service;
 
 import com.aceinterview.backend.dto.InterviewDtos;
-import com.aceinterview.backend.entity.Answer;
-import com.aceinterview.backend.entity.InterviewResult;
-import com.aceinterview.backend.entity.InterviewSession;
 import com.aceinterview.backend.entity.*;
 import com.aceinterview.backend.repository.*;
 import org.springframework.http.HttpStatus;
@@ -33,7 +30,7 @@ public class InterviewService {
     private final AnswerRubricScoreRepository answerRubricScoreRepository;
     private final ExperienceLevelEvaluator levelEvaluator;
     private final RubricEvidenceEvaluator rubricEvidenceEvaluator;
-    private final EvidenceAwareScoringService evidenceAwareScoringService;
+    private final OpenRouterScoringService openRouterScoringService;
 
     public InterviewService(
             UserRepository userRepository,
@@ -45,7 +42,7 @@ public class InterviewService {
             InterviewTypeRepository typeRepository, CompanyRepository companyRepository,
             QuestionSelectionService selectionService, QuestionHistoryRepository historyRepository,
             AnswerRubricScoreRepository answerRubricScoreRepository, ExperienceLevelEvaluator levelEvaluator,
-            RubricEvidenceEvaluator rubricEvidenceEvaluator, EvidenceAwareScoringService evidenceAwareScoringService
+            RubricEvidenceEvaluator rubricEvidenceEvaluator, OpenRouterScoringService openRouterScoringService
     ) {
         this.userRepository = userRepository;
         this.sessionRepository = sessionRepository;
@@ -58,7 +55,7 @@ public class InterviewService {
         this.answerRubricScoreRepository=answerRubricScoreRepository;
         this.levelEvaluator=levelEvaluator;
         this.rubricEvidenceEvaluator=rubricEvidenceEvaluator;
-        this.evidenceAwareScoringService=evidenceAwareScoringService;
+        this.openRouterScoringService=openRouterScoringService;
     }
 
     public InterviewDtos.StartResponse startInterview(
@@ -131,11 +128,11 @@ public class InterviewService {
         answer.setAnswerText(request.answerText().trim());
         List<RubricCriterion> criteria = rubricRepository.findByQuestionIdOrderByCriterionOrderAsc(question.getId());
         String normalized = request.answerText().toLowerCase(Locale.ROOT);
-        boolean criticalUnsafe=!"Behavioral".equals(question.getCategory())&&evidenceAwareScoringService.isCriticalUnsafeRecommendation(normalized);
+        boolean criticalUnsafe = false;
         List<String> covered=new ArrayList<>(), partial=new ArrayList<>(), missing=new ArrayList<>(), depthGaps=new ArrayList<>(); int score=0;
         List<CriterionEvaluation> evaluations=new ArrayList<>();
-        if(evidenceAwareScoringService.supports(criteria)){
-            EvidenceAwareScoringService.ScoreResult result=evidenceAwareScoringService.score(question,criteria,normalized);score=result.score();
+        if(!criteria.isEmpty()){
+            EvidenceAwareScoringService.ScoreResult result=openRouterScoringService.score(question,criteria,normalized);score=result.score();
             for(EvidenceAwareScoringService.CriterionScore item:result.criteria()){
                 if("FULL".equals(item.status()))covered.add(item.criterion().getCriterionName());else if("PARTIAL".equals(item.status()))partial.add(item.criterion().getCriterionName());else missing.add(item.criterion().getCriterionName());
                 String evidence=String.join(", ",item.matched());if(!item.incorrectMatched().isEmpty())evidence+=(evidence.isBlank()?"":"; ")+"Contradiction: "+String.join(", ",item.incorrectMatched());

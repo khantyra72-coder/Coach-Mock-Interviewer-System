@@ -141,3 +141,25 @@ Security notes
 - Never commit administrator credentials. Keep them in `application-local.properties` or environment variables.
 - Do not run the Java application with the MySQL root account.
 - Use environment variables or private local configuration in production.
+
+## AI Scoring Setup
+
+Interview answers are evaluated using AI through OpenRouter. Each developer must create their own OpenRouter API key at [OpenRouter](https://openrouter.ai/keys).
+
+The API key must be configured as an environment variable before starting the backend.
+
+### macOS or Linux
+
+```bash
+cd backend
+export OPENROUTER_API_KEY='your-private-api-key'
+sh mvnw spring-boot:run
+
+Windows PowerShell
+cd backend
+$env:OPENROUTER_API_KEY='your-private-api-key'
+.\mvnw.cmd spring-boot:run
+
+Replace your-private-api-key with your own OpenRouter key. Start the backend from the same terminal where the environment variable was set.
+The application uses OpenRouter's free-model router by default. Free models may occasionally respond slowly, become temporarily unavailable, or produce slightly different scores.
+Security: Never commit an API key to GitHub, place it in frontend code, include it in screenshots, or share it with teammates. Each developer should use their own key.

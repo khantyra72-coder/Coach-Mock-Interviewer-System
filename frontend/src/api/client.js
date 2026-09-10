@@ -1,4 +1,9 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
+// Use the same hostname that served the frontend, so a phone or another
+// computer on the LAN calls the host machine instead of its own localhost.
+const browserHost = typeof window === 'undefined' ? 'localhost' : window.location.hostname
+const browserProtocol = typeof window === 'undefined' ? 'http:' : window.location.protocol
+const apiPort = import.meta.env.VITE_API_PORT || '8080'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || `${browserProtocol}//${browserHost}:${apiPort}/api`
 
 const TOKEN_KEY = 'aceinterview_token'
 const USER_KEY = 'aceinterview_user'

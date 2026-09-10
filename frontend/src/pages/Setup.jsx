@@ -4,7 +4,6 @@ import TopBar from '../components/TopBar.jsx'
 import { Check, ChevronDown, ChevronRight, Clock, Code2, Handshake, Network, Search } from 'lucide-react'
 import { FaAmazon, FaApple, FaMeta } from 'react-icons/fa6'
 import { getCompanies, getSelectedCompany, setSelectedCompany } from '../data/companyCatalog.js'
-import { getQuestionBank } from '../data/questionBank.js'
 import { DIFFICULTIES, INTERVIEW_TYPES } from '../data/interviewTaxonomy.js'
 import microsoftLogo from '../assets/logos/microsoft.svg'
 
@@ -46,8 +45,8 @@ const COMPANY_LOGOS = {
   Apple: FaApple,
 }
 
-const LEVELS = ['Intern', 'Entry (0–2 yrs)', 'Mid (3–5 yrs)', 'Senior']
 const QUESTION_COUNTS = ['5', '10', '15']
+const SESSION_LENGTHS = [15, 30, 45, 60]
 
 const ROLE_TOPICS = {
   'Software Engineer':       ['Data Structures', 'Algorithms', 'OOP', 'System Design', 'Databases', 'Problem Solving'],
@@ -69,23 +68,19 @@ export default function Setup() {
   const availableTopics = ROLE_TOPICS[role] || ROLE_TOPICS['Software Engineer']
   const [types, setTypes] = useState(['Technical'])
   const [company, setCompany] = useState(getSelectedCompany)
-  const [level, setLevel] = useState('Entry (0–2 yrs)')
   const [difficulty, setDifficulty] = useState('Medium')
   const [questionCount, setQuestionCount] = useState('15')
+  const [sessionDurationMinutes, setSessionDurationMinutes] = useState(45)
   const [topics, setTopics] = useState(availableTopics)
   const [timed, setTimed] = useState(false)
-  const [companies] = useState(() => {
-    const questions = getQuestionBank()
-    return getCompanies()
-      .filter((item) => item.status === 'Active')
-      .map((item) => ({
-        key: item.name,
-        letter: item.letter,
-        color: item.color,
-        count: questions.filter((question) => question.company === item.name).length,
-        logo: COMPANY_LOGOS[item.name],
-      }))
-  })
+  const [companies] = useState(() => getCompanies()
+    .filter((item) => item.status === 'Active')
+    .map((item) => ({
+      key: item.name,
+      letter: item.letter,
+      color: item.color,
+      logo: COMPANY_LOGOS[item.name],
+    })))
   const [companySearch, setCompanySearch] = useState('')
   const companyRowRef = useRef(null)
   const visibleCompanies = companies.filter((item) =>
@@ -106,7 +101,7 @@ export default function Setup() {
   }
 
   const handleContinue = () => {
-    navigate('/ready', { state: { role, type: types.join(', '), types, company, level, difficulty, questionCount, topics, timed } })
+    navigate('/ready', { state: { role, type: types.join(', '), types, company, difficulty, questionCount, topics, timed, sessionDurationMinutes } })
   }
 
   return (
@@ -174,7 +169,7 @@ export default function Setup() {
                     </div>
                     <div className="setup-company-copy">
                       <h4>{c.key}</h4>
-                      <p>{c.count} questions</p>
+                      <p>{c.key}-inspired practice</p>
                     </div>
                     {company === c.key && <span className="setup-company-check">✓</span>}
                   </div>
@@ -195,24 +190,6 @@ export default function Setup() {
           </div>
 
           <div className="card setup-section setup-config-section">
-            <div className="field setup-inner-field">
-              <label>Experience level</label>
-              <div className="chips">
-                {LEVELS.map((l) => (
-                  <button
-                    type="button"
-                    key={l}
-                    className={`chip${level === l ? ' sel' : ''}`}
-                    onClick={() => setLevel(l)}
-                    aria-pressed={level === l}
-                  >
-                    {level === l && <Check className="setup-chip-check" size={14} strokeWidth={3} />}
-                    {l}
-                  </button>
-                ))}
-              </div>
-            </div>
-
             <div className="g2 setup-config-grid">
               <div className="field setup-inner-field">
                 <label>Difficulty</label>
@@ -239,7 +216,10 @@ export default function Setup() {
                       type="button"
                       key={q}
                       className={`chip${questionCount === q ? ' sel' : ''}`}
-                      onClick={() => setQuestionCount(q)}
+                      onClick={() => {
+                        setQuestionCount(q)
+                        setSessionDurationMinutes(Number(q) * 3)
+                      }}
                       aria-pressed={questionCount === q}
                     >
                       {questionCount === q && <Check className="setup-chip-check" size={14} strokeWidth={3} />}
@@ -272,7 +252,17 @@ export default function Setup() {
             <label>Timer</label>
             <div className="opt" style={{ cursor: 'default' }}>
               <div className="oi"><Clock size={18} strokeWidth={1.8} /></div>
-              <div><h4>Timed session</h4><p>45 minutes total · shows a countdown during the interview</p></div>
+              <div><h4>Show countdown</h4><p>{sessionDurationMinutes} minutes total · the interview finishes automatically when time expires</p></div>
+              <select
+                className="setup-duration-select"
+                value={sessionDurationMinutes}
+                onChange={(event) => setSessionDurationMinutes(Number(event.target.value))}
+                aria-label="Session length"
+              >
+                {SESSION_LENGTHS.map((minutes) => (
+                  <option key={minutes} value={minutes}>{minutes} minutes</option>
+                ))}
+              </select>
               <div
                 className={`switch${timed ? ' on' : ''}`}
                 style={{ marginLeft: 'auto', alignSelf: 'center' }}

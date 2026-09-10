@@ -26,16 +26,19 @@ public class OpenRouterScoringService {
     private final String apiKey;
     private final String baseUrl;
     private final String model;
+    private final EvidenceAwareScoringService fallbackScoringService;
 
     public OpenRouterScoringService(
-        @Value("${app.ai.openrouter.api-key:}") String apiKey,
+            @Value("${app.ai.openrouter.api-key:}") String apiKey,
             @Value("${app.ai.openrouter.base-url:https://openrouter.ai/api/v1}") String baseUrl,
-            @Value("${app.ai.openrouter.model:openrouter/free}") String model
+            @Value("${app.ai.openrouter.model:openrouter/free}") String model,
+            EvidenceAwareScoringService fallbackScoringService
     ) {
         this.objectMapper = new ObjectMapper();
         this.apiKey = apiKey;
         this.baseUrl = baseUrl;
         this.model = model;
+        this.fallbackScoringService = fallbackScoringService;
         this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(20))
                 .build();
@@ -354,12 +357,23 @@ if (trimmedAnswer.length() < 20
             boolean criticalUnsafe,
             List<AiCriterionEvaluation> criteria
     ) {}
-    public EvidenceAwareScoringService.ScoreResult score(
+public EvidenceAwareScoringService.ScoreResult score(
         Question question,
         List<RubricCriterion> criteria,
         String answer
 ) {
-    AiEvaluation evaluation = evaluate(question, criteria, answer);
+    if (apiKey == null || apiKey.isBlank()) {
+        return fallbackScoringService.score(question, criteria, answer);
+    }
+
+    AiEvaluation evaluation;
+    try {
+        evaluation = evaluate(question, criteria, answer);
+    } catch (IllegalStateException exception) {
+        // Provider outages, timeouts, quota failures, and malformed responses
+        // must not prevent a candidate from submitting an interview answer.
+        return fallbackScoringService.score(question, criteria, answer);
+    }
     List<EvidenceAwareScoringService.CriterionScore> results = new ArrayList<>();
 
     for (AiCriterionEvaluation item : evaluation.criteria()) {

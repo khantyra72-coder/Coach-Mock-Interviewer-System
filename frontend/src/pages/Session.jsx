@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useEffectEvent, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import TopBar from '../components/TopBar.jsx'
 import { selectQuestions } from '../data/questionBank.js'
@@ -16,7 +16,7 @@ import {
 } from '../utils/localInterviewStore.js'
 
 const MAX_CHARS = 2000
-const MINUTES_PER_QUESTION = 3
+const DEFAULT_MINUTES_PER_QUESTION = 3
 
 function formatTime(totalSeconds) {
   const minutes = Math.floor(totalSeconds / 60)
@@ -53,9 +53,10 @@ backendSessionId: config.backendSessionId || null,
     company: config.company || 'Google',
     type: selectedTypes.join(', '),
     types: selectedTypes,
-    level: config.level || 'Entry (0–2 yrs)',
     difficulty: config.difficulty || 'Medium',
     timed: config.timed ?? true,
+    sessionDurationMinutes: Number(config.sessionDurationMinutes)
+      || questions.length * DEFAULT_MINUTES_PER_QUESTION,
     startedAt: new Date().toISOString(),
     questions,
     answers: questions.map(() => ''),
@@ -74,32 +75,66 @@ export default function Session() {
   const navigate = useNavigate()
   const location = useLocation()
   const hasNewConfig = Boolean(location.state && Object.keys(location.state).length)
-  const [session, setSession] = useState(() => restoreSession(
-    hasNewConfig ? createSession(location.state) : getActiveSession() || createSession({})
-  ))
-  const [currentIndex, setCurrentIndex] = useState(0)
+  const [session, setSession] = useState(() => {
+    const activeSession = getActiveSession()
+    const incomingSessionId = location.state?.backendSessionId
+    const isSamePersistedSession = activeSession && incomingSessionId
+      && String(activeSession.backendSessionId) === String(incomingSessionId)
+
+    return restoreSession(
+      isSamePersistedSession
+        ? activeSession
+        : hasNewConfig
+          ? createSession(location.state)
+          : activeSession || createSession({})
+    )
+  })
+  const [currentIndex, setCurrentIndex] = useState(() => {
+    const savedIndex = Number(session.currentIndex)
+    return Number.isInteger(savedIndex) && savedIndex >= 0 && savedIndex < session.questions.length
+      ? savedIndex
+      : 0
+  })
   const [finishing, setFinishing] = useState(false)
   const [finishError, setFinishError] = useState('')
+  const [timeExpired, setTimeExpired] = useState(false)
+  const timeUpHandledRef = useRef(false)
   const [showReviewReminder, setShowReviewReminder] = useState(false)
+  const [reviewMode, setReviewMode] = useState(false)
   const [secondsLeft, setSecondsLeft] = useState(() => {
     const elapsed = Math.floor((Date.now() - new Date(session.startedAt).getTime()) / 1000)
-    const sessionDuration = session.questions.length * MINUTES_PER_QUESTION * 60
+    const sessionDuration = (Number(session.sessionDurationMinutes)
+      || session.questions.length * DEFAULT_MINUTES_PER_QUESTION) * 60
     return Math.max(0, sessionDuration - elapsed)
   })
 
   const currentQuestion = session.questions[currentIndex]
+  const markedIndexes = useMemo(
+    () => session.reviewFlags
+      .map((marked, index) => marked ? index : -1)
+      .filter((index) => index >= 0),
+    [session.reviewFlags]
+  )
+  const reviewPosition = reviewMode ? markedIndexes.indexOf(currentIndex) : -1
   const answer = session.answers[currentIndex] || ''
   const answeredCount = useMemo(
     () => session.answers.filter((item) => item.trim().length > 0).length,
     [session.answers]
   )
   const remainingCount = session.questions.length - currentIndex - 1
-  const progress = ((currentIndex + 1) / session.questions.length) * 100
+  const progress = reviewMode
+    ? ((reviewPosition + 1) / markedIndexes.length) * 100
+    : ((currentIndex + 1) / session.questions.length) * 100
   const subtitle = `${session.role} · ${session.company}`
 
   useEffect(() => {
-    saveActiveSession(session)
-  }, [session])
+    saveActiveSession({ ...session, currentIndex })
+  }, [session, currentIndex])
+
+  useEffect(() => {
+    if (!hasNewConfig) return
+    navigate(location.pathname, { replace: true, state: null })
+  }, [hasNewConfig, location.pathname, navigate])
 
   useEffect(() => {
     if (!session.timed || secondsLeft <= 0) return undefined
@@ -117,14 +152,27 @@ export default function Session() {
   }
 
   const toggleReview = () => {
+    const wasMarked = session.reviewFlags[currentIndex]
+    const remainingMarkedIndexes = markedIndexes.filter((index) => index !== currentIndex)
+
     setSession((previous) => ({
       ...previous,
       reviewFlags: previous.reviewFlags.map((flag, index) => index === currentIndex ? !flag : flag),
     }))
     setShowReviewReminder(false)
+
+    if (reviewMode && wasMarked) {
+      if (!remainingMarkedIndexes.length) {
+        setReviewMode(false)
+      } else {
+        const nextIndex = remainingMarkedIndexes.find((index) => index > currentIndex)
+          ?? remainingMarkedIndexes[0]
+        setCurrentIndex(nextIndex)
+      }
+    }
   }
 
-  const finishSession = async () => {
+  const finishSession = async ({ timedOut = false } = {}) => {
   if (finishing) return
 
   setFinishing(true)
@@ -136,7 +184,7 @@ export default function Session() {
     if (session.backendSessionId) {
       const answerPayloads = session.backendQuestionsPersisted ? session.answers
         .map((answerText, index) => {
-          if (!answerText.trim()) return null
+          if (!timedOut && !answerText.trim()) return null
 
           return {
             questionId: session.questions[index].id,
@@ -208,13 +256,21 @@ export default function Session() {
   }
 }
 
-  const goToNextMarked = () => {
-    const markedIndexes = session.reviewFlags
-      .map((marked, index) => marked ? index : -1)
-      .filter((index) => index >= 0)
+  const onTimeUp = useEffectEvent(() => {
+    finishSession({ timedOut: true })
+  })
+
+  useEffect(() => {
+    if (!session.timed || secondsLeft !== 0 || timeUpHandledRef.current) return
+    timeUpHandledRef.current = true
+    setTimeExpired(true)
+    onTimeUp()
+  }, [secondsLeft, session.timed])
+
+  const startMarkedReview = () => {
     if (!markedIndexes.length) return
-    const nextIndex = markedIndexes.find((index) => index > currentIndex) ?? markedIndexes[0]
-    setCurrentIndex(nextIndex)
+    setReviewMode(true)
+    setCurrentIndex(markedIndexes[0])
     setShowReviewReminder(false)
   }
 
@@ -223,13 +279,29 @@ export default function Session() {
       finishSession()
       return
     }
-    goToNextMarked()
+    startMarkedReview()
     setShowReviewReminder(true)
   }
 
   const goNext = () => {
+    if (reviewMode) {
+      if (reviewPosition < markedIndexes.length - 1) {
+        setCurrentIndex(markedIndexes[reviewPosition + 1])
+      } else {
+        setShowReviewReminder(true)
+      }
+      return
+    }
     if (currentIndex === session.questions.length - 1) requestFinish()
     else setCurrentIndex((index) => index + 1)
+  }
+
+  const goPrevious = () => {
+    if (reviewMode) {
+      if (reviewPosition > 0) setCurrentIndex(markedIndexes[reviewPosition - 1])
+      return
+    }
+    setCurrentIndex((index) => Math.max(0, index - 1))
   }
 
   return (
@@ -238,7 +310,9 @@ export default function Session() {
       <div className="wrap pagepad" style={{ maxWidth: 800 }}>
         <div className="stop">
           <span style={{ fontWeight: 700, fontSize: 14 }}>
-            Question {currentIndex + 1} of {session.questions.length}
+            {reviewMode
+              ? `Marked question ${reviewPosition + 1} of ${markedIndexes.length}`
+              : `Question ${currentIndex + 1} of ${session.questions.length}`}
           </span>
           <div className="prog" aria-label={`${Math.round(progress)}% session progress`}>
             <i style={{ width: `${progress}%` }} />
@@ -246,7 +320,13 @@ export default function Session() {
           <div className="timer">{session.timed ? `⏱️ ${formatTime(secondsLeft)}` : 'Untimed'}</div>
         </div>
         <p className="muted" style={{ fontSize: 13 }}>
-          {remainingCount === 0 ? 'Final question' : `${remainingCount} question${remainingCount === 1 ? '' : 's'} left`}
+          {reviewMode
+            ? reviewPosition === markedIndexes.length - 1
+              ? 'Final marked question'
+              : `${markedIndexes.length - reviewPosition - 1} marked question${markedIndexes.length - reviewPosition - 1 === 1 ? '' : 's'} left`
+            : remainingCount === 0
+              ? 'Final question'
+              : `${remainingCount} question${remainingCount === 1 ? '' : 's'} left`}
         </p>
 
         <div className="card qcard">
@@ -265,6 +345,7 @@ export default function Session() {
             placeholder="Type your answer here. Structure your thinking and give concrete examples…"
             value={answer}
             maxLength={MAX_CHARS}
+            disabled={timeExpired || finishing}
             onChange={(event) => updateAnswer(event.target.value)}
           />
           <div className="cc">{answer.length} / {MAX_CHARS} characters · Saved in this browser</div>
@@ -276,25 +357,29 @@ export default function Session() {
             <button
               type="button"
               className="btn ghost sm"
-              disabled={currentIndex === 0}
-              onClick={() => setCurrentIndex((index) => Math.max(0, index - 1))}
+              disabled={(reviewMode ? reviewPosition === 0 : currentIndex === 0) || timeExpired || finishing}
+              onClick={goPrevious}
             >
               ← Previous
             </button>
-            <button type="button" className="btn ghost sm" aria-pressed={session.reviewFlags[currentIndex]} onClick={toggleReview}>
+            <button type="button" className="btn ghost sm" aria-pressed={session.reviewFlags[currentIndex]} onClick={toggleReview} disabled={timeExpired || finishing}>
               {session.reviewFlags[currentIndex] ? '✓ Marked — click to remove' : '🔖 Mark for review'}
             </button>
             <button
   type="button"
   className="btn end"
   onClick={goNext}
-  disabled={finishing}
+  disabled={timeExpired || finishing}
 >
   {finishing
     ? 'Saving…'
-    : currentIndex === session.questions.length - 1
-      ? 'Finish interview →'
-      : 'Next question →'}
+    : reviewMode
+      ? reviewPosition === markedIndexes.length - 1
+        ? 'Finish review →'
+        : 'Next marked →'
+      : currentIndex === session.questions.length - 1
+        ? 'Finish interview →'
+        : 'Next question →'}
 </button>
           </div>
         </div>
@@ -305,11 +390,33 @@ export default function Session() {
   </p>
 )}
 
+        {timeExpired && (
+          <div className="modal-overlay">
+            <div className="modal-card" role="alertdialog" aria-modal="true" aria-labelledby="time-up-title" aria-describedby="time-up-description">
+              <h3 id="time-up-title">Time is up</h3>
+              <p id="time-up-description">
+                {finishError
+                  ? 'We could not finish the interview automatically. Your answers are still saved in this browser.'
+                  : 'Your answers are being saved. Unanswered questions will receive 0 points.'}
+              </p>
+              {finishError && (
+                <div className="modal-actions">
+                  <button type="button" className="btn" onClick={() => finishSession({ timedOut: true })} disabled={finishing}>
+                    {finishing ? 'Saving…' : 'Try again'}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {showReviewReminder && <div className="card" style={{ marginTop: 16, padding: '15px 20px', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           <span style={{ fontSize: 13, flex: 1 }}>
             You still have {session.reviewFlags.filter(Boolean).length} question{session.reviewFlags.filter(Boolean).length === 1 ? '' : 's'} marked for review.
           </span>
-          <button type="button" className="btn ghost sm" onClick={goToNextMarked}>Review next marked</button>
+          {reviewMode
+            ? <button type="button" className="btn ghost sm" onClick={() => setShowReviewReminder(false)}>Continue reviewing</button>
+            : <button type="button" className="btn ghost sm" onClick={startMarkedReview}>Review marked questions</button>}
           <button type="button" className="btn sm" onClick={finishSession} disabled={finishing}>Finish anyway</button>
         </div>}
 
@@ -321,7 +428,7 @@ export default function Session() {
           <button
   type="button"
   className="btn ghost sm"
-  onClick={goToNextMarked}
+  onClick={startMarkedReview}
   disabled={!session.reviewFlags.some(Boolean)}
 >
   Review marked ({session.reviewFlags.filter(Boolean).length})

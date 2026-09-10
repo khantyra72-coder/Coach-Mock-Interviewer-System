@@ -111,9 +111,20 @@ npm run dev
 The frontend normally runs at:
 http://localhost:5173
 
-The frontend connects to `http://localhost:8080/api` by default. If your backend
-uses another port, copy `frontend/.env.example` to `frontend/.env.local`, update
-`VITE_API_BASE_URL`, and restart Vite. The `.env.local` file is ignored by Git.
+The frontend connects to port `8080` on the same hostname that served the page.
+If your backend uses another port, copy `frontend/.env.example` to
+`frontend/.env.local`, set `VITE_API_PORT`, and restart Vite. Set
+`VITE_API_BASE_URL` only when the API uses a completely different host.
+The `.env.local` file is ignored by Git.
+
+### Open the development app from another device
+
+Keep both devices on the same trusted Wi-Fi network and run the backend and
+frontend normally. Find the host computer's IPv4 address with `ipconfig`, then
+open `http://HOST_IPV4:5173` on the other device—for example,
+`http://192.168.1.20:5173`. If Windows asks, allow Java and Node.js on **Private
+networks**. Only accounts whose database role is `ADMIN` can open the admin
+dashboard.
 
 6. Run tests
 Backend:
@@ -154,12 +165,18 @@ The API key must be configured as an environment variable before starting the ba
 cd backend
 export OPENROUTER_API_KEY='your-private-api-key'
 sh mvnw spring-boot:run
+```
 
-Windows PowerShell
+### Windows PowerShell
+
+```powershell
 cd backend
 $env:OPENROUTER_API_KEY='your-private-api-key'
 .\mvnw.cmd spring-boot:run
+```
 
 Replace your-private-api-key with your own OpenRouter key. Start the backend from the same terminal where the environment variable was set.
 The application uses OpenRouter's free-model router by default. Free models may occasionally respond slowly, become temporarily unavailable, or produce slightly different scores.
+If the key is missing or OpenRouter is unavailable, the application automatically
+uses its local evidence-aware rubric scorer so candidates can still submit answers.
 Security: Never commit an API key to GitHub, place it in frontend code, include it in screenshots, or share it with teammates. Each developer should use their own key.

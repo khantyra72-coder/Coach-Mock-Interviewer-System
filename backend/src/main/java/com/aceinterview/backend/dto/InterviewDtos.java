@@ -45,7 +45,7 @@ public final class InterviewDtos {
             @NotNull(message = "Question ID is required")
             Long questionId,
 
-            @NotBlank(message = "Answer is required")
+            @NotNull(message = "Answer is required")
             String answerText,
 
             @Min(0) @Max(100) Integer score,

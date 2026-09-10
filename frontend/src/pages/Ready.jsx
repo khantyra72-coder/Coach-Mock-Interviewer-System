@@ -54,11 +54,11 @@ const [startError, setStartError] = useState('')
     type,
     types = type ? [type] : ['Technical'],
     company,
-    level,
     difficulty,
     questionCount = '15',
     topics,
     timed = false,
+    sessionDurationMinutes = 45,
   } = location.state || {}
 
   const displayRole = role || type || 'Not specified'
@@ -81,7 +81,6 @@ const [startError, setStartError] = useState('')
       interviewTypes: types,
       company: company || null,
       difficulty: difficulty || 'Medium',
-      experienceLevel: level || 'Entry (0–2 yrs)',
       topics: Array.isArray(topics) ? topics : [],
       questionCount: selectedQuestionCount,
     })
@@ -92,11 +91,11 @@ const [startError, setStartError] = useState('')
         type: displayTypes,
         types,
         company,
-        level,
         difficulty,
         questionCount,
         topics,
         timed,
+        sessionDurationMinutes,
         backendSessionId: backendSession.session.id,
         backendQuestions: backendSession.questions,
         backendQuestionsPersisted: true,
@@ -106,7 +105,7 @@ const [startError, setStartError] = useState('')
     if (error.status === 0) {
       navigate('/session', {
         state: {
-          role, type: displayTypes, types, company, level, difficulty, questionCount: selectedQuestionCount, topics, timed,
+          role, type: displayTypes, types, company, difficulty, questionCount: selectedQuestionCount, topics, timed, sessionDurationMinutes,
           backendQuestionsPersisted: false,
           offlineFallback: true,
         },
@@ -164,7 +163,7 @@ const [startError, setStartError] = useState('')
               <span className="rdrow-icon"><ListChecks size={16} strokeWidth={1.8} /></span>
               <span className="k">Session</span>
             </div>
-            <span className="v">{selectedQuestionCount} questions · {displayTypes}{timed ? ` · ~${selectedQuestionCount * 3} minutes` : ''}</span>
+            <span className="v">{selectedQuestionCount} questions · {displayTypes} · {sessionDurationMinutes} minutes{timed ? ' timed' : ' untimed'}</span>
           </div>
         </Reveal>
 

@@ -98,6 +98,7 @@ export default function Session() {
   const [finishing, setFinishing] = useState(false)
   const [finishError, setFinishError] = useState('')
   const [timeExpired, setTimeExpired] = useState(false)
+  const finishingRef = useRef(false)
   const timeUpHandledRef = useRef(false)
   const [showReviewReminder, setShowReviewReminder] = useState(false)
   const [reviewMode, setReviewMode] = useState(false)
@@ -173,8 +174,9 @@ export default function Session() {
   }
 
   const finishSession = async ({ timedOut = false } = {}) => {
-  if (finishing) return
+  if (finishingRef.current) return
 
+  finishingRef.current = true
   setFinishing(true)
   setFinishError('')
 
@@ -197,9 +199,11 @@ export default function Session() {
         })
         .filter(Boolean) : []
 
-      for (const answerPayload of answerPayloads) {
-        await submitInterviewAnswer(session.backendSessionId, answerPayload)
-      }
+      await Promise.all(
+        answerPayloads.map((answerPayload) =>
+          submitInterviewAnswer(session.backendSessionId, answerPayload)
+        )
+      )
 
       const backendResult = await completeInterview(session.backendSessionId, {
         overallScore: result.overallScore,
@@ -249,6 +253,7 @@ export default function Session() {
     clearActiveSession()
     navigate('/results', { state: { result } })
   } catch (error) {
+    finishingRef.current = false
     setFinishError(
       error.message || 'Could not save the interview. Please try again.'
     )

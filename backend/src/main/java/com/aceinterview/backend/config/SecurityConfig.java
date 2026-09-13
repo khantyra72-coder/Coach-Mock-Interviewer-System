@@ -2,7 +2,6 @@ package com.aceinterview.backend.config;
 
 import com.aceinterview.backend.security.JwtAuthFilter;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,7 +13,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -39,11 +37,12 @@ public class SecurityConfig {
                                                                 "/api/auth/**",
                                                                 "/api/register",
                                                                 "/api/login",
+                                                                "/api/admin-login",
                                                                 "/api/auth/register",
                                                                 "/api/auth/login",
                                                                 "/api/auth/admin-login")
                                                 .permitAll()
-                                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                                                .requestMatchers("/api/admin/**").hasAnyAuthority("ADMIN", "ROLE_ADMIN")
                                                 .requestMatchers("/api/**").authenticated()
                                                 .anyRequest().permitAll())
                                 .exceptionHandling(ex -> ex.authenticationEntryPoint(

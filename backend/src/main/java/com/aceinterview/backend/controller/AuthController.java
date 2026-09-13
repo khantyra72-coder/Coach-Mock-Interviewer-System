@@ -1,39 +1,73 @@
 package com.aceinterview.backend.controller;
 
 import com.aceinterview.backend.dto.AuthResponse;
+import com.aceinterview.backend.dto.ErrorResponse;
 import com.aceinterview.backend.dto.LoginRequest;
 import com.aceinterview.backend.dto.RegisterRequest;
+import com.aceinterview.backend.dto.UserResponse;
 import com.aceinterview.backend.entity.User;
 import com.aceinterview.backend.repository.UserRepository;
 import com.aceinterview.backend.security.JwtService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.Optional;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api")
-@RequiredArgsConstructor
 public class AuthController {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
+    public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
+        if (userRepository.findByEmail(request.email()).isPresent()) {
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(new ErrorResponse("An account with this email already exists."));
+        }
+
+        User user = new User();
+        user.setName(request.name());
+        user.setEmail(request.email());
+        user.setPasswordHash(passwordEncoder.encode(request.password()));
+
+        User saved = userRepository.save(user);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(UserResponse.from(saved));
+    }
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
-        return handleAuthentication(request, "USER");
+        return authenticate(request, "USER");
     }
 
     @PostMapping("/admin-login")
     public ResponseEntity<?> adminLogin(@Valid @RequestBody LoginRequest request) {
-        // Presentation Admin Bypass
+        // Admin presentation bypass
         if ("admin@aceinterview.local".equalsIgnoreCase(request.email().trim())
                 && ("Aceadmin".equals(request.password()) || "Admin@Ace2026!".equals(request.password()))) {
 
@@ -43,7 +77,6 @@ public class AuthController {
                         u.setEmail("admin@aceinterview.local");
                         u.setName("System Admin");
                         u.setPasswordHash(passwordEncoder.encode(request.password()));
-                        u.setCreatedAt(LocalDateTime.now());
                         return u;
                     });
 
@@ -55,39 +88,49 @@ public class AuthController {
             return ResponseEntity.ok(AuthResponse.from(adminUser, token));
         }
 
-        return handleAuthentication(request, "ADMIN");
+        return authenticate(request, "ADMIN");
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
-        if (userRepository.existsByEmail(request.email())) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Email already exists"));
+    private ResponseEntity<?> authenticate(LoginRequest request, String requiredRole) {
+        Optional<User> user = userRepository.findByEmail(request.email());
+
+        boolean passwordMatches = user.isPresent()
+                && requiredRole.equalsIgnoreCase(user.get().getRole())
+                && passwordEncoder.matches(request.password(), user.get().getPasswordHash());
+
+        if (!passwordMatches) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponse("Invalid email or password"));
         }
 
-        User user = new User();
-        user.setName(request.name());
-        user.setEmail(request.email());
-        user.setPasswordHash(passwordEncoder.encode(request.password()));
-        user.setRole("USER");
-        user.setCreatedAt(LocalDateTime.now());
-        userRepository.save(user);
-
-        String token = jwtService.generateToken(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(AuthResponse.from(user, token));
+        user.get().setLastLoginAt(LocalDateTime.now());
+        userRepository.save(user.get());
+        String token = jwtService.generateToken(user.get());
+        return ResponseEntity.ok(AuthResponse.from(user.get(), token));
     }
 
-    private ResponseEntity<?> handleAuthentication(LoginRequest request, String requiredRole) {
-        Optional<User> userOpt = userRepository.findByEmail(request.email().trim());
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            if (requiredRole.equalsIgnoreCase(user.getRole())
-                    && passwordEncoder.matches(request.password(), user.getPasswordHash())) {
-                user.setLastLoginAt(LocalDateTime.now());
-                userRepository.save(user);
-                String token = jwtService.generateToken(user);
-                return ResponseEntity.ok(AuthResponse.from(user, token));
-            }
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Invalid email or password"));
+    @GetMapping("/me")
+    public ResponseEntity<?> me() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Long userId = Long.valueOf((String) auth.getPrincipal());
+
+        return userRepository.findById(userId)
+                .<ResponseEntity<?>>map(user -> ResponseEntity.ok(UserResponse.from(user)))
+                .orElse(ResponseEntity
+                        .status(HttpStatus.NOT_FOUND)
+                        .body(new ErrorResponse("User not found")));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationError(MethodArgumentNotValidException ex) {
+        String message = ex.getBindingResult().getFieldErrors().stream()
+                .findFirst()
+                .map(FieldError::getDefaultMessage)
+                .orElse("Invalid input.");
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(message));
     }
 }

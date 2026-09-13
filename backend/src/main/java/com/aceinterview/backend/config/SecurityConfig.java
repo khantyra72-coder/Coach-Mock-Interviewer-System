@@ -35,7 +35,12 @@ public class SecurityConfig {
                                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers("/api/auth/register", "/api/auth/login",
+                                                .requestMatchers(
+                                                                "/api/auth/**",
+                                                                "/api/register",
+                                                                "/api/login",
+                                                                "/api/auth/register",
+                                                                "/api/auth/login",
                                                                 "/api/auth/admin-login")
                                                 .permitAll()
                                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
@@ -53,7 +58,6 @@ public class SecurityConfig {
         public CorsConfigurationSource corsConfigurationSource() {
                 CorsConfiguration configuration = new CorsConfiguration();
 
-                // Railway နှင့် Localhost domains အားလုံးကို ခွင့်ပြုခြင်း
                 configuration.setAllowedOriginPatterns(List.of(
                                 "https://*.railway.app",
                                 "http://localhost:*"));

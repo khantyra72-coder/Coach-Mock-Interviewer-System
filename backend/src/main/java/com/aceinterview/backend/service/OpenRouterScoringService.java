@@ -32,37 +32,28 @@ public class OpenRouterScoringService {
             @Value("${app.ai.openrouter.api-key:}") String apiKey,
             @Value("${app.ai.openrouter.base-url:https://openrouter.ai/api/v1}") String baseUrl,
             @Value("${app.ai.openrouter.model:openrouter/free}") String model,
-            EvidenceAwareScoringService fallbackScoringService
-    ) {
+            EvidenceAwareScoringService fallbackScoringService) {
         this.objectMapper = new ObjectMapper();
         this.apiKey = apiKey;
         this.baseUrl = baseUrl;
         this.model = model;
         this.fallbackScoringService = fallbackScoringService;
         this.httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(10))
+                .connectTimeout(Duration.ofSeconds(15)) // Increased base timeout
                 .build();
     }
 
     public AiEvaluation evaluate(
             Question question,
             List<RubricCriterion> criteria,
-            String answer
-    ) {
+            String answer) {
         if (answer == null || answer.isBlank()) {
             return emptyEvaluation(criteria);
         }
-        String trimmedAnswer = answer.trim();
-
-if (trimmedAnswer.length() < 20
-        || trimmedAnswer.split("\\s+").length < 4) {
-    return emptyEvaluation(criteria);
-}
 
         if (apiKey == null || apiKey.isBlank()) {
             throw new IllegalStateException(
-                    "OPENROUTER_API_KEY is missing. Start the backend from the terminal where it was exported."
-            );
+                    "OPENROUTER_API_KEY is missing. Start the backend from the terminal where it was exported.");
         }
 
         try {
@@ -82,23 +73,38 @@ if (trimmedAnswer.length() < 20
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(baseUrl + "/chat/completions"))
-                    .timeout(Duration.ofSeconds(25))
+                    .timeout(Duration.ofSeconds(30)) // Increased request timeout
                     .header("Authorization", "Bearer " + apiKey)
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(
-                            objectMapper.writeValueAsString(requestBody)
-                    ))
+                            objectMapper.writeValueAsString(requestBody)))
                     .build();
 
-            HttpResponse<String> response = httpClient.send(
-                    request,
-                    HttpResponse.BodyHandlers.ofString()
-            );
+            HttpResponse<String> response = null;
+            int maxRetries = 3; // Retry logic for free API rate limits
 
-            if (response.statusCode() < 200 || response.statusCode() >= 300) {
+            for (int attempt = 1; attempt <= maxRetries; attempt++) {
+                response = httpClient.send(
+                        request,
+                        HttpResponse.BodyHandlers.ofString());
+
+                int status = response.statusCode();
+                if (status >= 200 && status < 300) {
+                    break; // Success
+                }
+
+                // If Rate Limited (429) or Server Error (5xx), wait and retry
+                if ((status == 429 || status >= 500) && attempt < maxRetries) {
+                    Thread.sleep(1500 * attempt);
+                    continue;
+                }
+                break; // Break if it's a permanent error (like 401 Unauthorized)
+            }
+
+            if (response == null || response.statusCode() < 200 || response.statusCode() >= 300) {
                 throw new IllegalStateException(
-                        "OpenRouter request failed with status " + response.statusCode()
-                );
+                        "OpenRouter request failed with status "
+                                + (response != null ? response.statusCode() : "unknown"));
             }
 
             JsonNode responseJson = objectMapper.readTree(response.body());
@@ -109,73 +115,75 @@ if (trimmedAnswer.length() < 20
                     .asText();
 
             return parseEvaluation(content, criteria);
+
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("AI scoring was interrupted.", exception);
         } catch (Exception exception) {
             throw new IllegalStateException(
                     "AI scoring failed: " + exception.getMessage(),
-                    exception
-            );
+                    exception);
         }
     }
+
     private void addStructuredOutputSchema(ObjectNode requestBody) {
-    ObjectNode responseFormat = requestBody.putObject("response_format");
-    responseFormat.put("type", "json_schema");
+        ObjectNode responseFormat = requestBody.putObject("response_format");
+        responseFormat.put("type", "json_schema");
 
-    ObjectNode jsonSchema = responseFormat.putObject("json_schema");
-    jsonSchema.put("name", "interview_evaluation");
-    jsonSchema.put("strict", true);
+        ObjectNode jsonSchema = responseFormat.putObject("json_schema");
+        jsonSchema.put("name", "interview_evaluation");
+        jsonSchema.put("strict", true);
 
-    ObjectNode schema = jsonSchema.putObject("schema");
-    schema.put("type", "object");
-    schema.put("additionalProperties", false);
+        ObjectNode schema = jsonSchema.putObject("schema");
+        schema.put("type", "object");
+        schema.put("additionalProperties", false);
 
-    ObjectNode properties = schema.putObject("properties");
+        ObjectNode properties = schema.putObject("properties");
 
-    ObjectNode score = properties.putObject("score");
-    score.put("type", "integer");
-    score.put("minimum", 0);
-    score.put("maximum", 100);
+        ObjectNode score = properties.putObject("score");
+        score.put("type", "integer");
+        score.put("minimum", 0);
+        score.put("maximum", 100);
 
-    properties.putObject("relevant").put("type", "boolean");
-    properties.putObject("incorrect").put("type", "boolean");
-    properties.putObject("criticalUnsafe").put("type", "boolean");
+        properties.putObject("relevant").put("type", "boolean");
+        properties.putObject("incorrect").put("type", "boolean");
+        properties.putObject("criticalUnsafe").put("type", "boolean");
 
-    ObjectNode criteria = properties.putObject("criteria");
-    criteria.put("type", "array");
+        ObjectNode criteria = properties.putObject("criteria");
+        criteria.put("type", "array");
 
-    ObjectNode criterion = criteria.putObject("items");
-    criterion.put("type", "object");
-    criterion.put("additionalProperties", false);
+        ObjectNode criterion = criteria.putObject("items");
+        criterion.put("type", "object");
+        criterion.put("additionalProperties", false);
 
-    ObjectNode criterionProperties = criterion.putObject("properties");
-    criterionProperties.putObject("index").put("type", "integer");
+        ObjectNode criterionProperties = criterion.putObject("properties");
+        criterionProperties.putObject("index").put("type", "integer");
 
-    ObjectNode status = criterionProperties.putObject("status");
-    status.put("type", "string");
-    status.putArray("enum")
-            .add("FULL")
-            .add("PARTIAL")
-            .add("MISSING");
+        ObjectNode status = criterionProperties.putObject("status");
+        status.put("type", "string");
+        status.putArray("enum")
+                .add("FULL")
+                .add("PARTIAL")
+                .add("MISSING");
 
-    criterionProperties.putObject("evidence").put("type", "string");
+        criterionProperties.putObject("evidence").put("type", "string");
 
-    criterion.putArray("required")
-            .add("index")
-            .add("status")
-            .add("evidence");
+        criterion.putArray("required")
+                .add("index")
+                .add("status")
+                .add("evidence");
 
-    schema.putArray("required")
-            .add("score")
-            .add("relevant")
-            .add("incorrect")
-            .add("criticalUnsafe")
-            .add("criteria");
+        schema.putArray("required")
+                .add("score")
+                .add("relevant")
+                .add("incorrect")
+                .add("criticalUnsafe")
+                .add("criteria");
 
-    ObjectNode provider = requestBody.putObject("provider");
-    provider.put("require_parameters", true);
-}
+        ObjectNode provider = requestBody.putObject("provider");
+        provider.put("require_parameters", true);
+    }
+
     private String systemPrompt() {
         return """
                 You are a strict but fair technical interview evaluator.
@@ -214,8 +222,7 @@ if (trimmedAnswer.length() < 20
     private String buildUserPrompt(
             Question question,
             List<RubricCriterion> criteria,
-            String answer
-    ) {
+            String answer) {
         StringBuilder prompt = new StringBuilder();
 
         prompt.append("Question: ")
@@ -250,8 +257,7 @@ if (trimmedAnswer.length() < 20
 
     private AiEvaluation parseEvaluation(
             String content,
-            List<RubricCriterion> criteria
-    ) throws Exception {
+            List<RubricCriterion> criteria) throws Exception {
         String cleaned = removeCodeFence(content);
         JsonNode root = objectMapper.readTree(cleaned);
 
@@ -274,8 +280,7 @@ if (trimmedAnswer.length() < 20
             }
 
             evaluatedCriteria.add(
-                    new AiCriterionEvaluation(index, status, evidence)
-            );
+                    new AiCriterionEvaluation(index, status, evidence));
         }
 
         if (!relevant) {
@@ -287,8 +292,7 @@ if (trimmedAnswer.length() < 20
                 relevant,
                 incorrect,
                 criticalUnsafe,
-                evaluatedCriteria
-        );
+                evaluatedCriteria);
     }
 
     private JsonNode findCriterion(JsonNode criteria, int wantedIndex) {
@@ -313,22 +317,22 @@ if (trimmedAnswer.length() < 20
     }
 
     private String removeCodeFence(String content) {
-    String cleaned = content == null ? "" : content.trim();
+        String cleaned = content == null ? "" : content.trim();
 
-    if (cleaned.startsWith("```")) {
-        cleaned = cleaned.replaceFirst("^```(?:json)?\\s*", "");
-        cleaned = cleaned.replaceFirst("\\s*```$", "");
+        if (cleaned.startsWith("```")) {
+            cleaned = cleaned.replaceFirst("^```(?:json)?\\s*", "");
+            cleaned = cleaned.replaceFirst("\\s*```$", "");
+        }
+
+        int firstBrace = cleaned.indexOf('{');
+        int lastBrace = cleaned.lastIndexOf('}');
+
+        if (firstBrace >= 0 && lastBrace > firstBrace) {
+            cleaned = cleaned.substring(firstBrace, lastBrace + 1);
+        }
+
+        return cleaned.trim();
     }
-
-    int firstBrace = cleaned.indexOf('{');
-    int lastBrace = cleaned.lastIndexOf('}');
-
-    if (firstBrace >= 0 && lastBrace > firstBrace) {
-        cleaned = cleaned.substring(firstBrace, lastBrace + 1);
-    }
-
-    return cleaned.trim();
-}
 
     private AiEvaluation emptyEvaluation(List<RubricCriterion> criteria) {
         List<AiCriterionEvaluation> missing = new ArrayList<>();
@@ -347,74 +351,72 @@ if (trimmedAnswer.length() < 20
     public record AiCriterionEvaluation(
             int index,
             String status,
-            String evidence
-    ) {}
+            String evidence) {
+    }
 
     public record AiEvaluation(
             int score,
             boolean relevant,
             boolean incorrect,
             boolean criticalUnsafe,
-            List<AiCriterionEvaluation> criteria
-    ) {}
-public EvidenceAwareScoringService.ScoreResult score(
-        Question question,
-        List<RubricCriterion> criteria,
-        String answer
-) {
-    if (apiKey == null || apiKey.isBlank()) {
-        return fallbackScoringService.score(question, criteria, answer);
+            List<AiCriterionEvaluation> criteria) {
     }
 
-    AiEvaluation evaluation;
-    try {
-        evaluation = evaluate(question, criteria, answer);
-    } catch (IllegalStateException exception) {
-        // Provider outages, timeouts, quota failures, and malformed responses
-        // must not prevent a candidate from submitting an interview answer.
-        return fallbackScoringService.score(question, criteria, answer);
+    public EvidenceAwareScoringService.ScoreResult score(
+            Question question,
+            List<RubricCriterion> criteria,
+            String answer) {
+        if (apiKey == null || apiKey.isBlank()) {
+            return fallbackScoringService.score(question, criteria, answer);
+        }
+
+        AiEvaluation evaluation;
+        try {
+            evaluation = evaluate(question, criteria, answer);
+        } catch (IllegalStateException exception) {
+            return fallbackScoringService.score(question, criteria, answer);
+        }
+
+        List<EvidenceAwareScoringService.CriterionScore> results = new ArrayList<>();
+
+        for (AiCriterionEvaluation item : evaluation.criteria()) {
+            RubricCriterion criterion = criteria.get(item.index());
+
+            int awarded = switch (item.status()) {
+                case "FULL" -> criterion.getWeight();
+                case "PARTIAL" -> criterion.getWeight() / 2;
+                default -> 0;
+            };
+
+            List<String> evidence = item.evidence().isBlank()
+                    ? List.of()
+                    : List.of(item.evidence());
+
+            results.add(new EvidenceAwareScoringService.CriterionScore(
+                    criterion,
+                    item.status(),
+                    awarded,
+                    evidence,
+                    List.of()));
+        }
+
+        int totalWeight = results.stream()
+                .mapToInt(item -> item.criterion().getWeight())
+                .sum();
+
+        int totalAwarded = results.stream()
+                .mapToInt(EvidenceAwareScoringService.CriterionScore::awarded)
+                .sum();
+
+        int consistentScore = totalWeight == 0
+                ? 0
+                : (int) Math.round((totalAwarded * 100.0) / totalWeight);
+
+        return new EvidenceAwareScoringService.ScoreResult(
+                consistentScore,
+                evaluation.relevant(),
+                evaluation.incorrect(),
+                evaluation.criticalUnsafe(),
+                results);
     }
-    List<EvidenceAwareScoringService.CriterionScore> results = new ArrayList<>();
-
-    for (AiCriterionEvaluation item : evaluation.criteria()) {
-        RubricCriterion criterion = criteria.get(item.index());
-
-        int awarded = switch (item.status()) {
-            case "FULL" -> criterion.getWeight();
-            case "PARTIAL" -> criterion.getWeight() / 2;
-            default -> 0;
-        };
-
-        List<String> evidence = item.evidence().isBlank()
-                ? List.of()
-                : List.of(item.evidence());
-
-        results.add(new EvidenceAwareScoringService.CriterionScore(
-                criterion,
-                item.status(),
-                awarded,
-                evidence,
-                List.of()
-        ));
-    }
-
-    int totalWeight = results.stream()
-        .mapToInt(item -> item.criterion().getWeight())
-        .sum();
-
-    int totalAwarded = results.stream()
-        .mapToInt(EvidenceAwareScoringService.CriterionScore::awarded)
-        .sum();
-
-int consistentScore = totalWeight == 0
-        ? 0
-        : (int) Math.round((totalAwarded * 100.0) / totalWeight);
-    return new EvidenceAwareScoringService.ScoreResult(
-            consistentScore,
-            evaluation.relevant(),
-            evaluation.incorrect(),
-            evaluation.criticalUnsafe(),
-            results
-    );
-}
 }

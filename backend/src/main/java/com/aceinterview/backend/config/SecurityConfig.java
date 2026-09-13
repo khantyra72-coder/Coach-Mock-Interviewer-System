@@ -62,13 +62,16 @@ public class SecurityConfig {
         @Bean
         public CorsConfigurationSource corsConfigurationSource() {
                 CorsConfiguration configuration = new CorsConfiguration();
-                configuration.setAllowedOriginPatterns(allowedOriginPatterns);
+
+                configuration.setAllowedOriginPatterns(List.of(
+                                "https://*.railway.app",
+                                "http://localhost:*"));
                 configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                // "*" already covers the Authorization header used for the JWT.
                 configuration.setAllowedHeaders(List.of("*"));
+                configuration.setAllowCredentials(true);
 
                 UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-                source.registerCorsConfiguration("/api/**", configuration);
+                source.registerCorsConfiguration("/**", configuration);
                 return source;
         }
 }

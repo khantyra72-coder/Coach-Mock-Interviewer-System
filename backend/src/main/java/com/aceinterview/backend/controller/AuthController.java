@@ -68,21 +68,29 @@ public class AuthController {
 
     @PostMapping("/admin-login")
     public ResponseEntity<?> adminLogin(@Valid @RequestBody LoginRequest request) {
+        if ("admin@aceinterview.local".equalsIgnoreCase(request.email().trim())
+                && ("Aceadmin".equals(request.password()) || "Admin@Ace2026!".equals(request.password()))) {
 
-        if ("admin@aceinterview.local".equalsIgnoreCase(request.email().trim())) {
-            if ("Aceadmin".equals(request.password()) || "Admin@Ace2026!".equals(request.password())) {
-                Optional<User> userOpt = userRepository.findByEmail(request.email().trim());
-                if (userOpt.isPresent()) {
-                    User user = userOpt.get();
-                    user.setRole("ADMIN");
-                    user.setLastLoginAt(LocalDateTime.now());
-                    userRepository.save(user);
-                    String token = jwtService.generateToken(user);
-                    return ResponseEntity.ok(AuthResponse.from(user, token));
-                }
-            }
+            User adminUser = userRepository.findByEmail(request.email().trim())
+                    .orElseGet(() -> {
+                        User newUser = new User();
+                        newUser.setEmail("admin@aceinterview.local");
+                        newUser.setName("System Admin");
+                        newUser.setPasswordHash(passwordEncoder.encode(request.password()));
+                        return newUser;
+                    });
+
+            adminUser.setRole("ADMIN");
+            adminUser.setLastLoginAt(LocalDateTime.now());
+            userRepository.save(adminUser);
+
+            String token = jwtService.generateToken(adminUser);
+            return ResponseEntity.ok(AuthResponse.from(adminUser, token));
         }
-        return authenticate(request, "ADMIN");
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse("Invalid email or password"));
     }
 
     // Protected — requires a valid "Authorization: Bearer <token>" header

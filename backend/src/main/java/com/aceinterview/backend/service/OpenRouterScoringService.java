@@ -39,7 +39,7 @@ public class OpenRouterScoringService {
         this.model = model;
         this.fallbackScoringService = fallbackScoringService;
         this.httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(15)) // Increased base timeout
+                .connectTimeout(Duration.ofSeconds(15))
                 .build();
     }
 
@@ -73,7 +73,7 @@ public class OpenRouterScoringService {
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(baseUrl + "/chat/completions"))
-                    .timeout(Duration.ofSeconds(30)) // Increased request timeout
+                    .timeout(Duration.ofSeconds(30))
                     .header("Authorization", "Bearer " + apiKey)
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(
@@ -81,24 +81,41 @@ public class OpenRouterScoringService {
                     .build();
 
             HttpResponse<String> response = null;
-            int maxRetries = 3; // Retry logic for free API rate limits
+            int maxRetries = 3;
+            long waitTime = 2000; // Start with 2 seconds wait for exponential backoff
 
             for (int attempt = 1; attempt <= maxRetries; attempt++) {
-                response = httpClient.send(
-                        request,
-                        HttpResponse.BodyHandlers.ofString());
+                try {
+                    response = httpClient.send(
+                            request,
+                            HttpResponse.BodyHandlers.ofString());
 
-                int status = response.statusCode();
-                if (status >= 200 && status < 300) {
-                    break; // Success
-                }
+                    int status = response.statusCode();
+                    if (status >= 200 && status < 300) {
+                        break; // Success
+                    }
 
-                // If Rate Limited (429) or Server Error (5xx), wait and retry
-                if ((status == 429 || status >= 500) && attempt < maxRetries) {
-                    Thread.sleep(1500 * attempt);
-                    continue;
+                    // If Rate Limited (429) or Server Error (5xx), wait with backoff and retry
+                    if ((status == 429 || status >= 500) && attempt < maxRetries) {
+                        System.err.println("⚠️ OpenRouter returned status " + status + " (Attempt " + attempt
+                                + "). Retrying in " + (waitTime / 1000) + "s...");
+                        Thread.sleep(waitTime);
+                        waitTime *= 2; // Double the wait time for exponential backoff
+                        continue;
+                    }
+                    break;
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw e;
+                } catch (Exception e) {
+                    if (attempt == maxRetries) {
+                        throw e;
+                    }
+                    System.err.println("⚠️ Request attempt " + attempt + " failed: " + e.getMessage() + ". Retrying in "
+                            + (waitTime / 1000) + "s...");
+                    Thread.sleep(waitTime);
+                    waitTime *= 2;
                 }
-                break; // Break if it's a permanent error (like 401 Unauthorized)
             }
 
             if (response == null || response.statusCode() < 200 || response.statusCode() >= 300) {

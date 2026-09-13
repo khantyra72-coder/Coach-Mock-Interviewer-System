@@ -5,7 +5,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -23,31 +22,22 @@ import java.util.List;
 public class SecurityConfig {
 
         private final JwtAuthFilter jwtAuthFilter;
-        private final List<String> allowedOriginPatterns;
 
-        public SecurityConfig(
-                        JwtAuthFilter jwtAuthFilter,
-                        @Value("${app.cors.allowed-origin-patterns}") String allowedOriginPatterns) {
+        public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
                 this.jwtAuthFilter = jwtAuthFilter;
-                this.allowedOriginPatterns = Arrays.stream(allowedOriginPatterns.split(","))
-                                .map(String::trim)
-                                .filter(pattern -> !pattern.isBlank())
-                                .toList();
         }
 
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http,
                         CorsConfigurationSource corsConfigurationSource) throws Exception {
                 http
-                                // Stateless JWT API — no cookies/sessions, so CSRF protection
-                                // (which exists to protect cookie-based auth) doesn't apply.
                                 .csrf(csrf -> csrf.disable())
                                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/api/auth/register", "/api/auth/login",
                                                                 "/api/auth/admin-login")
-                                                .permitAll() //
+                                                .permitAll()
                                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                                 .requestMatchers("/api/**").authenticated()
                                                 .anyRequest().permitAll())
@@ -63,10 +53,11 @@ public class SecurityConfig {
         public CorsConfigurationSource corsConfigurationSource() {
                 CorsConfiguration configuration = new CorsConfiguration();
 
+                // Railway နှင့် Localhost domains အားလုံးကို ခွင့်ပြုခြင်း
                 configuration.setAllowedOriginPatterns(List.of(
                                 "https://*.railway.app",
                                 "http://localhost:*"));
-                configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
                 configuration.setAllowedHeaders(List.of("*"));
                 configuration.setAllowCredentials(true);
 

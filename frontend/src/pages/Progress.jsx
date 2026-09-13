@@ -3,10 +3,9 @@ import { BriefcaseBusiness, Code2, Layers3, MessageCircle, Trophy, TrendingUp } 
 import TopBar from '../components/TopBar.jsx'
 import { getInterviewDetails, getInterviewHistory } from '../api/interviews.js'
 import { getUnsyncedLocalSessions, syncLocalCompletedSessions } from '../utils/syncLocalInterviewHistory.js'
-import { INTERVIEW_TYPES, TECH_ROLES } from '../data/interviewTaxonomy.js'
+import { INTERVIEW_TYPES } from '../data/interviewTaxonomy.js'
 
 const APP_NAV = [{ label: 'Interview Setup', to: '/role' }, { label: 'My Sessions', to: '/sessions' }, { label: 'Progress Report', to: '/progress' }]
-const RANGE_OPTIONS = [{ label: 'Last 30 days', days: 30 }, { label: 'Last 90 days', days: 90 }, { label: 'Last year', days: 365 }, { label: 'All time', days: null }]
 const TYPE_METRIC_KEYS = { Technical: 'technicalScore', Behavioral: 'behavioralScore', 'System Design': 'systemDesignScore' }
 const average = (items) => items.length ? Math.round(items.reduce((sum, item) => sum + item.score, 0) / items.length) : 0
 
@@ -21,10 +20,6 @@ function scoreForInterviewType(session, type) {
   return declaredInterviewTypes(session).includes(type) && Number.isFinite(session.score) ? session.score : null
 }
 
-function includesInterviewType(session, type) {
-  return scoreForInterviewType(session, type) !== null
-}
-
 function MetricCard({ icon: Icon, label, value, note, accent }) {
   return <div className="card progress-metric"><span className="progress-metric-icon"><Icon size={27} strokeWidth={1.8} /></span><div><div className="progress-metric-label">{label}</div><div className={`progress-metric-value${accent ? ' accent' : ''}`}>{value}</div><div className="progress-metric-note">{note}</div></div></div>
 }
@@ -35,9 +30,6 @@ function ProgressBar({ icon: Icon, label, value, count }) {
 
 export default function Progress() {
   const [allSessions, setAllSessions] = useState([])
-  const [roleFilter, setRoleFilter] = useState('All roles')
-  const [typeFilter, setTypeFilter] = useState('All interview types')
-  const [rangeFilter, setRangeFilter] = useState('Last 90 days')
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
 
@@ -69,12 +61,7 @@ export default function Progress() {
     return () => { cancelled = true }
   }, [])
 
-  const roleOptions = useMemo(() => [...new Set([...TECH_ROLES, ...allSessions.map((session) => session.role).filter((role) => role !== 'Not specified')])], [allSessions])
-  const sessions = useMemo(() => {
-    const range = RANGE_OPTIONS.find((option) => option.label === rangeFilter)
-    const cutoff = range?.days ? Date.now() - range.days * 86400000 : null
-    return allSessions.filter((session) => (roleFilter === 'All roles' || session.role === roleFilter) && (typeFilter === 'All interview types' || includesInterviewType(session, typeFilter)) && (!cutoff || new Date(session.completedAt).getTime() >= cutoff))
-  }, [allSessions, rangeFilter, roleFilter, typeFilter])
+  const sessions = allSessions
   const chronological = useMemo(() => [...sessions].sort((a, b) => new Date(a.completedAt) - new Date(b.completedAt)), [sessions])
   const averageScore = average(sessions)
   const bestScore = sessions.length ? Math.max(...sessions.map((session) => session.score)) : 0
@@ -88,15 +75,11 @@ export default function Progress() {
   const area = chartPoints.length ? `M ${chartPoints.map((point) => `${point.x} ${point.y}`).join(' L ')} L ${chartPoints.at(-1).x} 202 L ${chartPoints[0].x} 202 Z` : ''
 
   return <section className="screen" id="progress"><TopBar nav={APP_NAV} showUser /><div className="wrap pagepad progress-page">
-    <div className="progress-heading"><div><h1>Your Progress</h1><p>Track your interview skills and see where to focus next.</p></div><div className="progress-filters">
-      <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)} aria-label="Filter by role"><option>All roles</option>{roleOptions.map((role) => <option key={role}>{role}</option>)}</select>
-      <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} aria-label="Filter by interview type"><option>All interview types</option>{INTERVIEW_TYPES.map((type) => <option key={type}>{type}</option>)}</select>
-      <select value={rangeFilter} onChange={(e) => setRangeFilter(e.target.value)} aria-label="Filter by date range">{RANGE_OPTIONS.map((option) => <option key={option.label}>{option.label}</option>)}</select>
-    </div></div>
+    <div className="progress-heading"><div><h1>Your Progress</h1><p>Track your interview skills and see where to focus next.</p></div></div>
     {loading && <p className="sub muted">Loading progress data…</p>}{loadError && <p className="field-error">{loadError}</p>}
-    <div className="progress-metrics"><MetricCard icon={BriefcaseBusiness} label="Completed interviews" value={sessions.length} note="Sessions completed" /><MetricCard icon={TrendingUp} label="Average score" value={`${averageScore}%`} note="Across filtered sessions" accent /><MetricCard icon={Trophy} label="Personal best" value={`${bestScore}%`} note="Your highest score" accent /><MetricCard icon={TrendingUp} label="Improvement" value={`${improvement >= 0 ? '+' : ''}${improvement}%`} note="First to latest score" accent /></div>
+    <div className="progress-metrics"><MetricCard icon={BriefcaseBusiness} label="Completed interviews" value={sessions.length} note="Sessions completed" /><MetricCard icon={TrendingUp} label="Average score" value={`${averageScore}%`} note="Across all sessions" accent /><MetricCard icon={Trophy} label="Personal best" value={`${bestScore}%`} note="Your highest score" accent /><MetricCard icon={TrendingUp} label="Improvement" value={`${improvement >= 0 ? '+' : ''}${improvement}%`} note="First to latest score" accent /></div>
     <div className="progress-main-grid"><div className="card progress-panel progress-trend"><h2>Score trend</h2><p>Your average score over recent sessions</p>{chartPoints.length ? <svg viewBox="0 0 700 250" role="img" aria-label={`Score trend across ${chartPoints.length} sessions`}>
       {[100, 75, 50, 25, 0].map((value) => { const y = 52 + (100 - value) * 1.5; return <g key={value}><line x1="74" y1={y} x2="642" y2={y} /><text x="52" y={y + 4}>{value}%</text></g> })}<path className="progress-chart-area" d={area} /><polyline className="progress-chart-line" points={points} />{chartPoints.map((point) => <g key={`${point.x}-${point.label}`}><text className="progress-chart-score" x={point.x} y={point.y - 14}>{point.score}%</text><circle cx={point.x} cy={point.y} r="5" /><text className="progress-chart-date" x={point.x} y="226">{point.label}</text></g>)}</svg> : <div className="progress-empty">Complete an interview to see your score trend.</div>}</div>
-      <div className="card progress-panel"><h2>Performance by interview type</h2><p>Historical average across the completed sessions in your current filters</p><div className="progress-bars type-bars">{typeScores.map((item) => <ProgressBar key={item.label} {...item} />)}</div></div></div>
+      <div className="card progress-panel"><h2>Performance by interview type</h2><p>Historical average across all completed sessions</p><div className="progress-bars type-bars">{typeScores.map((item) => <ProgressBar key={item.label} {...item} />)}</div></div></div>
   </div></section>
 }

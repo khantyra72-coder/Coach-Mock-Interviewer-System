@@ -40,7 +40,7 @@ public class OpenRouterScoringService {
         this.model = model;
         this.fallbackScoringService = fallbackScoringService;
         this.httpClient = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(20))
+                .connectTimeout(Duration.ofSeconds(10))
                 .build();
     }
 
@@ -82,7 +82,7 @@ if (trimmedAnswer.length() < 20
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(baseUrl + "/chat/completions"))
-                    .timeout(Duration.ofSeconds(120))
+                    .timeout(Duration.ofSeconds(25))
                     .header("Authorization", "Bearer " + apiKey)
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(

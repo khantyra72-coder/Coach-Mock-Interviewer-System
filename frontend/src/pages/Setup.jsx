@@ -46,7 +46,7 @@ const COMPANY_LOGOS = {
 }
 
 const QUESTION_COUNTS = ['5', '10', '15']
-const SESSION_LENGTHS = [15, 30, 45, 60]
+const SESSION_LENGTHS = [30, 45, 60]
 
 const ROLE_TOPICS = {
   'Software Engineer':       ['Data Structures', 'Algorithms', 'OOP', 'System Design', 'Databases', 'Problem Solving'],
@@ -218,7 +218,7 @@ export default function Setup() {
                       className={`chip${questionCount === q ? ' sel' : ''}`}
                       onClick={() => {
                         setQuestionCount(q)
-                        setSessionDurationMinutes(Number(q) * 3)
+                        setSessionDurationMinutes(Math.max(30, Number(q) * 3))
                       }}
                       aria-pressed={questionCount === q}
                     >

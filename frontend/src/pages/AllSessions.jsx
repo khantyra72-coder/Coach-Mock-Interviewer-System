@@ -96,6 +96,14 @@ function average(items) {
   return Math.round(items.reduce((sum, item) => sum + item.score, 0) / items.length)
 }
 
+function includesInterviewType(session, interviewType) {
+  const declaredTypes = Array.isArray(session.types)
+    ? session.types
+    : String(session.type || '').split(',')
+
+  return declaredTypes.some((type) => type.trim() === interviewType)
+}
+
 function splitText(value, fallback) {
   if (!value) return fallback ? [fallback] : []
   return value
@@ -269,7 +277,7 @@ export default function AllSessions() {
     const filteredSessions = sessions.filter((session) => {
       if (selectedRole && session.role !== selectedRole) return false
       if (roleFilter !== 'All roles' && session.role !== roleFilter) return false
-      if (typeFilter !== 'All interview types' && session.type !== typeFilter) return false
+      if (typeFilter !== 'All interview types' && !includesInterviewType(session, typeFilter)) return false
       if (companyFilter !== 'All companies' && session.company !== companyFilter) return false
       if (!query) return true
       return [session.date, session.role, session.type, session.company]

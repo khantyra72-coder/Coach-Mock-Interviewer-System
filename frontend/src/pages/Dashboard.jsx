@@ -37,6 +37,50 @@ const ROLE_ICONS = {
   'Data Scientist': BarChart3,
 }
 
+function resultForSession(session, details) {
+  try {
+    const saved = details.result?.resultDetails
+      ? JSON.parse(details.result.resultDetails)
+      : null
+    if (saved?.questions) {
+      return {
+        ...saved,
+        id: session.id,
+        completedAt: session.completedAt || session.startedAt,
+      }
+    }
+  } catch {
+    // Older sessions may not contain the serialized frontend result.
+  }
+
+  const answers = details.answers || []
+  const result = details.result || {}
+  return {
+    id: session.id,
+    completedAt: session.completedAt || session.startedAt,
+    role: session.role,
+    company: session.company || 'Not specified',
+    type: session.interviewType || 'Technical',
+    answeredCount: answers.length,
+    questionCount: answers.length,
+    overallScore: result.overallScore ?? 0,
+    message: result.summaryFeedback || 'Interview completed.',
+    breakdown: [],
+    topStrengths: (result.strengths || 'Completed the interview').split(';').map((item) => item.trim()).filter(Boolean),
+    topImprovements: (result.improvements || 'Continue practising').split(';').map((item) => item.trim()).filter(Boolean),
+    questions: answers.map((answer, index) => ({
+      n: index + 1,
+      questionId: answer.questionId,
+      text: answer.questionText,
+      answer: answer.answerText,
+      score: answer.score,
+      strengths: (answer.coveredConcepts || '').split(';').map((item) => item.trim()).filter(Boolean),
+      weaknesses: (answer.missingConcepts || '').split(';').map((item) => item.trim()).filter(Boolean),
+      suggestion: answer.feedback || 'Review the rubric feedback for this answer.',
+    })),
+  }
+}
+
 function getRoleStatus(roleSessions) {
   const lastScore = roleSessions[0]?.score ?? 0
   const previousScore = roleSessions[1]?.score ?? null
@@ -81,6 +125,7 @@ export default function Dashboard() {
           return {
             ...session,
             score: details.result?.overallScore ?? 0,
+            result: resultForSession(session, details),
           }
         })
       )
@@ -172,6 +217,7 @@ const roleSummaries = roleNames.map((role) => {
     interviews: roleSessions.length,
     average: `${roleAverage}%`,
     last: `${lastScore}%`,
+    latestResult: roleSessions[0]?.result,
   }
 })
 
@@ -240,7 +286,12 @@ const roleSummaries = roleNames.map((role) => {
               </div>
               <div className="rc-actions">
                 <button className="btn prime" onClick={() => navigate('/setup', { state: { role: r.name } })}>Practice</button>
-                <button className="btn ghost" onClick={() => navigate('/progress')}>Details</button>
+                <button
+                  className="btn ghost"
+                  onClick={() => navigate('/results', { state: { result: r.latestResult } })}
+                >
+                  Details
+                </button>
               </div>
             </Reveal>
           ))}

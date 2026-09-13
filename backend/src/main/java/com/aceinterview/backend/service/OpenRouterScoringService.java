@@ -374,6 +374,7 @@ public class OpenRouterScoringService {
         try {
             evaluation = evaluate(question, criteria, answer);
         } catch (IllegalStateException exception) {
+            System.err.println("⚠️ AI API Failed! Falling back to Local Scorer. Reason: " + exception.getMessage());
             return fallbackScoringService.score(question, criteria, answer);
         }
 
